@@ -5,34 +5,35 @@
 
 %% 
 tic
-X = [words_train; words_test];
+X = [words_train, image_features_train; words_test, image_features_test];
 Y = genders_train;
-folds = 10;
+folds = 8;
 [n m] = size(words_train);
 
-% ----Generate PCA
+% ----
+% disp('Generate PCA');
 % [coef, scores, eigens] = pca(X);
-% 
 % plot(cumsum(eigens)/sum(eigens));
 % save('coef.mat', 'coef');
 % save('scores.mat', 'scores');
 % save('eigens.mat', 'eigens');
 % ----
-
-% ---- Load PCA
+toc
+% ----
+% disp('Load PCA');
 % load('coef.mat', 'coef');
 % load('scores.mat', 'scores');
 % load('eigens.mat', 'eigens');
 % ---- 
-
+toc
 
 
 % ---- Use following code to search for the best number of PC to include
 % -- for training:
-
+% disp('Search for the best number of PC');
 % acc = []
-% for i = 1:40
-%     X = scores(1:n, 1:i*20);
+% for i = 1:80
+%     X = scores(1:n, 1:10*i);
 %     toc
 %     [accuracy, Ypredicted, Ytest] = cross_validation(X, Y, folds, @linear_regression);
 %     toc
@@ -42,11 +43,11 @@ folds = 10;
 % end
 % 
 % plot(acc);
+% toc
 
 
-
-% I find that 320 principal components work best.
-
+% I found that 320 principal components work best.
+disp('linear regression + cross-validation');
 X = scores(1:n, 1:320);
 toc
 [accuracy, Ypredicted, Ytest] = cross_validation(X, Y, folds, @linear_regression);

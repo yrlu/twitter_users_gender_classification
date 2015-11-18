@@ -1,3 +1,7 @@
+% Author: Max Lu
+% Date: Nov 17
+
+
 function [accuracy, Ypredicted, Ytest] = cross_validation(X, Y, folds, classifier)
 
 [n ~] = size(X);

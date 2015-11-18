@@ -1,3 +1,7 @@
+% Author: Max Lu
+% Date: Nov 17
+
+
 %% Read data and save them to corresponding .mat files.
 
 % Training data
