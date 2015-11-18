@@ -117,18 +117,18 @@ toc
 
 
 % % ----------Adaboost
-X = scores(1:n, 1:3200);
-disp('Adaboost + cross-validation');
-[accuracy, Ypredicted, Ytest] = cross_validation(X, Y, 4, @adaboost);
-accuracy
-mean(accuracy)
-toc
-% -------------
-% disp('Adaboost - start creating test labels');
-% trainX = scores(1:n, 1:3200);
-% testX = scores(n+1:size(scores,1), 1:3200);
-% [Yhat] = adaboost(trainX, Y, testX, ones(size(testX, 1),1));
+% X = scores(1:n, 1:3200);
+% disp('Adaboost + cross-validation');
+% [accuracy, Ypredicted, Ytest] = cross_validation(X, Y, 4, @adaboost);
+% accuracy
+% mean(accuracy)
 % toc
+% -------------
+disp('Adaboost + ');
+trainX = scores(1:n, 1:3200);
+testX = scores(n+1:size(scores,1), 1:3200);
+[Yhat] = adaboost(trainX, Y, testX, ones(size(testX, 1),1));
+toc
 
 
 

@@ -17,5 +17,8 @@ for i = 1:folds
    Ytest = [Ytest;testY];
    [Yhat] = classifier(trainX, trainY, testX, testY);
    Ypredicted = [Ypredicted;Yhat];
-   accuracy = [accuracy, sum(Yhat==testY)/size(testY,1)];
+   acc =sum(Yhat==testY)/size(testY,1);
+   accuracy = [accuracy, acc];
+   i
+   acc
 end
