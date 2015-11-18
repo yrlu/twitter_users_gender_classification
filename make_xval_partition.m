@@ -14,7 +14,7 @@ function [part] = make_xval_partition(n, n_folds)
 
 permutations = randperm(n);
 part = mod(permutations, n_folds)+1;
-part = part'
+part = part';
 %     part = zeros(n, 1);
 %     
 %     fold = 0;
