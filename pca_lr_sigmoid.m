@@ -57,8 +57,8 @@ mean(accuracy)
 toc
 
 % % logistic regression
-% X = scores(1:n, 1:2000);
-% addpath('./liblinear');
+X = scores(1:n, 1:2000);
+addpath('./liblinear');
 % disp('logistic regression + cross-validation');
 % toc
 % [accuracy, Ypredicted, Ytest] = cross_validation(X, Y, 4, @logistic);
@@ -67,13 +67,21 @@ toc
 % mean(accuracy)
 % toc
 
+trainX = scores(1:n, 1:2000);
+testX = scores(n+1:size(scores,1), 1:2000);
+model = train(Y, sparse(trainX), ['-s 0', 'col']);
+[Yhat] = predict(ones(size(testX, 1),1), sparse(testX), model, ['-q', 'col']);
+
+% model = train(train_y, sparse(train_x), ['-s 0', 'col']);
+% [Yhat] = predict(test_y, sparse(test_x), model, ['-q', 'col']);
+
 
 % SVM
-X = scores(1:n, 1:150);
-addpath('./libsvm');
-disp('SVM + Cross-validation');
-[accuracy, Ypredicted, Ytest] = cross_validation(X, Y, 4, @svm);
-toc
-accuracy
-mean(accuracy)
-toc
+% X = scores(1:n, 1:300);
+% addpath('./libsvm');
+% disp('SVM + Cross-validation');
+% [accuracy, Ypredicted, Ytest] = cross_validation(X, Y, 4, @svm);
+% toc
+% accuracy
+% mean(accuracy)
+% toc

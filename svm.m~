@@ -13,16 +13,16 @@ function [Yhat] = svm(train_x, train_y, test_x, test_y)
 crange = 10.^[-10:2:3];
 % acc=zeros(numel(crange),1);
 for i = 1:numel(crange)
-    model = svmtrain(train_y, train_x, sprintf('-t 2 -c %g', crange(i)));
+    model = svmtrain(train_y, train_x, sprintf('-t 2 -g 0.07 -c %g', crange(i)));
+    acc(i)
     [yhat acc vals] = svmpredict(test_y, test_x, model);
-    accur(i) = sum(yhat == test_y)/size(test_y,1);
+
 end
-accur
-[~, bestc] = max(accur);
+[~, bestc] = max(acc);
 fprintf('Cross-val chose best C = %g\n', crange(bestc));
 
 % Train and evaluate SVM classifier using libsvm
-model = svmtrain(train_y, train_x, sprintf('-t 2 -c %g', crange(bestc)));
+model = svmtrain(train_y, train_x, sprintf('-t 2 -g 0.07 -c %g', crange(bestc)));
 [yhat acc vals] = svmpredict(test_y, test_x, model);
 
 Yhat = yhat;
