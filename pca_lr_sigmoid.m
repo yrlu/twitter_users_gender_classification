@@ -2,10 +2,21 @@
 % Date: Nov 17
 
 %% Load the data first, see data_preprocess.m
+load('train/genders_train.mat', 'genders_train');
+load('train/images_train.mat', 'images_train');
+load('train/image_features_train.mat', 'image_features_train');
+load('train/words_train.mat', 'words_train');
+load('test/images_test.mat', 'images_test');
+load('test/image_features_test.mat', 'image_features_test');
+load('test/words_test.mat', 'words_test');
+load('coef.mat', 'coef');
+load('scores.mat', 'scores');
+load('eigens.mat', 'eigens');
 
 %% 
 tic
 X = [words_train, image_features_train; words_test, image_features_test];
+% X = normc(X);
 Y = genders_train;
 folds = 8;
 [n m] = size(words_train);
@@ -41,7 +52,7 @@ toc
 %     mean(accuracy)
 %     acc = [acc ; mean(accuracy)];
 % end
-% 
+
 % plot(acc);
 % toc
 
@@ -49,28 +60,55 @@ toc
 % I found that 320 principal components work best.
 disp('linear regression + cross-validation');
 X = scores(1:n, 1:320);
-toc
 [accuracy, Ypredicted, Ytest] = cross_validation(X, Y, folds, @linear_regression);
-toc
 accuracy
 mean(accuracy)
 toc
 
+% Linear regression model
+% Wmap = inv(X'*X+eye(size(X,2))*1e-4) * (X')* Y;
+% Yhat = sigmf(testX*Wmap, [2 0])>0.5;
+
 % % logistic regression
-X = scores(1:n, 1:2000);
-addpath('./liblinear');
+% X = scores(1:n, 1:2000);
+% addpath('./liblinear');
 % disp('logistic regression + cross-validation');
-% toc
 % [accuracy, Ypredicted, Ytest] = cross_validation(X, Y, 4, @logistic);
-% toc
 % accuracy
 % mean(accuracy)
 % toc
 
-trainX = scores(1:n, 1:2000);
-testX = scores(n+1:size(scores,1), 1:2000);
-model = train(Y, sparse(trainX), ['-s 0', 'col']);
-[Yhat] = predict(ones(size(testX, 1),1), sparse(testX), model, ['-q', 'col']);
+% LogisticModel
+% model = train(train_y, sparse(train_x), ['-s 0', 'col']);
+% [Yhat] = predict(test_y, sparse(test_x), model, ['-q', 'col']);
+
+
+
+
+% adaboost:
+% disp('adaboost + logistic regression ');
+% X = scores(1:n, 1:2000);
+% ClassTreeEns = fitensemble(X,Y,'LogitBoost',200,'Tree');
+% rsLoss = resubLoss(ClassTreeEns,'Mode','Cumulative');
+% plot(rsLoss);
+% xlabel('Number of Learning Cycles');
+% ylabel('Resubstitution Loss');
+
+% 
+X = scores(1:n, 1:500);
+disp('adaboost + logistic regression + cross-validation');
+[accuracy, Ypredicted, Ytest] = cross_validation(X, Y, 4, @adaboost);
+accuracy
+mean(accuracy)
+toc
+
+
+
+
+% trainX = scores(1:n, 1:2000);
+% testX = scores(n+1:size(scores,1), 1:2000);
+% model = train(Y, sparse(trainX), ['-s 0', 'col']);
+% [Yhat] = predict(ones(size(testX, 1),1), sparse(testX), model, ['-q', 'col']);
 
 % model = train(train_y, sparse(train_x), ['-s 0', 'col']);
 % [Yhat] = predict(test_y, sparse(test_x), model, ['-q', 'col']);
