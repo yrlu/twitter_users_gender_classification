@@ -29,3 +29,8 @@ end
 accuracy
 mean(accuracy)
 
+
+
+
+%% Linear Regression + Sigmoid Function + PCA  70%
+ [accuracy, Ypredicted, Ytest] = cross_validation(words_train, genders_train, 5, @linear_regression);

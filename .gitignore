@@ -1,3 +1,4 @@
 test/*
 train/*
 .DS_Store
+*.mat
