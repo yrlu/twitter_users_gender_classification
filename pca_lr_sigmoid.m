@@ -54,3 +54,18 @@ toc
 toc
 accuracy
 mean(accuracy)
+toc
+
+X = scores(1:n, 1:2000);
+% logistic regression
+addpath('./liblinear');
+disp('logistic regression + cross-validation');
+toc
+[accuracy, Ypredicted, Ytest] = cross_validation(X, Y, 4, @logistic);
+toc
+accuracy
+mean(accuracy)
+toc
+
+
+
