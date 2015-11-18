@@ -15,7 +15,7 @@ for i = 1:folds
    testX = X(parts==i, :);
    testY = Y(parts==i);
    Ytest = [Ytest;testY];
-   [Yhat] = classifier(trainX, trainY, testX);
+   [Yhat] = classifier(trainX, trainY, testX, testY);
    Ypredicted = [Ypredicted;Yhat];
    accuracy = [accuracy, sum(Yhat==testY)/size(testY,1)];
 end

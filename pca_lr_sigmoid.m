@@ -56,16 +56,24 @@ accuracy
 mean(accuracy)
 toc
 
-X = scores(1:n, 1:2000);
-% logistic regression
-addpath('./liblinear');
-disp('logistic regression + cross-validation');
-toc
-[accuracy, Ypredicted, Ytest] = cross_validation(X, Y, 4, @logistic);
+% % logistic regression
+% X = scores(1:n, 1:2000);
+% addpath('./liblinear');
+% disp('logistic regression + cross-validation');
+% toc
+% [accuracy, Ypredicted, Ytest] = cross_validation(X, Y, 4, @logistic);
+% toc
+% accuracy
+% mean(accuracy)
+% toc
+
+
+% SVM
+X = scores(1:n, 1:150);
+addpath('./libsvm');
+disp('SVM + Cross-validation');
+[accuracy, Ypredicted, Ytest] = cross_validation(X, Y, 4, @svm);
 toc
 accuracy
 mean(accuracy)
 toc
-
-
-
