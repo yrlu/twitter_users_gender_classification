@@ -75,13 +75,21 @@ toc
 
 % % logistic regression
 
-% X = scores(1:n, 1:3200);
+% X = scores(1:n, 1:4800);
 % addpath('./liblinear');
 % disp('logistic regression + cross-validation');
-% [accuracy, Ypredicted, Ytest] = cross_validation(X, Y, 8, @logistic);
+% [accuracy, Ypredicted, Ytest] = cross_validation(X, Y, 4, @logistic);
 % accuracy
 % mean(accuracy)
 % toc
+
+
+trainX = scores(1:n, 1:4800);
+testX = scores(n+1:size(scores,1), 1:4800);
+model = train(Y, sparse(trainX), ['-s 0', 'col']);
+[Yhat] = predict(ones(size(testX, 1),1), sparse(testX), model, ['-q', 'col']);
+dlmwrite('submit.txt',Yhat,'\n');
+
 
 
 
@@ -124,13 +132,6 @@ toc
 % mean(accuracy)
 % toc
 
-
-
-trainX = scores(1:n, 1:3200);
-testX = scores(n+1:size(scores,1), 1:3200);
-model = train(Y, sparse(trainX), ['-s 0', 'col']);
-[Yhat] = predict(ones(size(testX, 1),1), sparse(testX), model, ['-q', 'col']);
-% dlmwrite('submit.txt',Yhat,'\n');
 
 
 % model = train(train_y, sparse(train_x), ['-s 0', 'col']);
