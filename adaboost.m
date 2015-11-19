@@ -13,6 +13,7 @@ Y = train_y;
 Wmap = inv(X'*X+eye(size(X,2))*1e-4) * (X')* Y;
 LRpredict = @(test_x) sigmf(test_x*Wmap, [2 0])>0.5;
 % Yhat = sigmf(test_x*Wmap, [2 0])>0.5;
+% Just call: linear_regression(train_x,train_y,test_x,test_y);
 
 % train a logistic regression classifier
 % trainX = scores(1:n, 1:3200);

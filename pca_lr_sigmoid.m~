@@ -1,8 +1,13 @@
 % Author: Max Lu
 % Date: Nov 17
+% Modified by D.W
 
+% add lib path:
+addpath('./liblinear');
 
-%% Load the data first, see data_preprocess.m
+% Load the data first, see prepare_data.
+if exist('genders_train','var')~= 1
+prepare_data;
 load('train/genders_train.mat', 'genders_train');
 load('train/images_train.mat', 'images_train');
 load('train/image_features_train.mat', 'image_features_train');
@@ -10,20 +15,34 @@ load('train/words_train.mat', 'words_train');
 load('test/images_test.mat', 'images_test');
 load('test/image_features_test.mat', 'image_features_test');
 load('test/words_test.mat', 'words_test');
-load('coef.mat', 'coef');
-load('scores.mat', 'scores');
-load('eigens.mat', 'eigens');
+end
 
-% add lib path:
-addpath('./liblinear');
-
-%% 
-tic
-X = [words_train, image_features_train; words_test, image_features_test];
+% Prepare/Load PCA-ed data,  
+if exist('eigens','var')~= 1
+    if exist('coef.mat','file') ~= 2 
+        X = [words_train, image_features_train; words_test, image_features_test]; 
+        [coef, scores, eigens] = pca(X);
+        save('coef.mat', 'coef');
+        save('scores.mat', 'scores');
+        save('eigens.mat', 'eigens');
+    else 
+        load('coef.mat', 'coef');
+        load('scores.mat', 'scores');
+        load('eigens.mat', 'eigens');
+    end
+end
 % X = normc(X);
 Y = genders_train;
 folds = 8;
 [n m] = size(words_train);
+
+
+%% 
+% X = [words_train, image_features_train; words_test, image_features_test];
+% % X = normc(X);
+% Y = genders_train;
+% folds = 8;
+% [n m] = size(words_train);
 
 % ----
 % disp('Generate PCA');
@@ -33,18 +52,19 @@ folds = 8;
 % save('scores.mat', 'scores');
 % save('eigens.mat', 'eigens');
 % ----
-toc
+%toc
 % ----
 % disp('Load PCA');
 % load('coef.mat', 'coef');
 % load('scores.mat', 'scores');
 % load('eigens.mat', 'eigens');
 % ---- 
-toc
+%toc
 
-
+%%
 % ---- Use following code to search for the best number of PC to include
 % -- for training:
+% tic
 % disp('Search for the best number of PC');
 % acc = []
 % for i = 1:80
@@ -56,18 +76,19 @@ toc
 %     mean(accuracy)
 %     acc = [acc ; mean(accuracy)];
 % end
-
+% 
 % plot(acc);
 % toc
 
 
 % I found that 320 principal components work best.
-disp('linear regression + cross-validation');
-X = scores(1:n, 1:320);
-[accuracy, Ypredicted, Ytest] = cross_validation(X, Y, folds, @linear_regression);
-accuracy
-mean(accuracy)
-toc
+% Notes: I found 370 were the best. -D.W Nov 19.
+% disp('linear regression + cross-validation');
+% X = scores(1:n, 1:320);
+% [accuracy, Ypredicted, Ytest] = cross_validation(X, Y, folds, @linear_regression);
+% accuracy
+% mean(accuracy)
+% toc
 
 % Linear regression model
 % Wmap = inv(X'*X+eye(size(X,2))*1e-4) * (X')* Y;
@@ -115,20 +136,20 @@ toc
 
 
 
-
+%%
 % % ----------Adaboost
-% X = scores(1:n, 1:3200);
-% disp('Adaboost + cross-validation');
-% [accuracy, Ypredicted, Ytest] = cross_validation(X, Y, 4, @adaboost);
-% accuracy
-% mean(accuracy)
-% toc
-% -------------
-disp('Adaboost + ');
-trainX = scores(1:n, 1:3200);
-testX = scores(n+1:size(scores,1), 1:3200);
-[Yhat] = adaboost(trainX, Y, testX, ones(size(testX, 1),1));
+X = scores(1:n, 1:3200);
+disp('Adaboost + cross-validation');
+[accuracy, Ypredicted, Ytest] = cross_validation(X, Y, 4, @adaboost);
+accuracy
+mean(accuracy)
 toc
+% -------------
+% disp('Adaboost - start creating test labels');
+% trainX = scores(1:n, 1:3200);
+% testX = scores(n+1:size(scores,1), 1:3200);
+% [Yhat] = adaboost(trainX, Y, testX, ones(size(testX, 1),1));
+% toc
 
 
 

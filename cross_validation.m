@@ -4,7 +4,7 @@
 
 function [accuracy, Ypredicted, Ytest] = cross_validation(X, Y, folds, classifier)
 
-[n ~] = size(X);
+[n, ~] = size(X);
 [parts] = make_xval_partition(n, folds);
 Ypredicted = [];
 accuracy = [];
@@ -19,6 +19,6 @@ for i = 1:folds
    Ypredicted = [Ypredicted;Yhat];
    acc =sum(Yhat==testY)/size(testY,1);
    accuracy = [accuracy, acc];
-   i
-   acc
+   %i
+   %acc
 end
