@@ -1,9 +1,9 @@
 % Author: Max Lu
 % Date: Nov 20
-% Nov 20 Update: use plain features 8 folds cross validation-> 86.63%
 
-% add lib path:
-addpath('./liblinear');
+
+%% load data first ..
+
 
 % Load the data first, see prepare_data.
 if exist('genders_train','var')~= 1
@@ -31,23 +31,25 @@ if exist('eigens','var')~= 1
         load('eigens.mat', 'eigens');
     end
 end
-% X = normc(X);
-Y = genders_train;
-[n m] = size(words_train);
+
 
 
 %%
+[n m] = size(words_train);
 X = [words_train, image_features_train; words_test, image_features_test];
-% % X = normc(X);
 Y = genders_train;
 
-
 % PCA features
-% X = scores(1:n, 1:3200);
-X = X(1:n, :);
-addpath('./liblinear');
-disp('logistic regression + cross-validation');
-[accuracy, Ypredicted, Ytest] = cross_validation(X, Y, 8, @logistic);
+X = scores(1:n, 1:4900);
+% X = X(1:n,:);
+
+% add 2 more samples to make n = 5000;
+X = [X;X(1,:);X(1,:)];
+Y = [Y;Y(1,:);Y(1,:)];
+% X = normc(X);
+
+disp('Adaboost + cross-validation');
+[accuracy, Ypredicted, Ytest] = cross_validation(X, Y, 5, @adaboost);
 accuracy
 mean(accuracy)
 toc
