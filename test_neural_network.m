@@ -1,5 +1,6 @@
 % Author: Max Lu
 % Date: Nov 19
+% Nov 20 update: plain feature + neural network -> 86.01% on test set.
 
 % add lib path:
 addpath('./liblinear');
