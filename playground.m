@@ -27,21 +27,15 @@ if exist('eigens','var')~= 1
     end
 end
 
-%% 
-% X = scores(1:n, 1:300);
-% X= X(1:n,:);
-% X = scores; % +++ PCA 
-% Y = genders_train;
+
+%% playground
 Y = genders_train;
-n = size(genders_train,1);
+X = words_train;
+% boolean -> 
+% X = words_train > 0;
 
-%% Play with SVM
-% Ref: https://www.csie.ntu.edu.tw/~cjlin/papers/guide/guide.pdf
-
-% Transform data to the format of an SVM package
-% Vector of reals; 
-% Scaling (avoid greater numerics domination)to [0,1];
-X = [words_train, image_features_train; words_test, image_features_test];
+%% normalization
+% X = [words_train, image_features_train; words_test, image_features_test];
 
 % Conduct simple scaling on the data [0,1]
 sizeX= size(X,1);
@@ -49,27 +43,20 @@ Xnorm = (X - repmat(min(X),sizeX,1))./repmat(range(X),sizeX,1);
 % Caution, remove uninformative NaN data % for nan - columns
 Xcl = Xnorm(:,all(~isnan(Xnorm)));   
 
-%% Test normailized PCA
-% [coefNor, scoresNor, eigensNor] = pca(Xcl);
-% Does no better
-%
+  
+%%
+[accuracy, Ypredicted, Ytest] = cross_validation(X, Y, 4, @predict_MNNB);
+mean(accuracy)
 
 %%
-%Consider the RBF kernel with 
-% add lib path:
-addpath('./libsvm');
-
-X = scores(1:n, 1:320);
-Y = genders_train;
-X = sparse(X);
-[accuracy, Ypredicted, Ytest] = cross_validation(X, Y, 4, @kernel_libsvm);
-accuracy
-mean(accuracy)
-toc
+mdl = @(trainX, trainY, testX, testY) predict(fitcknn(trainX,trainY, 'Distance','minkowski', 'Exponent',3, 'NumNeighbors',30),testX);
+[accuracy, Ypredicted, Ytest] = cross_validation(X, Y, 4, mdl);
 
 %% 
-X = sparse(new_feat);
-[accuracy, Ypredicted, Ytest] = cross_validation(X, Y, 4, @kernel_libsvm);
+mdl = @(trainX, trainY, testX, testY) predict(fitcknn(trainX,trainY, 'NumNeighbors',30),testX);
+[accuracy, Ypredicted, Ytest] = cross_validation(X, Y, 4, mdl);
 
 
-%Use cross-validation to find the best parameter C and r 
+%%
+mdl2 = @(train_x,train_y,test_x,test_y) k_means(train_x,train_y,test_x,test_y, 10);
+cross_validation(X, Y, 4, mdl2);
