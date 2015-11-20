@@ -1,6 +1,13 @@
 %% data loading:
 %% Load the data first, see data_preprocess.m
 
+% KNN
+mdl = @(trainX, trainY, testX, testY) sign(predict(fitcknn(trainX,trainY, 'NumNeighbors',11),testX)-0.5);
+
+%%
+mdl2 = @(trainX, trainY, testX, testY) sign(predict(fitNaiveBayes(trainX,trainY),testX)-0.5); %,'Distribution','mvmn')
+  
+%%
 if exist('genders_train','var')~= 1
 prepare_data;
 load('train/genders_train.mat', 'genders_train');
@@ -44,19 +51,52 @@ Xnorm = (X - repmat(min(X),sizeX,1))./repmat(range(X),sizeX,1);
 Xcl = Xnorm(:,all(~isnan(Xnorm)));   
 
   
-%%
+%% Naive Bayes 
 [accuracy, Ypredicted, Ytest] = cross_validation(X, Y, 4, @predict_MNNB);
 mean(accuracy)
 
-%%
+%% Distance Metric
 mdl = @(trainX, trainY, testX, testY) predict(fitcknn(trainX,trainY, 'Distance','minkowski', 'Exponent',3, 'NumNeighbors',30),testX);
 [accuracy, Ypredicted, Ytest] = cross_validation(X, Y, 4, mdl);
 
-%% 
+%% Normalize 
 mdl = @(trainX, trainY, testX, testY) predict(fitcknn(trainX,trainY, 'NumNeighbors',30),testX);
-[accuracy, Ypredicted, Ytest] = cross_validation(X, Y, 4, mdl);
+[accuracy, Ypredicted, Ytest] = cross_validation(Xcl, Y, 4, mdl);
 
+%% KNN ~Various N 
+acc = zeros(50,4);
+for i = 1:50
+    mdl = @(trainX, trainY, testX, testY) predict(fitcknn(trainX,trainY, 'NumNeighbors',i),testX);
+    [accuracy, Ypredicted, Ytest] = cross_validation(X, Y, 4, mdl);
+    acc(i,:) = accuracy;
+end
+plot acc;
+
+
+%% K-means with 10 clusters
+mdl2 = @(train_x,train_y,test_x,test_y) k_means(train_x,train_y,test_x,test_y, 10);
+[accuracy, ~, ~] = cross_validation(Xcl, Y, 4, mdl2);
+
+%% Kernel Regression
 
 %%
-mdl2 = @(train_x,train_y,test_x,test_y) k_means(train_x,train_y,test_x,test_y, 10);
-cross_validation(X, Y, 4, mdl2);
+folds = 4;
+disp('linear regression + auto-encoder');
+X = new_feat(1:n,:);
+[accuracy, Ypredicted, Ytest] = cross_validation(X, Y, folds, @linear_regression);
+accuracy
+mean(accuracy)
+
+%%
+addpath('./liblinear');
+disp('logistic regression + cross-validation');
+[accuracy, Ypredicted, Ytest] = cross_validation(X, Y, 4, @logistic);
+accuracy
+mean(accuracy)
+%%
+addpath('./liblinear');
+addpath('./libsvm');
+disp('logistic regression + cross-validation');
+[accuracy, Ypredicted, Ytest] = cross_validation(X, Y, 4, @kernel_libsvm);
+accuracy
+mean(accuracy)
