@@ -1,7 +1,6 @@
 % Author: Max Lu
 % Date: Nov 20
 
-
 %% load data first ..
 
 
@@ -33,39 +32,37 @@ if exist('eigens','var')~= 1
 end
 
 
-
 %%
+
+
 [n m] = size(words_train);
 X = [words_train, image_features_train; words_test, image_features_test];
 Y = genders_train;
 
-% PCA features
-% X = scores(1:n, 1:4900);
-X = X(1:n,:);
-
-% add 2 more samples to make n = 5000;
-X = [X;X(1,:);X(1,:)];
-Y = [Y;Y(1,:);Y(1,:)];
-% X = normc(X);
-
-disp('Adaboost + cross-validation');
-[accuracy, Ypredicted, Ytest] = cross_validation(X, Y, 5, @adaboost);
-accuracy
-mean(accuracy)
-toc
 
 
+parpool('local',1)
+countTests = 200;
+performances = zeros(1, countTests);
+% [x, t] = house_dataset;
+% x = X(1:n/2,:);
+% t = Y(1:n/2);
+% y = Y(n/2+1:n)
+x = sparse(X(1:n,:));
+t = Y(1:n);
 
+tStart = tic;
+for i = 1 : countTests,
+    net = fitnet(10);
+    net.trainFcn = 'trainscg';
+    net.trainParam.showWindow = false;
+    net = train(net, x', t', 'useParallel', 'yes', 'useGPU', 'only');
+    y = net(x');
+    per = perform(net, t', y);
+    performances(i) = per;
+end
+elapsedTime = toc(tStart);
+parpool close
 
-
-
-%% Generate Yhat:
-
-
-trainx = [words_train, image_features_train];
-trainy = genders_train;
-testx = [words_test, image_features_test];
-testy = ones(size(testx,1), 1);
-
-Yhat = adaboost(trainx, trainy, testx, testy);
-dlmwrite('submit.txt',Yhat,'\n');
+display(sprintf('Average performance: %.1f', mean(performances)));
+display(sprintf('Elapsed time: %.1f seconds', elapsedTime));
