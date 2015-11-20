@@ -38,8 +38,9 @@ n = size(genders_train,1);
 % Transform data to the format of an SVM package
 % Vector of reals; 
 % Scaling (avoid greater numerics domination)to [-1,1];
-% X = [words_train, image_features_train; words_test, image_features_test];
-X = scores; 
+X = [words_train, image_features_train; words_test, image_features_test];
+Xtrain = X(1:n,:);
+% X = scores; % +++ PCA 
 % Y = genders_train;
 % Conduct simple scaling on the data [-1,1]
 Xnorm = (X - repmat(min(X),9995,1))./repmat(range(X),9995,1);
@@ -63,5 +64,10 @@ X = sparse(X);
 accuracy
 mean(accuracy)
 toc
+
+%% 
+X = sparse(new_feat);
+[accuracy, Ypredicted, Ytest] = cross_validation(X, Y, 4, @kernel_libsvm);
+
 
 %Use cross-validation to find the best parameter C and r 
