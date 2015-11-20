@@ -8,15 +8,21 @@ train_y = [Y, ~Y];
 test_x = testX;
 
 rand('state',0);
-nn = nnsetup([size(X,2) 100 2]);
-% nn.weightPenaltyL2 = 1e-2;  %  L2 weight decay
-opts.numepochs =  50;        %  Number of full sweeps through data
-opts.batchsize = 100;       %  Take a mean gradient step over this many samples
+nn = nnsetup([size(X,2) 100 50 2]);
+nn.learningRate = 5;
+% nn.momentum    = 0;  
+nn.activation_function = 'sigm';
+nn.weightPenaltyL2 = 1e-2;  %  L2 weight decay
+nn.scaling_learningRate = 0.9;
+% nn.dropoutFraction     = 0.1;
+% nn.nonSparsityPenalty = 0.001;
+opts.numepochs = 300;        %  Number of full sweeps through data
+opts.batchsize = 200;       %  Take a mean gradient step over this many samples
 
 [nn loss] = nntrain(nn, train_x, train_y, opts);
 % new_feat = nnpredict(nn, train_x);
 Yhat = nnpredict(nn, test_x);
-Yhat = ~(Yhat-1)
+Yhat = ~(Yhat-1);
 end
 
 

@@ -39,8 +39,8 @@ X = [words_train, image_features_train; words_test, image_features_test];
 Y = genders_train;
 
 % PCA features
-X = scores(1:n, 1:500);
-% X = X(1:n,:);
+% X = scores(1:n, 1:2000);
+X = X(1:n,:);
 
 X = [X;X(1,:);X(1,:)];
 Y = [Y;Y(1,:);Y(1,:)];
