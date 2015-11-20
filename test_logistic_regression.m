@@ -46,7 +46,7 @@ Y = genders_train;
 X = X(1:n, :);
 addpath('./liblinear');
 disp('logistic regression + cross-validation');
-[accuracy, Ypredicted, Ytest] = cross_validation(X, Y, 4, @logistic);
+[accuracy, Ypredicted, Ytest] = cross_validation(X, Y, 8, @logistic);
 accuracy
 mean(accuracy)
 toc
