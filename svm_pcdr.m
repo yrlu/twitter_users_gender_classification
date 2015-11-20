@@ -29,6 +29,9 @@ end
 
 %% 
 % X = scores(1:n, 1:300);
+% X= X(1:n,:);
+% X = scores; % +++ PCA 
+% Y = genders_train;
 Y = genders_train;
 n = size(genders_train,1);
 
@@ -37,13 +40,12 @@ n = size(genders_train,1);
 
 % Transform data to the format of an SVM package
 % Vector of reals; 
-% Scaling (avoid greater numerics domination)to [-1,1];
+% Scaling (avoid greater numerics domination)to [0,1];
 X = [words_train, image_features_train; words_test, image_features_test];
-Xtrain = X(1:n,:);
-% X = scores; % +++ PCA 
-% Y = genders_train;
-% Conduct simple scaling on the data [-1,1]
-Xnorm = (X - repmat(min(X),9995,1))./repmat(range(X),9995,1);
+
+% Conduct simple scaling on the data [0,1]
+sizeX= size(X,1);
+Xnorm = (X - repmat(min(X),sizeX,1))./repmat(range(X),sizeX,1);
 % Caution, remove uninformative NaN data % for nan - columns
 Xcl = Xnorm(:,all(~isnan(Xnorm)));   
 
