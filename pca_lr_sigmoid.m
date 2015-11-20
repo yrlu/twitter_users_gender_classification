@@ -82,7 +82,6 @@ Y = genders_train;
 
 
 % I found that 320 principal components work best.
-% Notes: I found 370 were the best. -D.W Nov 19.
 % disp('linear regression + cross-validation');
 % X = scores(1:n, 1:320);
 % [accuracy, Ypredicted, Ytest] = cross_validation(X, Y, folds, @linear_regression);
@@ -189,6 +188,9 @@ toc
 % toc
 
 %% Autoencoder -test with built-in
-autoenc = trainAutoencoder(X);
+X = [words_train, image_features_train; words_test, image_features_test];
+% % X = normc(X);
+Y = genders_train;
+autoenc = trainAutoencoder(X,2000);
 XReconstructed = predict(autoenc,X);
 mseError = mse(X-XReconstructed);
