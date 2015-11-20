@@ -33,3 +33,4 @@ end
 % X = normc(X);
 Y = genders_train;
 [n m] = size(words_train);
+ 
