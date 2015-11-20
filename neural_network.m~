@@ -8,9 +8,8 @@ train_y = [Y, ~Y];
 test_x = testX;
 
 rand('state',0);
-nn = nnsetup([size(X,2) 100 50 2]);
+nn = nnsetup([size(X,2) 10 50 10 2]);
 nn.learningRate = 5;
-% nn.momentum    = 0;  
 nn.activation_function = 'sigm';
 nn.weightPenaltyL2 = 1e-2;  %  L2 weight decay
 nn.scaling_learningRate = 0.9;
