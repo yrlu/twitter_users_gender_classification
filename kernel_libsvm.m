@@ -11,7 +11,7 @@ function [test_err info] = kernel_libsvm(X, Y, Xtest, Ytest)
 
 % Use built-in libsvm cross validation to choose the C regularization
 % parameter.
-crange = 10.^[-10:2:3];
+crange = 2.^[-4:2:8];
 for i = 1:numel(crange) %% 10 fold CV, RBF
     acc(i) = svmtrain(Y, X, sprintf('-t 2 -v 10 -c %g', crange(i)));
 end

@@ -94,13 +94,13 @@ Y = genders_train;
 % Yhat = sigmf(testX*Wmap, [2 0])>0.5;
 
 % % ----------logistic regression
-% X = scores(1:n, 1:3200);
-% addpath('./liblinear');
-% disp('logistic regression + cross-validation');
-% [accuracy, Ypredicted, Ytest] = cross_validation(X, Y, 4, @logistic);
-% accuracy
-% mean(accuracy)
-% toc
+X = scores(1:n, 1:3200);
+addpath('./liblinear');
+disp('logistic regression + cross-validation');
+[accuracy, Ypredicted, Ytest] = cross_validation(X, Y, 4, @logistic);
+accuracy
+mean(accuracy)
+toc
 % -------------
 
 

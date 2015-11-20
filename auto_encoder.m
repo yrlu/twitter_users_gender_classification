@@ -1,6 +1,6 @@
 %% auto encoder
 addpath('./DL_toolbox/util','./DL_toolbox/NN','./DL_toolbox/DBN');
-% Xcl -normalized; 
+% Xcl -normalized Raw data
 Y = genders_train;
 n = size(genders_train,1);
 
@@ -19,7 +19,6 @@ X = new_feat;
 [accuracy, Ypredicted, Ytest] = cross_validation(X, Y, folds, @linear_regression);
 accuracy
 mean(accuracy)
-toc
 
 %%
 addpath('./liblinear');
@@ -28,4 +27,10 @@ disp('logistic regression + cross-validation');
 accuracy
 mean(accuracy)
 toc
-%
+%%
+addpath('./liblinear');
+disp('logistic regression + cross-validation');
+[accuracy, Ypredicted, Ytest] = cross_validation(X, Y, 4, @kernel_libsvm);
+accuracy
+mean(accuracy)
+toc
