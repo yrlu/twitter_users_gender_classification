@@ -1,3 +1,51 @@
+%% To Try %% 
+% -Look for trend in words data.. PCA -> cluster? Gaussian? 
+% -K-means for image features 
+
+% PCA on only the words data
+% wrap PCA in classifiers. 
+
+        
+%% playground
+Y = genders_train;
+X = words_train;
+% boolean -> 
+%% X = words_train > 0;
+[coef, scores, latent] = pca(X);
+
+%figure, plot(cumsum(latent)/sum(latent));
+plot(cumsum(latent)/sum(latent));
+xlabel('Number of Principal Components');
+ylabel('Reconstruction accuracy');
+% Set you numpc here
+% 90%: 25; 95%: 84; 99%: 512
+numpc = find(cumsum(latent)/sum(latent)>=0.9,1);
+
+
+%% 71.31+% minkowski; 72.13% euclidean
+X = scores(:,1:25);
+mdl = @(trainX, trainY, testX, testY) predict(fitcknn(trainX,trainY, 'NumNeighbors',30),testX);
+[accuracy, Ypredicted, Ytest] = cross_validation(X, Y, 4, mdl);
+mean(accuracy)
+
+%% fount 12 neighbors work the best. 
+X = scores(:,1:25);
+accu = zeros(30,1);
+for i = 1:50
+    mdl = @(trainX, trainY, testX, testY) predict(fitcknn(trainX,trainY, 'NumNeighbors',i),testX);
+    [accuracy, ~,~] = cross_validation(X, Y, 4, mdl);
+    accu(i) = mean(accuracy);
+end
+
+plot(accu)
+
+%% 71.43%
+X = scores(:,1:84);
+mdl = @(trainX, trainY, testX, testY) predict(fitcknn(trainX,trainY, 'Distance','minkowski', 'Exponent',3, 'NumNeighbors',30),testX);
+[accuracy, Ypredicted, Ytest] = cross_validation(X, Y, 4, mdl);
+mean(accuracy)
+
+
 %% Random Forest packed
 B = TreeBagger(95,trainX,trainY, 'Method', 'classification', 'OOBPred','On');
 RFpredict = @(test_x) sign(str2double(B.predict(test_x)) - 0.5);
@@ -32,11 +80,7 @@ if exist('eigens','var')~= 1
 end
 
 
-%% playground
-Y = genders_train;
-X = words_train;
-% boolean -> 
-% X = words_train > 0;
+
 
 %% normalization
 % X = [words_train, image_features_train; words_test, image_features_test];
