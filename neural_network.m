@@ -16,7 +16,7 @@ nn.weightPenaltyL2 = 1e-2;  %  L2 weight decay
 nn.scaling_learningRate = 0.9;
 % nn.dropoutFraction     = 0.1;
 % nn.nonSparsityPenalty = 0.001;
-opts.numepochs = 200;        %  Number of full sweeps through data
+opts.numepochs = 100;        %  Number of full sweeps through data
 opts.batchsize = 100;       %  Take a mean gradient step over this many samples
 
 [nn loss] = nntrain(nn, train_x, train_y, opts);

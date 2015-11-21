@@ -55,17 +55,44 @@ mean(accuracy)
 toc
 
 
+%% using adaboost and cross-validation to find a(t);
+
+[n m] = size(words_train);
+X = [words_train, image_features_train; words_test, image_features_test];
+Y = genders_train;
+
+% PCA features
+% X = scores(1:n, 1:4900);
+X = X(1:n,:);
+
+% add 2 more samples to make n = 5000;
+X = [X;X(1,:);X(1,:)];
+Y = [Y;Y(1,:);Y(1,:)];
+% X = normc(X);
+
+disp('Adaboost + cross-validation');
+[accuracy, Ypredicted, Ytest, at] = cross_validation_adaboost(X, Y, 5, @adaboost_predict);
+accuracy
+mean(accuracy)
+at
+toc
+
 
 
 
 
 %% Generate Yhat:
-
-
 trainx = [words_train, image_features_train];
 trainy = genders_train;
 testx = [words_test, image_features_test];
 testy = ones(size(testx,1), 1);
 
-Yhat = adaboost(trainx, trainy, testx, testy);
-dlmwrite('submit.txt',Yhat,'\n');
+
+
+%% Generate Yhat:
+
+% 
+
+% 
+% Yhat = adaboost(trainx, trainy, testx, testy);
+% dlmwrite('submit.txt',Yhat,'\n');
