@@ -3,7 +3,7 @@
 
 
 % Assuming we have all the data loaded into memory.
-function [Yhat] = adaboost(train_x, train_y, test_x, test_y)
+function [Yhat, a] = adaboost_predict(train_x, train_y, test_x, test_y)
 %     ClassTreeEns = fitensemble(train_x,train_y,'LogitBoost',200,'Tree');
 %     Yhat = predict(ClassTreeEns,test_x);
 addpath('./liblinear');
@@ -23,12 +23,12 @@ X = train_x;
 % Xcl = Xnorm(:,all(~isnan(Xnorm)));   
 Xcl = norml(X);
 
-NBModel = fitNaiveBayes(Xcl,train_y);%'Distribution','mvmn');
-NBPredict = @(test_x) sign(predict(NBModel,norml(test_x))-0.5);
+% NBModel = fitNaiveBayes(Xcl,train_y);%'Distribution','mvmn');
+% NBPredict = @(test_x) sign(predict(NBModel,norml(test_x))-0.5);
 
 % KNN
-KNNModel = fitcknn(train_x,train_y, 'NumNeighbors',11);
-KNNPredict = @(test_x) sign(predict(KNNModel,test_x)-0.5);
+% KNNModel = fitcknn(train_x,train_y, 'NumNeighbors',11);
+% KNNPredict = @(test_x) sign(predict(KNNModel,test_x)-0.5);
 
 
 
@@ -63,10 +63,12 @@ nn.weightPenaltyL2 = 1e-2;  %  L2 weight decay
 nn.scaling_learningRate = 0.9;
 % nn.dropoutFraction     = 0.1;
 % nn.nonSparsityPenalty = 0.001;
-opts.numepochs = 100;        %  Number of full sweeps through data
+opts.numepochs = 200;        %  Number of full sweeps through data
 opts.batchsize = 100;       %  Take a mean gradient step over this many samples
 
 [nn loss] = nntrain(nn, train_x, [Y, ~Y], opts);
+
+
 
 NNetPredict = @(test_x) sign(~(nnpredict(nn, test_x)-1) -0.5);
 
@@ -85,10 +87,15 @@ NNetPredict = @(test_x) sign(~(nnpredict(nn, test_x)-1) -0.5);
 % end
 
 
+% B = TreeBagger(95,train_x,train_y, 'Method', 'classification');
+% RFpredict = @(test_x) sign(str2double(B.predict(test_x)) - 0.5);
+
+
 [n m] = size(train_x);
 % T = 2;
 % Hx = cell(T, 1);
-Hx = {NNetPredict, NBPredict, KNNPredict,LogRpredict};
+Hx = {LogRpredict};
+
 T = size(Hx, 2);
 % Hx = {LRpredict, LogRpredict, LogRpredict2, LogRpredict3, LogRpredict4,LogRpredict5,LogRpredict6,LogRpredict7,LogRpredict8};
 Di = ones(size(test_x,1), T)/size(test_x,1);
@@ -98,16 +105,19 @@ train_y = sign(train_y-0.5);
 test_y = sign(test_y-0.5);
 for t = 1:T
     t
+    yhat = Hx{t}(test_x);
     if t~=1
-        Di(:,t) = (Di(:,t-1).*exp(-a(t-1)*(test_y.*Hx{t}(test_x))))/Z(t-1);
+        Di(:,t) = (Di(:,t-1).*exp(-a(t-1)*(test_y.*yhat)))/Z(t-1);
     end
-    et = sum(Di(:,t)'*(test_y~=Hx{t}(test_x)));
+    et = Di(:,t)'*(test_y~=yhat);
     et
-    a(t) = 0.5*log((1-et)/(et+10e-9));
-    Z(t) = 2*sqrt(et*(1-et));
+    a(t) = 0.5*log((1-et)/(et));
+%     Z(t) = 2*sqrt(et*(1-et));
+    Z(t) = sum(Di(:,t).*exp(-a(t)*(test_y.*yhat)));
 end
 
 Yhat = zeros(size(test_x,1), 1);
+a(a<0) = 0;
 a
 for t = 1:T
 Yhat = Yhat + a(t)*Hx{t}(test_x);
