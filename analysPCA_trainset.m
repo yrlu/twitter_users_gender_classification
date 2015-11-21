@@ -440,3 +440,27 @@ Inter_X_female_train=bin_X_female_train'*bin_X_female_train;
 figure
 imagesc(Inter_X_female_train);
 %colormap('gray')
+
+%% Since by PCA or interection the features seems like to be independent, now try NB
+Nc=3000;
+cols_sel=[1 2 5 7];
+X_train_split_train=image_features_train(1:Nc,cols_sel);
+X_train_split_train_labels=genders_train(1:Nc);
+X_train_split_test=image_features_train(Nc+1:end,cols_sel);
+X_train_split_test_labels=genders_train(Nc+1:end);
+    nb_train = NaiveBayes.fit(X_train_split_train , X_train_split_train_labels);
+    cpre = nb_train.predict(X_train_split_test);
+    err=sum(X_train_split_test_labels ~= cpre)/size(X_train_split_test_labels,1);%compute error
+    accuracy_orig=1-err
+    
+%% SVM
+Nc=3000;
+cols_sel=[1 2 5 7];
+X_train_split_train=image_features_train(1:Nc,cols_sel);
+X_train_split_train_labels=genders_train(1:Nc);
+X_train_split_test=image_features_train(Nc+1:end,cols_sel);
+X_train_split_test_labels=genders_train(Nc+1:end);
+    model = fitcsvm(X_train_split_train , X_train_split_train_labels);
+    cpre = model.predict(X_train_split_test);
+    err=sum(X_train_split_test_labels ~= cpre)/size(X_train_split_test_labels,1);%compute error
+    accuracy_orig=1-err
