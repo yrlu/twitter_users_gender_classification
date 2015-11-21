@@ -2,6 +2,10 @@
 B = TreeBagger(95,trainX,trainY, 'Method', 'classification', 'OOBPred','On');
 RFpredict = @(test_x) sign(str2double(B.predict(test_x)) - 0.5);
 
+
+model = train(Y, sparse(X(:,pc)), ['-s 0', 'col']);
+LogRpredict = @(test_x) sign(predict(ones(size(test_x(:,pc),1),1), sparse(test_x(:,pc)), model, ['-q', 'col']) - 0.5);
+Hx{i} = LogRpredict;
 %% data loading:
 %% Load the data first, see data_preprocess.m
 
