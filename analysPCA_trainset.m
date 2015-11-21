@@ -241,4 +241,50 @@ for i=1:7
      hold off
 end
 
-%% Now, working on feature intersection...
+%% Now, see if running PCA seperately will help
+% run PCA on male 
+male_idx=find(genders_train==1);
+female_idx=find(genders_train==0);
+X_male_train=image_features_train(male_idx,:);
+X_female_train=image_features_train(female_idx,:); 
+[coeff_male, score_male, latent_male]=pca(X_male_train);
+[coeff_female, score_female, latent_female]=pca(X_female_train);
+%and recontruct male from their PCA
+accuracy=zeros(size(coeff_male,1),1);
+X_dev_male=bsxfun(@minus, X_male_train, mean(X_male_train));
+for i=1:size(coeff_male,1)
+    Xp=score_male(:,1:i)*coeff_male(:,1:i)';
+    err_orig=norm(X_dev_male,'fro');
+    Xp_dev=Xp-X_dev_male; %(X-(Xp+mean(X))=(Xdev-Xp)
+    err=norm(Xp_dev,'fro');
+    accuracy(i)=1-(err^2/err_orig^2);
+end
+%
+figure
+plot(1:size(coeff_male,1),accuracy) 
+xlabel('PC#')
+ylabel('Accuracy')
+ 
+grid on
+hold on
+%recontruct male from global PCA
+[coeff, score, latent]=pca(image_features_train);
+
+accuracy=zeros(size(coeff,1),1);
+X_dev=bsxfun(@minus, X_male_train, mean(X_male_train));
+for i=1:size(coeff,1)
+    Xp=score_male(:,1:i)*coeff(:,1:i)';
+    err_orig=norm(X_dev,'fro');
+    Xp_dev=Xp-X_dev; %(X-(Xp+mean(X))=(Xdev-Xp)
+    err=norm(Xp_dev,'fro');
+    accuracy(i)=1-(err^2/err_orig^2);
+end
+%
+ 
+plot(1:size(coeff,1),accuracy)
+title ('recontruction accuracy vs number of principle components')
+xlabel('PC#')
+ylabel('Accuracy')
+legend('Recontruct male from PCA-male','Recontruct male from PCA-global');
+hold  off
+grid on
