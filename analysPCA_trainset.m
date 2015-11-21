@@ -381,7 +381,43 @@ figure
 for i=1:7
     subplot(3,3,i)
    
-    histogram( intersection(:,i),20);
+
+    histogram(X_male_train(1:Np,i),20); %trunc 1:2000 since they are not the same size
+    hold on
+    histogram(X_female_train(1:Np,i),20);    
+    hold on   
+     histogram( intersection(:,i),20);
+    
     title (['Image feature male-female intersection'])
+    legend('male','female','intersection')
     hold off
 end
+
+%% Interaction between features
+bin_X_male_train=X_male_train;
+bin_X_male_train(:,1)=bin_X_male_train(:,1)>29;
+bin_X_male_train(:,2)=bin_X_male_train(:,2)>92.2438;
+bin_X_male_train(:,3)=bin_X_male_train(:,3)>0;
+bin_X_male_train(:,4)=bin_X_male_train(:,4)>0;
+bin_X_male_train(:,5)=bin_X_male_train(:,5)>-4.9759;
+bin_X_male_train(:,6)=bin_X_male_train(:,6)>-0.1376;
+bin_X_male_train(:,7)=bin_X_male_train(:,7)>0.0159;
+Inter_X_male_train=bin_X_male_train'*bin_X_male_train;
+Inter_X_male_train=Inter_X_male_train/det(Inter_X_male_train);
+figure
+imagesc(Inter_X_male_train);
+colormap('gray')
+
+bin_X_female_train=X_female_train;
+bin_X_female_train(:,1)=bin_X_female_train(:,1)>29;
+bin_X_female_train(:,2)=bin_X_female_train(:,2)>92.2438;
+bin_X_female_train(:,3)=bin_X_female_train(:,3)>0;
+bin_X_female_train(:,4)=bin_X_female_train(:,4)>0;
+bin_X_female_train(:,5)=bin_X_female_train(:,5)>-4.9759;
+bin_X_female_train(:,6)=bin_X_female_train(:,6)>-0.1376;
+bin_X_female_train(:,7)=bin_X_female_train(:,7)>0.0159;
+Inter_X_female_train=bin_X_female_train'*bin_X_female_train;
+Inter_X_female_train=Inter_X_female_train/det(Inter_X_female_train);
+figure
+imagesc(Inter_X_female_train);
+colormap('gray')
