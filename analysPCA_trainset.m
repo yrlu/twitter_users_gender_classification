@@ -89,8 +89,7 @@ male_idx=find(genders_train==0);
 female_idx=find(genders_train==1);
 %n male=2840; barely evenly split
 X_male_train=image_features_train(male_idx,:);
-X_female_train=image_features_train(female_idx,:);
-
+X_female_train=image_features_train(female_idx,:); 
 
 % still agrees with above observation
 X_full=X_male_train;
@@ -195,7 +194,7 @@ hold off
 % hold off
 %% Validate good PCA on smaller set
 close all
-X_full=X_male_train(200:600,:);
+X_full=X_male_train(900:1000,:);
 X_mean=mean(X_full);
 [coeff_male, score_male, latent_male]=pca(X_full);
 % top 2 PCA visualize...............
@@ -209,7 +208,7 @@ figure
 biplot(coeff_male(:,1:2),'Scores',score_male(:,1:2),'VarLabels',...
     {'X1' 'X2' 'X3' 'X4' 'X5' 'X6' 'X7'})
 
-X_full=X_female_train(200:600,:);
+X_full=X_female_train(900:1000,:);
 X_mean=mean(X_full);
 [coeff_female, score_female, latent_female]=pca(X_full);
 % top 2 PCA visualize...............
@@ -232,8 +231,9 @@ PCA_good_idx=find(abs(PCA_corr)<0.5);
 %% Compare male femal image features
 % it turns out the most discriminative feature is feature 1: age
 close all
+figure
 for i=1:7
-    figure
+    subplot(3,3,i)
     histogram(X_male_train(1:2000,i),20); %trunc 1:2000 since they are not the same size
     hold on
     histogram(X_female_train(1:2000,i),20);
@@ -320,4 +320,68 @@ for i=1:7
     
     
     
+end
+
+% see what the test set projection looks like
+
+figure
+for i=1:7
+    x_test_proj_male=image_features_test*coeff_male(:,i);
+    x_test_proj_female=image_features_test*coeff_female(:,i);
+    
+    subplot(3,3,i)
+    histogram(x_test_proj_male(:,:),30);
+    hold on
+    histogram(x_test_proj_female(:,:),30);
+    title (['Image feature test set projected on the' num2str(i) 'th male/female PCA']);
+    legend('M','F')
+    hold off   
+    
+end
+
+
+%% The experiments above indicate each indiviual classifer might be a weak classifier
+% but observe that PC3-male always --- PC4-female, this is weird! This
+% probbly indicates that all the features whole together might be a strong
+% classifier! And this definitely doesn't meem PCA is useless.
+close all
+male_idx=find(genders_train==0);
+female_idx=find(genders_train==1);
+X_male_train=image_features_train(male_idx,:);
+X_female_train=image_features_train(female_idx,:); 
+figure
+plot(X_male_train(1:200,1),X_male_train(1:200,2),'r+')
+hold on
+plot(X_female_train(1:200,1),X_female_train(1:200,2),'bo')
+hold off
+
+figure
+plot(X_male_train(1:200,3),X_male_train(1:200,2),'r+')
+hold on
+plot(X_female_train(1:200,3),X_female_train(1:200,2),'bo')
+hold off
+
+figure
+plot(X_male_train(1:200,5),X_male_train(1:200,2),'r+')
+hold on
+plot(X_female_train(1:200,5),X_female_train(1:200,2),'bo')
+hold off
+%% two features doesn't work really well, now look at intersection
+close all
+male_idx=find(genders_train==0);
+female_idx=find(genders_train==1);
+X_male_train=image_features_train(male_idx,:);
+X_female_train=image_features_train(female_idx,:); 
+Np=2000;
+intersection=zeros(Np,7);
+for i=1:Np
+    intersection(i,:)=min([X_male_train(i,:);X_female_train(i,:)]);
+end
+figure
+for i=1:7
+    subplot(3,3,i)
+   
+    histogram( intersection(:,i),20);
+    title (['Image feature male-female intersection'])
+    hold off
 end
