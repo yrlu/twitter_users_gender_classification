@@ -1,9 +1,8 @@
 % Author: Max Lu
-% Date: Nov 19
-% Nov 20 update: plain feature + neural network -> 86.01% on test set.
+% Date: Nov 20
 
-% add lib path:
-addpath('./liblinear');
+%% load data first ..
+
 
 % Load the data first, see prepare_data.
 if exist('genders_train','var')~= 1
@@ -32,28 +31,38 @@ if exist('eigens','var')~= 1
     end
 end
 
+
 %%
 
 
-
+[n m] = size(words_train);
 X = [words_train, image_features_train; words_test, image_features_test];
 Y = genders_train;
 
-% PCA features
-% X = scores(1:n, 1:2000);
-X = X(1:n,:);
 
-X = [X;X(1,:);X(1,:)];
-Y = [Y;Y(1,:);Y(1,:)];
-% X = normc(X);
-[n m] = size(words_train);
 
-addpath('./DL_toolbox/util','./DL_toolbox/NN','./DL_toolbox/DBN');
+parpool('local',1)
+countTests = 200;
+performances = zeros(1, countTests);
+% [x, t] = house_dataset;
+% x = X(1:n/2,:);
+% t = Y(1:n/2);
+% y = Y(n/2+1:n)
+x = sparse(X(1:n,:));
+t = Y(1:n);
 
-% X = X(1:n, :);
-disp('Neurel network + cross-validation');
-[accuracy, Ypredicted, Ytest] = cross_validation(X, Y, 5, @neural_network);
-accuracy
-mean(accuracy)
-toc
+tStart = tic;
+for i = 1 : countTests,
+    net = fitnet(10);
+    net.trainFcn = 'trainscg';
+    net.trainParam.showWindow = false;
+    net = train(net, x', t', 'useParallel', 'yes', 'useGPU', 'only');
+    y = net(x');
+    per = perform(net, t', y);
+    performances(i) = per;
+end
+elapsedTime = toc(tStart);
+parpool close
 
+display(sprintf('Average performance: %.1f', mean(performances)));
+display(sprintf('Elapsed time: %.1f seconds', elapsedTime));

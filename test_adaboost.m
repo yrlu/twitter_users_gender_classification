@@ -1,8 +1,9 @@
 % Author: Max Lu
-% Date: Nov 19
+% Date: Nov 20
 
-% add lib path:
-addpath('./liblinear');
+
+%% load data first ..
+
 
 % Load the data first, see prepare_data.
 if exist('genders_train','var')~= 1
@@ -31,37 +32,40 @@ if exist('eigens','var')~= 1
     end
 end
 
+
+
 %%
-
-addpath('./DL_toolbox/util','./DL_toolbox/NN','./DL_toolbox/DBN');
-% X = normc(X);
-Y = genders_train;
 [n m] = size(words_train);
-
 X = [words_train, image_features_train; words_test, image_features_test];
-% % X = normc(X);
 Y = genders_train;
 
-% X = X(1:n, :);
-X = scores(1:n, 1:1000);
+% PCA features
+% X = scores(1:n, 1:4900);
+X = X(1:n,:);
+
+% add 2 more samples to make n = 5000;
+X = [X;X(1,:);X(1,:)];
+Y = [Y;Y(1,:);Y(1,:)];
+% X = normc(X);
+
+disp('Adaboost + cross-validation');
+[accuracy, Ypredicted, Ytest] = cross_validation(X, Y, 5, @adaboost);
+accuracy
+mean(accuracy)
+toc
 
 
-train_x = X;
-train_y = Y;
 
 
 
-rand('state',0)
 
-nn = nnsetup([1000 100 2]);
-nn.weightPenaltyL2 = 1e-2;  %  L2 weight decay
-opts.numepochs =  25;        %  Number of full sweeps through data
-opts.batchsize = 100;       %  Take a mean gradient step over this many samples
-
-[nn loss] = nntrain(nn, train_x, train_y, opts);
-% new_feat = nnpredict(nn, train_x);
-
-[er, bad] = nntest(nn, test_x, test_y);
-disp(er);
+%% Generate Yhat:
 
 
+trainx = [words_train, image_features_train];
+trainy = genders_train;
+testx = [words_test, image_features_test];
+testy = ones(size(testx,1), 1);
+
+Yhat = adaboost(trainx, trainy, testx, testy);
+dlmwrite('submit.txt',Yhat,'\n');
