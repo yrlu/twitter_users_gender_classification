@@ -89,7 +89,7 @@ male_idx=find(genders_train==0);
 female_idx=find(genders_train==1);
 %n male=2840; barely evenly split
 X_male_train=image_features_train(male_idx,:);
-X_female_train=image_features_train(female_idx,:); 
+X_female_train=image_features_train(female_idx,:);
 
 % still agrees with above observation
 X_full=X_male_train;
@@ -199,17 +199,17 @@ for i=1:7
     bar([coeff_male(:,i),coeff_female(:,i)]);
     title (['Coordinate of ' num2str(i) 'th PC-male/PC-female w.r.t the original feature space'])
     legend('PC-male','PC-female')
-    hold off 
+    hold off
     
 end
 
-% The first thing that surprises me is that each PC is dominated by a certain original image feature, 
-% as shown in the figure. Since the  PCs for a given dataset are linearly independent, does this imply 
+% The first thing that surprises me is that each PC is dominated by a certain original image feature,
+% as shown in the figure. Since the  PCs for a given dataset are linearly independent, does this imply
 %that the original image features are very likely to be independent to each other?
 % Furthermore, PC3-male is characterized by feature-1, PC4-male is dominated by feature-5; PC3-female
-%is characterized by feature-5, PC4-female is dominated by feature-1--- it seems like for male, feature 
-%1 has more variance than feature 5, while for female they are flipped; and the other feature variance 
-%are in the same order. How to best use of this information? 
+%is characterized by feature-5, PC4-female is dominated by feature-1--- it seems like for male, feature
+%1 has more variance than feature 5, while for female they are flipped; and the other feature variance
+%are in the same order. How to best use of this information?
 
 %% Validate good PCA on smaller set
 close all
@@ -354,7 +354,7 @@ for i=1:7
     histogram(x_test_proj_female(:,:),30);
     title (['Image feature test set projected on the' num2str(i) 'th male/female PCA']);
     legend('M','F')
-    hold off   
+    hold off
     
 end
 
@@ -367,7 +367,7 @@ close all
 male_idx=find(genders_train==0);
 female_idx=find(genders_train==1);
 X_male_train=image_features_train(male_idx,:);
-X_female_train=image_features_train(female_idx,:); 
+X_female_train=image_features_train(female_idx,:);
 figure
 plot(X_male_train(1:200,1),X_male_train(1:200,2),'r+')
 hold on
@@ -390,7 +390,7 @@ close all
 male_idx=find(genders_train==0);
 female_idx=find(genders_train==1);
 X_male_train=image_features_train(male_idx,:);
-X_female_train=image_features_train(female_idx,:); 
+X_female_train=image_features_train(female_idx,:);
 Np=2000;
 intersection=zeros(Np,7);
 for i=1:Np
@@ -399,13 +399,13 @@ end
 figure
 for i=1:7
     subplot(3,3,i)
-   
-
+    
+    
     histogram(X_male_train(1:Np,i),20); %trunc 1:2000 since they are not the same size
     hold on
-    histogram(X_female_train(1:Np,i),20);    
-    hold on   
-     histogram( intersection(:,i),20);
+    histogram(X_female_train(1:Np,i),20);
+    hold on
+    histogram( intersection(:,i),20);
     
     title (['Image feature male-female intersection'])
     legend('male','female','intersection')
@@ -413,10 +413,10 @@ for i=1:7
 end
 
 %% Interaction between features
-max_train_male=max(X_male_train);
+mean_train_male=mean(X_male_train);
 bin_X_male_train=X_male_train;
 for i=1:7
-   bin_X_male_train(:,i)=bin_X_male_train(:,i)/ max_train_male(i);
+    bin_X_male_train(:,i)=bin_X_male_train(:,i)/ mean_train_male(i);
 end
 Inter_X_male_train=bin_X_male_train'*bin_X_male_train;
 %Inter_X_male_train=Inter_X_male_train/det(Inter_X_male_train);
@@ -424,10 +424,10 @@ figure
 imagesc(Inter_X_male_train);
 %colormap('gray')
 
-max_train_female=max(X_female_train);
+mean_train_female=mean(X_female_train);
 bin_X_female_train=X_female_train;
 for i=1:7
-   bin_X_female_train(:,i)=bin_X_female_train(:,i)/ max_train_female(i);
+    bin_X_female_train(:,i)=bin_X_female_train(:,i)/ mean_train_female(i);
 end
 Inter_X_female_train=bin_X_female_train'*bin_X_female_train;
 %Inter_X_female_train=Inter_X_female_train/det(Inter_X_female_train);
@@ -442,11 +442,11 @@ X_train_split_train=image_features_train(1:Nc,cols_sel);
 X_train_split_train_labels=genders_train(1:Nc);
 X_train_split_test=image_features_train(Nc+1:end,cols_sel);
 X_train_split_test_labels=genders_train(Nc+1:end);
-    nb_train = NaiveBayes.fit(X_train_split_train , X_train_split_train_labels);
-    cpre = nb_train.predict(X_train_split_test);
-    err=sum(X_train_split_test_labels ~= cpre)/size(X_train_split_test_labels,1);%compute error
-    accuracy_orig=1-err
-    
+nb_train = NaiveBayes.fit(X_train_split_train , X_train_split_train_labels);
+cpre = nb_train.predict(X_train_split_test);
+err=sum(X_train_split_test_labels ~= cpre)/size(X_train_split_test_labels,1);%compute error
+accuracy_orig=1-err
+
 %% SVM
 Nc=3000;
 cols_sel=[1 2 5 7];
@@ -454,40 +454,53 @@ X_train_split_train=image_features_train(1:Nc,cols_sel);
 X_train_split_train_labels=genders_train(1:Nc);
 X_train_split_test=image_features_train(Nc+1:end,cols_sel);
 X_train_split_test_labels=genders_train(Nc+1:end);
-    model = fitcsvm(X_train_split_train , X_train_split_train_labels);
-    cpre = model.predict(X_train_split_test);
-    err=sum(X_train_split_test_labels ~= cpre)/size(X_train_split_test_labels,1);%compute error
-    accuracy_orig=1-err
-    
-%% Kmeans 
+model = fitcsvm(X_train_split_train , X_train_split_train_labels);
+cpre = model.predict(X_train_split_test);
+err=sum(X_train_split_test_labels ~= cpre)/size(X_train_split_test_labels,1);%compute error
+accuracy_orig=1-err
+
+%% Kmeans
 Nc=3000;
 cols_sel=[1];
 % binarize...
 bin_image_features_train=image_features_train;
-%  max_X=max(image_features_train);
-%  for i=1:7
-%     bin_image_features_train(:,i)=bin_image_features_train(:,i)/max_X(i);
-%  end
+mean_X=mean(image_features_train);
+for i=1:7
+    bin_image_features_train(:,i)=bin_image_features_train(:,i)/mean_X(i);
+end
 
 X_train_split_train=bin_image_features_train(1:Nc,cols_sel);
 X_train_split_train_labels=genders_train(1:Nc);
 X_train_split_test=bin_image_features_train(Nc+1:end,cols_sel);
 X_train_split_test_labels=genders_train(Nc+1:end);
-    [indices, Ctrs]    = kmeans(X_train_split_train, 2,'MaxIter',500);
-    clusterLabels=zeros(2,1);
-    for k=1:2
-        cur_ids=find(indices==k);
-        clusterLabels(k)=mode(X_train_split_train_labels(cur_ids)); % label cluster with most frequent letter
+[indices, Ctrs]    = kmeans(X_train_split_train, 2,'MaxIter',500);
+clusterLabels=zeros(2,1);
+for k=1:2
+    cur_ids=find(indices==k);
+    clusterLabels(k)=mode(X_train_split_train_labels(cur_ids)); % label cluster with most frequent letter
+end
+cpre=zeros(size(X_train_split_test_labels,1),1);
+for j=1:size(X_train_split_test,1)
+    distances=zeros(size(Ctrs,1),1);
+    for k=1:size(Ctrs,1)
+        distances(k)=sum((Ctrs(k,:)-X_train_split_test(j,:)).^2);
     end
-    cpre=zeros(size(X_train_split_test_labels,1),1);
-    for j=1:size(X_train_split_test,1)
-        distances=zeros(size(Ctrs,1),1);
-        for k=1:size(Ctrs,1)
-            distances(k)=sum((Ctrs(k,:)-X_train_split_test(j,:)).^2);
-        end
-        [~,ci]=min(distances); %ci--cluster assignment
-        cpre(j)=clusterLabels(ci);
-    end
-    
-    err=sum(X_train_split_test_labels ~= cpre)/size(cpre,1);
-    accuracy=1-err
+    [~,ci]=min(distances); %ci--cluster assignment
+    cpre(j)=clusterLabels(ci);
+end
+
+err=sum(X_train_split_test_labels ~= cpre)/size(cpre,1);
+accuracy=1-err
+
+%% Random forest
+Nc=3000;
+cols_sel=[1:7];
+NumTrees=70;
+X_train_split_train=image_features_train(1:Nc,cols_sel);
+X_train_split_train_labels=genders_train(1:Nc); 
+X_train_split_test=image_features_train(Nc+1:end,cols_sel);
+X_train_split_test_labels=genders_train(Nc+1:end);
+model= TreeBagger(NumTrees,X_train_split_train,X_train_split_train_labels,'OOBPred','On');
+cpre = str2double(model.predict(X_train_split_test));
+err=sum(X_train_split_test_labels ~= cpre)/size(X_train_split_test_labels,1);%compute error
+accuracy_orig=1-err
