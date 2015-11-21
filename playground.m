@@ -1,17 +1,36 @@
 %% To Try %% 
 % -Look for trend in words data.. PCA -> cluster? Gaussian? 
 % -K-means for image features 
+% PCA on only the words data : wrap PCA in classifiers. 
 
-% PCA on only the words data
-% wrap PCA in classifiers. 
 
         
 %% playground
 Y = genders_train;
 X = words_train;
 % boolean -> 
-%% X = words_train > 0;
 [coef, scores, latent] = pca(X);
+
+%% plot word count and observe
+figure;
+plot(X(logical(genders_train),:),'bo');
+hold on
+plot(X(~logical(genders_train),:),'rx');
+
+
+%% test Gaussian Mixture 
+GMModel = fitgmdist(X,2,'Display','final', 'Start', 'plus');
+%%
+Xpca = scores(:,1:2);
+figure;
+plot(Xpca(logical(genders_train),2),'bo');
+hold on
+plot(Xpca(~logical(genders_train),2),'rx');
+hold off
+%Xpca(logical(genders_train),1),
+%Xpca(~logical(genders_train),1),
+
+%% X = words_train > 0;
 
 %figure, plot(cumsum(latent)/sum(latent));
 plot(cumsum(latent)/sum(latent));
