@@ -413,28 +413,22 @@ for i=1:7
 end
 
 %% Interaction between features
+max_train_male=max(X_male_train);
 bin_X_male_train=X_male_train;
-bin_X_male_train(:,1)=bin_X_male_train(:,1)>28.9392;
-bin_X_male_train(:,2)=bin_X_male_train(:,2)>52.4401;
-bin_X_male_train(:,3)=bin_X_male_train(:,3)>0.3802;
-bin_X_male_train(:,4)=bin_X_male_train(:,4)>0.0393;
-bin_X_male_train(:,5)=bin_X_male_train(:,5)>-0.7732;
-bin_X_male_train(:,6)=bin_X_male_train(:,6)>-0.3727;
-bin_X_male_train(:,7)=bin_X_male_train(:,7)>0.1323;
+for i=1:7
+   bin_X_male_train(:,i)=bin_X_male_train(:,i)/ max_train_male(i);
+end
 Inter_X_male_train=bin_X_male_train'*bin_X_male_train;
 %Inter_X_male_train=Inter_X_male_train/det(Inter_X_male_train);
 figure
 imagesc(Inter_X_male_train);
 %colormap('gray')
 
+max_train_female=max(X_female_train);
 bin_X_female_train=X_female_train;
-bin_X_female_train(:,1)=bin_X_female_train(:,1)>28.9392 ;
-bin_X_female_train(:,2)=bin_X_female_train(:,2)>52.4401;
-bin_X_female_train(:,3)=bin_X_female_train(:,3)>0.3802 ;
-bin_X_female_train(:,4)=bin_X_female_train(:,4)>0.0393;
-bin_X_female_train(:,5)=bin_X_female_train(:,5)>-0.7732;
-bin_X_female_train(:,6)=bin_X_female_train(:,6)>-0.3727 ;
-bin_X_female_train(:,7)=bin_X_female_train(:,7)>0.1323;
+for i=1:7
+   bin_X_female_train(:,i)=bin_X_female_train(:,i)/ max_train_female(i);
+end
 Inter_X_female_train=bin_X_female_train'*bin_X_female_train;
 %Inter_X_female_train=Inter_X_female_train/det(Inter_X_female_train);
 figure
@@ -470,10 +464,10 @@ Nc=3000;
 cols_sel=[1];
 % binarize...
 bin_image_features_train=image_features_train;
-% mean_X=mean(image_features_train);
-% for i=1:7
-%     bin_image_features_train(:,i)=bin_image_features_train(:,i)/mean_X(i);
-% end
+%  max_X=max(image_features_train);
+%  for i=1:7
+%     bin_image_features_train(:,i)=bin_image_features_train(:,i)/max_X(i);
+%  end
 
 X_train_split_train=bin_image_features_train(1:Nc,cols_sel);
 X_train_split_train_labels=genders_train(1:Nc);
