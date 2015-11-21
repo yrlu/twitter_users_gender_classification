@@ -34,8 +34,8 @@ hold on
 grid on
 
 %%
-male_idx=find(genders_train==1);
-female_idx=find(genders_train==0);
+male_idx=find(genders_train==0);
+female_idx=find(genders_train==1);
 X_male_train=words_train(male_idx,:);
 X_female_train=words_train(female_idx,:); 
 [coeff_male, score_male, latent_male]=pca(X_male_train);

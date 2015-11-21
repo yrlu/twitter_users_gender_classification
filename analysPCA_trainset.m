@@ -85,8 +85,8 @@ close all
 load ('data\genders_train.mat');
 load('data\image_features_test.mat')
 load('data\image_features_train.mat')
-male_idx=find(genders_train==1);
-female_idx=find(genders_train==0);
+male_idx=find(genders_train==0);
+female_idx=find(genders_train==1);
 %n male=2840; barely evenly split
 X_male_train=image_features_train(male_idx,:);
 X_female_train=image_features_train(female_idx,:);
@@ -243,8 +243,8 @@ end
 
 %% Now, see if running PCA seperately will help
 % run PCA on male
-male_idx=find(genders_train==1);
-female_idx=find(genders_train==0);
+male_idx=find(genders_train==0);
+female_idx=find(genders_train==1);
 X_male_train=image_features_train(male_idx,:);
 X_female_train=image_features_train(female_idx,:);
 [coeff_male, score_male, latent_male]=pca(X_male_train);
