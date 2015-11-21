@@ -3,8 +3,8 @@ function [ dbn ] = rbm( train_x )
     %  ex2 train a DBN. Its weights can be used to initialize a NN.
     rand('state',0)
     %train dbn
-    dbn.sizes = 100;
-    opts.numepochs = 200;
+    dbn.sizes = [200];
+    opts.numepochs =   50;
     opts.batchsize = 100;
     opts.momentum  =   0;
     opts.alpha     =   1;
