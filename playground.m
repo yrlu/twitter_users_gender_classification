@@ -1,5 +1,5 @@
 %% Random Forest packed
-B = TreeBagger(95,trainX,trainY, 'Method', 'classification', 'OOBPred','On');
+B = TreeBagger(95,trainX,trainY, 'Method', 'classification');
 RFpredict = @(test_x) sign(str2double(B.predict(test_x)) - 0.5);
 
 %% data loading:

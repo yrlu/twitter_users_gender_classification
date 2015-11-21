@@ -58,8 +58,7 @@ toc
 %% using adaboost and cross-validation to find a(t);
 
 [n m] = size(words_train);
-% X = [words_train, image_features_train; words_test, image_features_test];
-X = [words_train; words_test];
+X = [words_train, image_features_train; words_test, image_features_test];
 Y = genders_train;
 
 % PCA features
@@ -173,7 +172,7 @@ nn.weightPenaltyL2 = 1e-2;  %  L2 weight decay
 nn.scaling_learningRate = 0.9;
 % nn.dropoutFraction     = 0.1;
 % nn.nonSparsityPenalty = 0.001;
-opts.numepochs = 300;        %  Number of full sweeps through data
+opts.numepochs = 100;        %  Number of full sweeps through data
 opts.batchsize = 100;       %  Take a mean gradient step over this many samples
 
 [nn loss] = nntrain(nn, train_x, [Y, ~Y], opts);
@@ -184,7 +183,7 @@ B = TreeBagger(95,train_x,train_y, 'Method', 'classification');
 RFpredict = @(test_x) sign(str2double(B.predict(test_x)) - 0.5);
 
 
-majority = LogRpredict(test_x) ;
+majority = RFpredict(test_x) + 2*NNetPredict(test_x) + 2*LogRpredict(test_x) ;
 yhat = majority > 0;
 
 acc = sum(yhat == test_y)/size(yhat,1);
