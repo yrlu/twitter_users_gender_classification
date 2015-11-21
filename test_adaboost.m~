@@ -65,7 +65,6 @@ toc
 trainx = [words_train, image_features_train];
 trainy = genders_train;
 testx = [words_test, image_features_test];
-testy = ones(size(testx,1), 1);
+testy = ones(size(testx,1), 1)
 
-Yhat = adaboost(trainx, trainy, testx, testy);
-dlmwrite('submit.txt',Yhat,'\n');
+Yhat = adaboost(, , , )

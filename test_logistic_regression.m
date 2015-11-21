@@ -31,16 +31,13 @@ if exist('eigens','var')~= 1
         load('eigens.mat', 'eigens');
     end
 end
-% X = normc(X);
-Y = genders_train;
-[n m] = size(words_train);
 
 
 %%
 X = [words_train, image_features_train; words_test, image_features_test];
-% % X = normc(X);
+% X = normc(X);
 Y = genders_train;
-
+[n m] = size(words_train);
 
 % PCA features
 % X = scores(1:n, 1:3200);
