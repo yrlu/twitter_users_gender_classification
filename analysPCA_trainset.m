@@ -234,9 +234,9 @@ PCA_good_idx=find(abs(PCA_corr)<0.5);
 close all
 for i=1:7
     figure
-    histogram(X_male_train(:,i),20); %trunc 1:2000 since they are not the same size
+    histogram(X_male_train(1:2000,i),20); %trunc 1:2000 since they are not the same size
     hold on
-    histogram(X_female_train(:,i),20); 
+    histogram(X_female_train(1:2000,i),20); 
     title (['Image' num2str(i) 'th feature intersection, male vs female'])
      hold off
 end
