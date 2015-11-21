@@ -464,3 +464,36 @@ X_train_split_test_labels=genders_train(Nc+1:end);
     cpre = model.predict(X_train_split_test);
     err=sum(X_train_split_test_labels ~= cpre)/size(X_train_split_test_labels,1);%compute error
     accuracy_orig=1-err
+    
+%% Kmeans 
+Nc=3000;
+cols_sel=[1];
+% binarize...
+bin_image_features_train=image_features_train;
+% mean_X=mean(image_features_train);
+% for i=1:7
+%     bin_image_features_train(:,i)=bin_image_features_train(:,i)/mean_X(i);
+% end
+
+X_train_split_train=bin_image_features_train(1:Nc,cols_sel);
+X_train_split_train_labels=genders_train(1:Nc);
+X_train_split_test=bin_image_features_train(Nc+1:end,cols_sel);
+X_train_split_test_labels=genders_train(Nc+1:end);
+    [indices, Ctrs]    = kmeans(X_train_split_train, 2,'MaxIter',500);
+    clusterLabels=zeros(2,1);
+    for k=1:2
+        cur_ids=find(indices==k);
+        clusterLabels(k)=mode(X_train_split_train_labels(cur_ids)); % label cluster with most frequent letter
+    end
+    cpre=zeros(size(X_train_split_test_labels,1),1);
+    for j=1:size(X_train_split_test,1)
+        distances=zeros(size(Ctrs,1),1);
+        for k=1:size(Ctrs,1)
+            distances(k)=sum((Ctrs(k,:)-X_train_split_test(j,:)).^2);
+        end
+        [~,ci]=min(distances); %ci--cluster assignment
+        cpre(j)=clusterLabels(ci);
+    end
+    
+    err=sum(X_train_split_test_labels ~= cpre)/size(cpre,1);
+    accuracy=1-err
