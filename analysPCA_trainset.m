@@ -4,7 +4,7 @@ clear all
 close all
 %%
 % 1----on image_features_train
-load('data\image_features_train.mat')
+load('.\data\image_features_train.mat')
 X_full=image_features_train;
 X_mean=mean(X_full);
 %A = [1 2 10; 1 4 20;1 6 15] ;
@@ -192,6 +192,25 @@ hold off
 % hold on
 % histogram(female_pca_i,20)
 % hold off
+%% Plot PCA coordinates male- female
+figure
+for i=1:7
+    subplot(3,3,i)
+    bar([coeff_male(:,i),coeff_female(:,i)]);
+    title (['Coordinate of ' num2str(i) 'th PC-male/PC-female w.r.t the original feature space'])
+    legend('PC-male','PC-female')
+    hold off 
+    
+end
+
+% The first thing that surprises me is that each PC is dominated by a certain original image feature, 
+% as shown in the figure. Since the  PCs for a given dataset are linearly independent, does this imply 
+%that the original image features are very likely to be independent to each other?
+% Furthermore, PC3-male is characterized by feature-1, PC4-male is dominated by feature-5; PC3-female
+%is characterized by feature-5, PC4-female is dominated by feature-1--- it seems like for male, feature 
+%1 has more variance than feature 5, while for female they are flipped; and the other feature variance 
+%are in the same order. How to best use of this information? 
+
 %% Validate good PCA on smaller set
 close all
 X_full=X_male_train(900:1000,:);
@@ -395,29 +414,29 @@ end
 
 %% Interaction between features
 bin_X_male_train=X_male_train;
-bin_X_male_train(:,1)=bin_X_male_train(:,1)>29;
-bin_X_male_train(:,2)=bin_X_male_train(:,2)>92.2438;
-bin_X_male_train(:,3)=bin_X_male_train(:,3)>0;
-bin_X_male_train(:,4)=bin_X_male_train(:,4)>0;
-bin_X_male_train(:,5)=bin_X_male_train(:,5)>-4.9759;
-bin_X_male_train(:,6)=bin_X_male_train(:,6)>-0.1376;
-bin_X_male_train(:,7)=bin_X_male_train(:,7)>0.0159;
+bin_X_male_train(:,1)=bin_X_male_train(:,1)>28.9392;
+bin_X_male_train(:,2)=bin_X_male_train(:,2)>52.4401;
+bin_X_male_train(:,3)=bin_X_male_train(:,3)>0.3802;
+bin_X_male_train(:,4)=bin_X_male_train(:,4)>0.0393;
+bin_X_male_train(:,5)=bin_X_male_train(:,5)>-0.7732;
+bin_X_male_train(:,6)=bin_X_male_train(:,6)>-0.3727;
+bin_X_male_train(:,7)=bin_X_male_train(:,7)>0.1323;
 Inter_X_male_train=bin_X_male_train'*bin_X_male_train;
-Inter_X_male_train=Inter_X_male_train/det(Inter_X_male_train);
+%Inter_X_male_train=Inter_X_male_train/det(Inter_X_male_train);
 figure
 imagesc(Inter_X_male_train);
-colormap('gray')
+%colormap('gray')
 
 bin_X_female_train=X_female_train;
-bin_X_female_train(:,1)=bin_X_female_train(:,1)>29;
-bin_X_female_train(:,2)=bin_X_female_train(:,2)>92.2438;
-bin_X_female_train(:,3)=bin_X_female_train(:,3)>0;
-bin_X_female_train(:,4)=bin_X_female_train(:,4)>0;
-bin_X_female_train(:,5)=bin_X_female_train(:,5)>-4.9759;
-bin_X_female_train(:,6)=bin_X_female_train(:,6)>-0.1376;
-bin_X_female_train(:,7)=bin_X_female_train(:,7)>0.0159;
+bin_X_female_train(:,1)=bin_X_female_train(:,1)>28.9392 ;
+bin_X_female_train(:,2)=bin_X_female_train(:,2)>52.4401;
+bin_X_female_train(:,3)=bin_X_female_train(:,3)>0.3802 ;
+bin_X_female_train(:,4)=bin_X_female_train(:,4)>0.0393;
+bin_X_female_train(:,5)=bin_X_female_train(:,5)>-0.7732;
+bin_X_female_train(:,6)=bin_X_female_train(:,6)>-0.3727 ;
+bin_X_female_train(:,7)=bin_X_female_train(:,7)>0.1323;
 Inter_X_female_train=bin_X_female_train'*bin_X_female_train;
-Inter_X_female_train=Inter_X_female_train/det(Inter_X_female_train);
+%Inter_X_female_train=Inter_X_female_train/det(Inter_X_female_train);
 figure
 imagesc(Inter_X_female_train);
-colormap('gray')
+%colormap('gray')
