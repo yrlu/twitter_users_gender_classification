@@ -62,7 +62,7 @@ nn.weightPenaltyL2 = 1e-2;  %  L2 weight decay
 nn.scaling_learningRate = 0.9;
 % nn.dropoutFraction     = 0.1;
 % nn.nonSparsityPenalty = 0.001;
-opts.numepochs = 10;        %  Number of full sweeps through data
+opts.numepochs = 100;        %  Number of full sweeps through data
 opts.batchsize = 100;       %  Take a mean gradient step over this many samples
 
 [nn loss] = nntrain(nn, train_x, [Y, ~Y], opts);
@@ -74,7 +74,7 @@ RFpredict = @(test_x) sign(str2double(B.predict(test_x)) - 0.5);
 
 
 
-predictedY = [NBPredict(train_x_test),KNNPredict(train_x_test),LogRpredict(train_x_test),NNetPredict(train_x_test), RFpredict(train_x_test), LRpredict(test_x)];
+predictedY = [NBPredict(train_x_test),KNNPredict(train_x_test),LogRpredict(train_x_test),NNetPredict(train_x_test), RFpredict(train_x_test), LRpredict(train_x_test)];
 % predictedY = [LogRpredict(train_x_test),NNetPredict(train_x_test), RFpredict(train_x_test)];
 
 ensembled = TreeBagger(95,predictedY,train_y_test, 'Method', 'classification');
@@ -128,7 +128,7 @@ nn.weightPenaltyL2 = 1e-2;  %  L2 weight decay
 nn.scaling_learningRate = 0.9;
 % nn.dropoutFraction     = 0.1;
 % nn.nonSparsityPenalty = 0.001;
-opts.numepochs = 10;        %  Number of full sweeps through data
+opts.numepochs = 100;        %  Number of full sweeps through data
 opts.batchsize = 100;       %  Take a mean gradient step over this many samples
 
 [nn loss] = nntrain(nn, train_x, [Y, ~Y], opts);
