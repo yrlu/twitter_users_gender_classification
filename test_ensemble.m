@@ -22,7 +22,7 @@ end
 
 
 %%
-
+tic
 [n m] = size(words_train);
 X = [words_train; words_test];
 Y = genders_train;
