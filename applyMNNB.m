@@ -1,4 +1,10 @@
+% Author: Dongni Wang
+% Date: Nov 20
+% Multinomial Naive Bayes
+
+
 function [yhat] = applyMNNB(prior, condprob, indexNotN, Xtest)
+
 lTest = size(Xtest,1);
 
 preSumA = log(Xtest(:,indexNotN).*repmat(condprob,lTest,1));

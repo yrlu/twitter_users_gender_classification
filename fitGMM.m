@@ -1,4 +1,4 @@
-function obj = fitGMM (X, k, cvType)
+function obj = fitGMM(X, k, cvType)
 % Fit a Gaussian mixture distribution to data.
 % k = number of components
 % X = the data to be fitted (samples-by-features)

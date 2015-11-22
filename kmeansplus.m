@@ -7,7 +7,8 @@ function param = kmeansplus(X, k, cvType )
 % cvType = 0: 'full', 1: 'diagonal'
 %
 % explanation from matlab: gmcluster
-%
+% Author: D.W 
+
 
 param.PComponents = ones(1,k)/k; % starting with equal mixing proportions: sum up to 1
 
