@@ -57,20 +57,23 @@ cnn.layers = {
     struct('type', 'i') %input layer
     struct('type', 'c', 'outputmaps', 6, 'kernelsize', 5) %convolution layer
     struct('type', 's', 'scale', 2) %sub sampling layer
-    struct('type', 'c', 'outputmaps', 12, 'kernelsize', 5) %convolution layer
-    struct('type', 's', 'scale', 2) %subsampling layer
+    struct('type', 'c', 'outputmaps', 16, 'kernelsize', 5) %convolution layer
 };
 cnn = cnnsetup(cnn, trainx, trainy);
+
+
 
 opts.alpha = 1;
 opts.batchsize = 500;
 opts.numepochs = 1;
 
-% for i=1:10
+for i=1:50
 cnn = cnntrain(cnn, trainx, trainy, opts);
+if mod(i,5) ==0
 [er, bad] = cnntest(cnn, trainx, trainy);
 er
-% end
+end 
+end
 
 %plot mean squared error
 figure; plot(cnn.rL);
