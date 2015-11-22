@@ -32,7 +32,6 @@ sae.ae{1}.activation_function       = 'sigm';
 sae.ae{1}.learningRate              = 10;
 % sae.ae{1}.weightPenaltyL2 = 1e-2;
 sae.ae{1}.scaling_learningRate              =0.8;
-% sae.ae{1}.inputZeroMaskedFraction   = 0.5;
 opts.numepochs =   25;
 opts.batchsize = 100;
 sae = saetrain(sae, train_x, opts);
