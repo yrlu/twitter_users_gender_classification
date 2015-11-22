@@ -493,14 +493,94 @@ err=sum(X_train_split_test_labels ~= cpre)/size(cpre,1);
 accuracy=1-err
 
 %% Random forest
-Nc=3000;
+Nc=2000;
 cols_sel=[1:7];
 NumTrees=70;
 X_train_split_train=image_features_train(1:Nc,cols_sel);
 X_train_split_train_labels=genders_train(1:Nc); 
 X_train_split_test=image_features_train(Nc+1:end,cols_sel);
 X_train_split_test_labels=genders_train(Nc+1:end);
+% X_train_split_test=X_train_split_train;
+% X_train_split_test_labels=X_train_split_train_labels;
 model= TreeBagger(NumTrees,X_train_split_train,X_train_split_train_labels,'OOBPred','On');
 cpre = str2double(model.predict(X_train_split_test));
 err=sum(X_train_split_test_labels ~= cpre)/size(X_train_split_test_labels,1);%compute error
 accuracy_orig=1-err
+
+%% logistic
+addpath('./liblinear');
+Nc=2000;
+cols_sel=[1 2 5 7];
+NumTrees=70;
+X_train_split_train=image_features_train(1:Nc,cols_sel);
+X_train_split_train_labels=genders_train(1:Nc); 
+X_train_split_test=image_features_train(Nc+1:end,cols_sel);
+X_train_split_test_labels=genders_train(Nc+1:end);
+[ predicted_label ] = logistic( X_train_split_train, X_train_split_train_labels,X_train_split_test, X_train_split_test_labels );
+
+
+%% So naive bayes works good for image features, logistic work well for PCA of words, now combine
+load data\words_train.mat;
+[coeff_words, score_words, latent_words]=pca(words_train);
+addpath('./liblinear');
+%% logstics
+Nc=3000;
+cols_sel=[1:2000];
+words_train_split_train=score_words(1:Nc,cols_sel);
+words_train_split_test=score_words(Nc+1:end,cols_sel);
+words_train_split_train_labels=genders_train(1:Nc);
+words_train_split_test_labels=genders_train(Nc+1:end);
+[ predicted_train_label_log ] = logistic( words_train_split_train, words_train_split_train_labels,words_train_split_train, words_train_split_train_labels);
+ precision_train_log=1-sum(words_train_split_train_labels ~= predicted_train_label_log)/size(predicted_train_label_log,1)
+[  predicted_test_label_log ] = logistic( words_train_split_train, words_train_split_train_labels,words_train_split_test, words_train_split_test_labels);
+precision_test_log=1-sum(words_train_split_test_labels ~= predicted_test_label_log)/size(predicted_test_label_log,1)
+%% NB
+
+cols_sel=[1 2 5 7];
+X_train_split_train=image_features_train(1:Nc,cols_sel);
+X_train_split_train_labels=genders_train(1:Nc);
+X_train_split_test=image_features_train(Nc+1:end,cols_sel);
+X_train_split_test_labels=genders_train(Nc+1:end);
+nb_train = NaiveBayes.fit(X_train_split_train , X_train_split_train_labels);
+cpre = nb_train.predict(X_train_split_train); %% note: now predict on trainset!!
+err=sum(X_train_split_train_labels ~= cpre)/size(X_train_split_train_labels,1);%compute error
+accuracy_train_nb=1-err
+predicted_train_label_NB=cpre;
+
+predicted_test_label_NB= nb_train.predict(X_train_split_test);
+%% combine, training on predictions
+%plot([predicted_label_log,predicted_label_NB],'bo')
+
+
+%pred_corr=(predicted_train_label_log'*predicted_train_label_NB)/length(predicted_train_label_log)
+
+
+cols_sel=[1 2 5 7];
+X_image_train_split_train=image_features_train(1:Nc,cols_sel); 
+X_image_train_split_test=image_features_train(Nc+1:end,cols_sel); 
+X_retrain=[predicted_train_label_log,X_image_train_split_train];
+%X_retrain=[predicted_train_label_log,predicted_train_label_NB];
+Y_train_split_train=genders_train(1:Nc);
+X_train_split_test=[predicted_test_label_log,X_image_train_split_test];
+%X_train_split_test=[predicted_test_label_log,predicted_test_label_NB];
+Y_train_split_test=genders_train(Nc+1:end);
+
+model = fitcsvm(X_retrain , Y_train_split_train);
+cpre = model.predict(X_train_split_test);
+err=sum(Y_train_split_test ~= cpre)/size(Y_train_split_test,1);%compute error
+accuracy_orig=1-err
+
+nb_train = NaiveBayes.fit(X_retrain , Y_train_split_train);
+cpre = nb_train.predict(X_train_split_test);
+err=sum(Y_train_split_test ~= cpre)/size(Y_train_split_test,1);%compute error
+accuracy_orig=1-err
+
+NumTrees=5;
+model= TreeBagger(NumTrees,X_retrain,Y_train_split_train,'OOBPred','On');
+cpre = str2double(model.predict(X_train_split_test));
+err=sum(Y_train_split_test ~= cpre)/size(Y_train_split_test,1);%compute error
+accuracy_orig=1-err
+
+[  predicted_log ] = logistic( X_retrain, Y_train_split_train,X_train_split_test, Y_train_split_test);
+precision_test_log=1-sum(Y_train_split_test ~= predicted_log)/size(predicted_log,1)
+

@@ -45,6 +45,23 @@ Y = genders_train;
 X = X(1:n, :);
 addpath('./liblinear');
 disp('logistic regression + cross-validation');
+[accuracy, Ypredicted, Ytest] = cross_validation(X, Y, 5, @logistic);
+accuracy
+mean(accuracy)
+toc
+
+%% try image features
+% X = [words_train, image_features_train; words_test, image_features_test];
+X = [images_train(:,1:10000); images_test(:,1:10000)];
+% X = normc(X);
+Y = genders_train;
+[n m] = size(words_train);
+
+% PCA features
+% X = scores(1:n, 1:3200);
+X = X(1:n, :);
+addpath('./liblinear');
+disp('logistic regression + cross-validation');
 [accuracy, Ypredicted, Ytest] = cross_validation(X, Y, 8, @logistic);
 accuracy
 mean(accuracy)
