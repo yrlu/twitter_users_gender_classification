@@ -16,7 +16,7 @@ Y = genders_train;
 X = X(1:n, :);
 bns = calc_bns(words_train,Y);
 [top_bans, idx]=sort(bns,'descend');
-word_sel=idx(1:1);
+word_sel=idx(1:1000);
 X=X(:,word_sel);
 
 addpath('./liblinear');
