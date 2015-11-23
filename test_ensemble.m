@@ -58,7 +58,7 @@ tic
 % note that here we are calling cross_validation_idx; I leave data
 % preparation to each classifier.
 disp('Ensemble + cross-validation');
-[accuracy, Ypredicted, Ytest] = cross_validation_idx(5000, 5, @majority_vote);
+[accuracy, Ypredicted, Ytest] = cross_validation_idx(5000, 5, @majority_voting);
 accuracy
 mean(accuracy)
 toc

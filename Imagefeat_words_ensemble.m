@@ -1,6 +1,20 @@
 % Deng, Xiang 
 % 11/22/2015
-% 87.53%....
+% 89.16%....
+%% READ ME 
+%% Note IG or BNS captures different sets of words, using which one depends on the classifier, by experiments IG works well for stump trees
+% bns = calc_bns(words_train,Y); %-------------feature selection opt1% 
+% IG=calc_information_gain(genders_train,words_train,[1:5000],10);% --------or try to compute the information gain
+% 
+% % you can further scale the words
+% %words_train_s=bsxfun(@times,words_train,bns);% or...
+% words_train_s=bsxfun(@times,words_train,IG);
+
+% [top_igs, idx]=sort(IG,'descend'); %---- and sort
+
+% % and pick the top words
+% word_sel=idx(1:300);
+% X=X(:,word_sel);
 %% ensemble image feature + words + select the top features
 clear all
 close all
@@ -17,15 +31,18 @@ clc
 acc_ens=zeros(8,1);
 
 
-bns = calc_bns(Xtrainset,Y);
+bns = calc_bns(Xtrainset,Y,0.01);
 IG=calc_information_gain(Y,Xtrainset,[1:size(Xtrainset,2)],10);
-[top_igs, idx]=sort(IG,'descend');
+[top_igs, idx_ig]=sort(IG,'descend');
+[top_bns, idx_bns]=sort(bns,'descend');
 %words_train_s=bsxfun(@times,words_train,IG);
 for i=1:8
     row_sel1=(parts~=i);
     row_sel2=(parts==i);
-    cols_sel=idx(1:400);
     
+    cols_sel=idx_ig(1:1000);
+    %cols_sel=unique([idx_ig(1:1000),idx_bns(1:2000)]); % or ensemble the
+    %top features from both ig and bns
     Xtrain=Xtrainset(row_sel1,cols_sel);
     Ytrain=Y(row_sel1);
     Xtest=Xtrainset(row_sel2,cols_sel);
@@ -34,7 +51,7 @@ for i=1:8
     %templ = templateTree('MaxNumSplits',1);
     %ens = fitensemble(Xtrain,Ytrain,'GentleBoost',200,'Tree');
     %ens = fitensemble(Xtrain,Ytrain,'LogitBoost',200,'Tree');
-    ens = fitensemble(Xtrain,Ytrain,'LogitBoost',200,'Tree' ); %ens=regularize(ens);
+    ens = fitensemble(Xtrain,Ytrain,'LogitBoost',300,'Tree' ); %ens=regularize(ens);
     %ens = fitensemble(Xtrain,Ytrain, 'RobustBoost',300,'Tree','RobustErrorGoal',0.01,'RobustMaxMargin',1);
     %
     Yhat= predict(ens,Xtest);
@@ -63,7 +80,7 @@ clc
 bns = calc_bns(Xtrainset,Ytrain);
 IG=calc_information_gain(Ytrain,Xtrainset,[1:size(Xtrainset,2)],10);
 [top_igs, idx]=sort(IG,'descend');
-cols_sel=idx(1:400);
+cols_sel=idx(1:1000);
 
 Xtrain=Xtrainset(:,cols_sel);
 Xtest=Xtest(:,cols_sel);
