@@ -20,24 +20,45 @@ end
 
 
 
+%% analyze for the outputs of 6 classifiers:
+
+% load('yy.mat', 'yy');
+
+% [NB,KNN,LogR,NNet, RF, LinearR];
+
+predY = yy(:,1:end-1);
+testY = yy(:, end);
+
+ycov = cov(predY);
+HeatMap(ycov);
+
+
+yycor = []
+for i = 1:6
+    for j = 1:i-1
+%         for q = 1:j-1
+            yycor = [yycor predY(:,i)*2+predY(:,j)];
+%         end
+    end
+end
+
+yycor = [predY];
+
+
+correct= bsxfun(@minus, predY, testY) == 0;
+
+[accuracy, Ypredicted, Ytest] = cross_validation(yycor, testY, 5, @rand_forest);
+accuracy
+mean(accuracy)
 
 %%
+
+
 tic
-[n m] = size(words_train);
-X = [words_train; words_test];
-Y = genders_train;
-
-% PCA features
-% X = scores(1:n, 1:4900);
-X = X(1:n,:);
-
-% add 2 more samples to make n = 5000;
-X = [X;X(1,:);X(1,:)];
-Y = [Y;Y(1,:);Y(1,:)];
-% X = normc(X);
-
+% note that here we are calling cross_validation_idx; I leave data
+% preparation to each classifier.
 disp('Ensemble + cross-validation');
-[accuracy, Ypredicted, Ytest] = cross_validation(X, Y, 5, @ensemble);
+[accuracy, Ypredicted, Ytest] = cross_validation_idx(5000, 5, @majority_vote);
 accuracy
 mean(accuracy)
 toc
@@ -124,7 +145,7 @@ RFpredict = @(test_x) sign(str2double(B.predict(test_x)) - 0.5);
 
 
 
-predictedY = [NBPredict(train_x_test),KNNPredict(train_x_test),LRpredict(train_x_test),LogRpredict(train_x_test),NNetPredict(train_x_test), RFpredict(train_x_test)];
+predictedY = [NBPredict(train_x_test),KNNPredict(train_x_test),LogRpredict(train_x_test),NNetPredict(train_x_test), RFpredict(train_x_test)];
 
 ensembled = TreeBagger(95,predictedY,train_y_test, 'Method', 'classification');
 
@@ -189,8 +210,8 @@ NNetPredict = @(test_x) sign(~(nnpredict(nn, test_x)-1) -0.5);
 B = TreeBagger(95,train_x,train_y, 'Method', 'classification');
 RFpredict = @(test_x) sign(str2double(B.predict(test_x)) - 0.5);
 
-
-predictedY_test = [NBPredict(test_x),KNNPredict(test_x),LRpredict(test_x),LogRpredict(test_x),NNetPredict(test_x), RFpredict(test_x)];
+    
+predictedY_test = [NBPredict(test_x),KNNPredict(test_x),LogRpredict(test_x),NNetPredict(test_x), RFpredict(test_x)];
 
 Yhat = str2double(ensembled.predict(predictedY_test));
 toc

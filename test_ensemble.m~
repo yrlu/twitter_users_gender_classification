@@ -1,8 +1,56 @@
 % Author: Max Lu
-% Date: Nov 21
+% Date: Nov 20
 
-% This function is deprecated. Please refer to ensemble_idx;
-function [Yhat] = ensemble(train_x, train_y, test_x, test_y)
+
+%% load data first ..
+
+
+% Load the data first, see prepare_data.
+if exist('genders_train','var')~= 1
+prepare_data;
+load('train/genders_train.mat', 'genders_train');
+load('train/images_train.mat', 'images_train');
+load('train/image_features_train.mat', 'image_features_train');
+load('train/words_train.mat', 'words_train');
+load('test/images_test.mat', 'images_test');
+load('test/image_features_test.mat', 'image_features_test');
+load('test/words_test.mat', 'words_test');
+end
+
+
+
+
+%% analyze for the outputs of 6 classifiers:
+
+% load('yy.mat', 'yy');
+
+yyc
+
+
+
+
+%%
+
+
+tic
+% note that here we are calling cross_validation_idx; I leave data
+% preparation to each classifier.
+disp('Ensemble + cross-validation');
+[accuracy, Ypredicted, Ytest] = cross_validation_idx(5000, 5, @ensemble_idx);
+accuracy
+mean(accuracy)
+toc
+
+
+
+
+%% Generate submit.txt
+
+train_x = [words_train;words_train(1,:);words_train(2,:)];
+train_y = [genders_train;genders_train(1,:);genders_train(2,:)];
+test_x = words_test;
+% test_y = 
+
 
 addpath('./liblinear');
 addpath('./DL_toolbox/util','./DL_toolbox/NN','./DL_toolbox/DBN');
@@ -36,9 +84,10 @@ KNNPredict = @(test_x) sign(predict(KNNModel,test_x)-0.5);
 
 
 
-% % Linear Regression
+% Linear Regression
 X = train_x;
 Y = train_y;
+% X = X(:, :);
 Wmap = inv(X'*X+eye(size(X,2))*1e-4) * (X')* Y;
 LRpredict = @(test_x) sign(sigmf(test_x*Wmap, [2 0])-0.5);
 % ---
@@ -62,7 +111,7 @@ nn.weightPenaltyL2 = 1e-2;  %  L2 weight decay
 nn.scaling_learningRate = 0.9;
 % nn.dropoutFraction     = 0.1;
 % nn.nonSparsityPenalty = 0.001;
-opts.numepochs = 50;        %  Number of full sweeps through data
+opts.numepochs = 100;        %  Number of full sweeps through data
 opts.batchsize = 100;       %  Take a mean gradient step over this many samples
 
 [nn loss] = nntrain(nn, train_x, [Y, ~Y], opts);
@@ -74,25 +123,10 @@ RFpredict = @(test_x) sign(str2double(B.predict(test_x)) - 0.5);
 
 
 
-predictedY = [NBPredict(train_x_test),KNNPredict(train_x_test),LogRpredict(train_x_test),NNetPredict(train_x_test), RFpredict(train_x_test), LRpredict(train_x_test)];
-% predictedY = [LogRpredict(train_x_test),NNetPredict(train_x_test), RFpredict(train_x_test)];
+predictedY = [NBPredict(train_x_test),KNNPredict(train_x_test),LogRpredict(train_x_test),NNetPredict(train_x_test), RFpredict(train_x_test)];
 
-% ensembled = TreeBagger(95,predictedY,train_y_test, 'Method', 'classification');
+ensembled = TreeBagger(95,predictedY,train_y_test, 'Method', 'classification');
 
-
-
-% X = predictedY;
-% Y = train_y_test;
-% Wmap = inv(X'*X+eye(size(X,2))*1e-4) * (X')* Y;
-% LRensembled = @(test_x) sigmf(test_x*Wmap, [2 0])>0.5;
-
-
-
-
-X = predictedY;
-Y = train_y_test;
-model = train(Y, sparse(X), ['-s 0', 'col']);
-LogRensemble = @(test_x) predict(ones(size(test_x,1),1), sparse(test_x), model, ['-q', 'col']);
 
 
 
@@ -116,13 +150,14 @@ KNNModel = fitcknn(train_x,train_y, 'NumNeighbors',11);
 KNNPredict = @(test_x) sign(predict(KNNModel,test_x)-0.5);
 
 
-% % Linear Regression
+
+% Linear Regression
 X = train_x;
 Y = train_y;
+% X = X(:, 1:320);
 Wmap = inv(X'*X+eye(size(X,2))*1e-4) * (X')* Y;
 LRpredict = @(test_x) sign(sigmf(test_x*Wmap, [2 0])-0.5);
-% % ---
-
+% ---
 
 
 
@@ -143,7 +178,7 @@ nn.weightPenaltyL2 = 1e-2;  %  L2 weight decay
 nn.scaling_learningRate = 0.9;
 % nn.dropoutFraction     = 0.1;
 % nn.nonSparsityPenalty = 0.001;
-opts.numepochs = 50;        %  Number of full sweeps through data
+opts.numepochs = 100;        %  Number of full sweeps through data
 opts.batchsize = 100;       %  Take a mean gradient step over this many samples
 
 [nn loss] = nntrain(nn, train_x, [Y, ~Y], opts);
@@ -153,12 +188,8 @@ NNetPredict = @(test_x) sign(~(nnpredict(nn, test_x)-1) -0.5);
 B = TreeBagger(95,train_x,train_y, 'Method', 'classification');
 RFpredict = @(test_x) sign(str2double(B.predict(test_x)) - 0.5);
 
+    
+predictedY_test = [NBPredict(test_x),KNNPredict(test_x),LogRpredict(test_x),NNetPredict(test_x), RFpredict(test_x)];
 
-predictedY_test = [NBPredict(test_x),KNNPredict(test_x),LogRpredict(test_x),NNetPredict(test_x), RFpredict(test_x), LRpredict(test_x)];
-% predictedY_test = [LogRpredict(test_x),NNetPredict(test_x), RFpredict(test_x)];
-
-% Yhat = str2double(ensembled.predict(predictedY_test));
-% Yhat = LRensembled(predictedY_test);
-Yhat = LogRensemble(predictedY_test);
-
-end
+Yhat = str2double(ensembled.predict(predictedY_test));
+toc

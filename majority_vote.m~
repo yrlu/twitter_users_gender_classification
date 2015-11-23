@@ -1,0 +1,76 @@
+% Author: Max Lu
+% Date: Nov 22
+
+% We have to mannually load data here and do whatever each classifier want.
+function [Yhat, test_y] = majority_vote(idx)
+
+% Load the data first, see prepare_data.
+load('train/genders_train.mat', 'genders_train');
+load('train/images_train.mat', 'images_train');
+load('train/image_features_train.mat', 'image_features_train');
+load('train/words_train.mat', 'words_train');
+load('test/images_test.mat', 'images_test');
+load('test/image_features_test.mat', 'image_features_test');
+load('test/words_test.mat', 'words_test');
+load('scores.mat', 'scores');
+
+addpath('./liblinear');
+addpath('./DL_toolbox/util','./DL_toolbox/NN','./DL_toolbox/DBN');
+addpath('./libsvm');
+
+
+
+X = [words_train; words_train(1,:); words_train(2,:)];
+Y = [genders_train; genders_train(1); genders_train(2,:)];
+train_x = X(~idx, :);
+train_y = Y(~idx);
+test_x = X(idx, :);
+test_y = Y(idx);
+
+% % Logistic Regression
+LogRmodel = train(train_y, sparse(train_x), ['-s 0', 'col']);
+LogRpredict = @(test_x) sign(predict(ones(size(test_x,1),1), sparse(test_x), LogRmodel, ['-q', 'col']) - 0.5);
+
+
+
+% % neural network
+X=train_x;
+Y=train_y;
+rand('state',0);
+nn = nnsetup([size(X,2) 100 50 2]);
+nn.learningRate = 5;
+nn.activation_function = 'sigm';
+nn.weightPenaltyL2 = 1e-2;  %  L2 weight decay
+nn.scaling_learningRate = 0.9;
+opts.numepochs = 100;        %  Number of full sweeps through data
+opts.batchsize = 100;       %  Take a mean gradient step over this many samples
+[nn loss] = nntrain(nn, train_x, [Y, ~Y], opts);
+NNetPredict = @(test_x) sign(~(nnpredict(nn, test_x)-1) -0.5);
+
+
+
+% % Features selection + random forest
+words_train_s = [words_train, image_features_train];
+words_train_s = [words_train_s; words_train_s(1,:); words_train_s(2,:)];
+genders_train_s = [genders_train; genders_train(1);genders_train(2)];
+
+train_x = words_train_s(~idx, :);
+train_y = genders_train_s(~idx);
+test_x = words_train_s(idx, :);
+test_y = Y(idx);
+
+
+IG=calc_information_gain(genders_train,[words_train, image_features_train],[1:size([words_train, image_features_train],2)],10);
+[top_igs, idx]=sort(IG,'descend');
+
+
+row_sel1=(parts~=i);
+row_sel2=(parts==i);
+cols_sel=idx(1:1000);
+Xtrain=words_train_s(row_sel1,cols_sel);
+Ytrain=genders_train_s(row_sel1);
+Xtest=words_train_s(row_sel2,cols_sel);
+Ytest=genders_train_s(row_sel2);
+
+
+end
