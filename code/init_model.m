@@ -1,7 +1,11 @@
 function model = init_model()
 
-load('w_ridge.mat');
-model.w_ridge = w_ridge;
+load('tree_ensem.mat');
+model.tree_ensem = ens;
+model.cols_sel = cols_sel;
+
+%load('w_ridge.mat');
+%model.w_ridge = w_ridge;
 
 % Example:
 % model.svmw = SVM.w;

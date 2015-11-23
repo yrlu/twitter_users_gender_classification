@@ -15,8 +15,8 @@ countTermB = sum(Xtrain(~logical(Ytrain),:));
 countAllA = sum(countTermA);
 countAllB = sum(countTermB);
 % for each term compute conditional probability
-condprobA = (countTermA+1)./countAllA;
-condprobB = (countTermB+1)./countAllB;
+condprobA = (countTermA+1)./(countAllA+5000);
+condprobB = (countTermB+1)./(countAllB+5000);
 %indexNotNA = ~isnan(condprobA);
 %indexNotNB = ~isnan(condprobB);
 condprob = [condprobA; condprobB];

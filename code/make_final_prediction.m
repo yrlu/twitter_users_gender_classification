@@ -8,7 +8,8 @@ function predictions = make_final_prediction(model,X_test)
 % prediction : a nx1 which is your prediction of the test samples
 
 % Sample model
-predictions = X_test(:,1:5000) * model.w_ridge;
-predictions(predictions > 0.5) = 1;
-predictions(predictions <= 0.5) = 0;
-
+% predictions = X_test(:,1:5000) * model.w_ridge;
+% predictions(predictions > 0.5) = 1;
+% predictions(predictions <= 0.5) = 0;
+Xtest= X_test(:,model.cols_sel);
+predictions = predict(model.tree_ensem,Xtest);

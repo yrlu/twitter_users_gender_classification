@@ -86,4 +86,4 @@ Xtrain=Xtrainset(:,cols_sel);
 Xtest=Xtest(:,cols_sel);
 ens = fitensemble(Xtrain,Ytrain,'LogitBoost',200,'Tree' );
 Yhat= predict(ens,Xtest);
-dlmwrite('submit2.txt',Yhat, '\n');
+%dlmwrite('submit2.txt',Yhat, '\n');
