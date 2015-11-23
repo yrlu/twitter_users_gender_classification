@@ -1,6 +1,20 @@
 % Deng, Xiang 
 % 11/22/2015
 % 87.53%....
+%% READ ME 
+%% Note IG or BNS captures different sets of words, using which one depends on the classifier, by experiments IG works well for stump trees
+% bns = calc_bns(words_train,Y); %-------------feature selection opt1% 
+% IG=calc_information_gain(genders_train,words_train,[1:5000],10);% --------or try to compute the information gain
+% 
+% % you can further scale the words
+% %words_train_s=bsxfun(@times,words_train,bns);% or...
+% words_train_s=bsxfun(@times,words_train,IG);
+
+% [top_igs, idx]=sort(IG,'descend'); %---- and sort
+
+% % and pick the top words
+% word_sel=idx(1:300);
+% X=X(:,word_sel);
 %% ensemble image feature + words + select the top features
 clear all
 close all
@@ -17,9 +31,10 @@ clc
 acc_ens=zeros(8,1);
 
 
-bns = calc_bns(Xtrainset,Y);
+bns = calc_bns(Xtrainset,Y,0.01);
 IG=calc_information_gain(Y,Xtrainset,[1:size(Xtrainset,2)],10);
 [top_igs, idx]=sort(IG,'descend');
+%[top_bns, idx]=sort(bns,'descend');
 %words_train_s=bsxfun(@times,words_train,IG);
 for i=1:8
     row_sel1=(parts~=i);
