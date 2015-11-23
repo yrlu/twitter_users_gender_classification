@@ -243,16 +243,14 @@ toc
 disp('Preparing data..');
 
 
-proportion = 0.8;
+proportion = 0.75;
 
 X = [words_train; words_train(1,:); words_train(2,:)];
 Y = [genders_train; genders_train(1); genders_train(2,:)];
-% train_x = X(~idx, :);
-% train_y = Y(~idx);
-train_x = X;
-train_y = Y;
-% test_x = X(idx, :);
-% test_y = Y(idx);
+train_x = X(~idx, :);
+train_y = Y(~idx);
+test_x = X(idx, :);
+test_y = Y(idx);
 
 
 
@@ -298,11 +296,9 @@ IG=calc_information_gain(genders_train,[words_train, image_features_train],[1:si
 [top_igs, index]=sort(IG,'descend');
 
 cols_sel=index(1:1000);
-% train_x_fs = words_train_s(~idx, cols_sel);
-% train_y_fs = genders_train_s(~idx);
-train_x_fs = words_train_s(:, cols_sel);
-train_y_fs = genders_train_s;
-% test_x_fs = words_train_s(idx, cols_sel);
+train_x_fs = words_train_s(~idx, cols_sel);
+train_y_fs = genders_train_s(~idx);
+test_x_fs = words_train_s(idx, cols_sel);
 
 train_x_fs_train = train_x_fs(1:end*proportion,:);
 train_y_fs_train = train_y_fs(1:end*proportion);
@@ -330,7 +326,7 @@ ypred = [yhat_logr yhat_nn yhat_fs];
 
 LogRens = train(train_y_test, sparse(ypred), ['-s 0', 'col']);
 % [predicted_label, accuracy, prob_estimates]
-logRensemble = @(test_x) predict(ones(size(test_x,1),1), sparse(test_x), LogRens, ['-q', 'col']);
+logRensemble = @(test_x) predict(test_y, sparse(test_x), LogRens, ['-q', 'col']);
 
 toc
 
@@ -348,12 +344,10 @@ disp('Generating real model..');
 
 X = [words_train; words_train(1,:); words_train(2,:)];
 Y = [genders_train; genders_train(1); genders_train(2,:)];
-train_x = X;
-train_y = Y;
-% train_x = X(~idx, :);
-% train_y = Y(~idx);
-% test_x = X(idx, :);
-% test_y = Y(idx);
+train_x = X(~idx, :);
+train_y = Y(~idx);
+test_x = X(idx, :);
+test_y = Y(idx);
 
 
 % 
@@ -399,13 +393,9 @@ IG=calc_information_gain(genders_train,[words_train, image_features_train],[1:si
 [top_igs, index]=sort(IG,'descend');
 
 cols_sel=index(1:1000);
-% train_x_fs = words_train_s(~idx, cols_sel);
-% train_y_fs = genders_train_s(~idx);
-train_x_fs = words_train_s(:, cols_sel);
-train_y_fs = genders_train_s;
-test_x_fs = words_train_s(:, cols_sel);
-
-
+train_x_fs = words_train_s(~idx, cols_sel);
+train_y_fs = genders_train_s(~idx);
+test_x_fs = words_train_s(idx, cols_sel);
 
 % train_x_fs_train = train_x_fs(1:end*proportion,:);
 % train_y_fs_train = train_y_fs(1:end*proportion);
@@ -424,11 +414,8 @@ toc
 disp('Predicting Yhat..');
 
 
-test_x = words_test;
-test_x_fs = [words_test, image_features_test];
-test_x_fs = test_x_fs(:, cols_sel);
 
-[predicted_label, accuracy, yhat_logr] = predict(ones(size(test_x,1),1), sparse(test_x), LogRmodel, ['-q', 'col']);
+[predicted_label, accuracy, yhat_logr] = predict(test_y, sparse(test_x), LogRmodel, ['-q', 'col']);
 [Yhat yhat_nn] = nnpredict_my(nn, test_x);
 yhat_nn = yhat_nn(:,1)-yhat_nn(:,2);
 [Yhat yhat_fs]= predict(ens,test_x_fs);
