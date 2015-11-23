@@ -185,11 +185,18 @@ end
 
 plot(accu)
 
+%% test majority vote
+X = [words_train, image_features_train];
+Y = genders_train;
+[accuracy, Ypredicted, Ytest] = cross_validation(X, Y, 8, @majority_vote);
+mean(accuracy)
+
 %% 71.43%
 X = scores(:,1:84);
 mdl = @(trainX, trainY, testX, testY) predict(fitcknn(trainX,trainY, 'Distance','minkowski', 'Exponent',3, 'NumNeighbors',30),testX);
 [accuracy, Ypredicted, Ytest] = cross_validation(X, Y, 4, mdl);
 mean(accuracy)
+
 
 
 %% Random Forest packed
