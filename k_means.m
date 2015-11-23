@@ -1,4 +1,4 @@
-function [precision] = k_means(train_x,train_y,test_x,test_y, K)
+function [yhat] = k_means(train_x,train_y,test_x,test_y, K)
 
 % separate into k clusters and assign labels to each cluster
 label = zeros(K,1);
@@ -21,4 +21,5 @@ for j = 1:size(test_y)
     [~,ind] = min(dis,[],2);
     cpre(j) = label(ind);
 end
-precision = mean(cpre == test_y);
+%precision = mean(cpre == test_y);
+yhat = cpre;
