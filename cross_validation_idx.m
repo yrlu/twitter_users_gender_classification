@@ -14,7 +14,9 @@ for i = 1:folds
    Ypredicted = [Ypredicted;Yhat];
    acc =sum(Yhat==testY)/size(testY,1);
    accuracy = [accuracy, acc];
+   disp('current fold:');
    i
+   disp('accuracy:');
    acc
 end
 
