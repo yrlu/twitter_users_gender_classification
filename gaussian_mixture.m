@@ -14,7 +14,7 @@ for j = 1:K
     c = IDX == j;
     table = tabulate(train_y(c));
     [~,index] = max(table(:,2));
-    label(j) = table(index,1);
+    label(j) = table(index,1)
 end
 
 P = posterior(gm,test_x); 

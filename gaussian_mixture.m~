@@ -1,7 +1,9 @@
-function [yhat, y_scores] = gaussian_mixture(train_x,train_y,test_x,test_y, K)
+% D.Wang ; 11/23
+%
+function [yhat, y_scores] = gaussian_mixture(X,train_y,test_x,test_y, K)
 % gaussian_mixture(train_x,train_y,test_x,test_y, K) fits a GMM to train
-% data, and predict label for test da
-% 
+% data, and predict label for test data based on posterior. 
+%
 % separate into k clusters and assign labels to each cluster
 label = zeros(K,1);
 
@@ -15,11 +17,10 @@ for j = 1:K
     label(j) = table(index,1);
 end
 
-P = posterior(gm,X); 
+P = posterior(gm,test_x); 
 %P is n-by-k, with P(I,J) the probability of component J given observation I.
 
 % assign test points to clusters
-test_n = size(test_x,1);
 
 % for each point, calculate the prob it belong to a class
 prob_class0 = sum(P(:,~logical(label)),2);
