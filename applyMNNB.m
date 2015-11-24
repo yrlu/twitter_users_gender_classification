@@ -5,6 +5,7 @@
 
 function [yhat, y_scores] = applyMNNB(prior, condprob, Xtest)
 
+% Multinomial Naive Bayes model
 lTest = size(Xtest,1);
 
 preSumA = log(Xtest.*repmat(condprob(1,:),lTest,1));

@@ -13,6 +13,10 @@
 
 %%
 [accu, ~,~]= cross_validation_idx(5000, 5, @add_classifier_test);
+mean(accu);
+% 3 + knn + V-NB: 89.02
+% 3: 88.76%
+% 3 + B-NB (IG350): 0.8934
 
         
 %% playground
@@ -197,7 +201,7 @@ Xcl = Xnorm(:,all(~isnan(Xnorm)));
 rng default
 nTrees = 20; % # of trees
 % Decision Forest
-B = TreeBagger(nTrees,X,Y, 'Method', 'classification', 'OOBPred','On');
+B = fitctree(nTrees,X,Y, 'Method', 'classification', 'OOBPred','On');
 
 
 oobErrorBaggedEnsemble = oobError(B);
@@ -216,9 +220,70 @@ testY = Y(4001:end,:);
 [accuracy, ~, ~] = cross_validation(X, Y, 4, @random_forest);
 mean(accuracy)
   
-%% MN Naive Bayes 
-[accuracy, Ypredicted, Ytest] = cross_validation(X, Y, 4, @predict_MNNB);
-mean(accuracy)
+%% MN Naive Bayes Vanilla 63.59%  boolean 79%
+% 2000: V 67.57% 78.85% Boolean 2*79.47% 
+% After 1000 words selection: Vanilla 69.91% 80.09% Boolean 80.39% bns 79.39%
+% 500: Vanilla 72.27% 79.27% B 81.25% b 79.77% 
+% 300: V 75.61% 80.51% B 81.35% 81.35% b 80.81% 
+% 100: V 77.95% 75.39% B in 74.67% b 74.85%
+% 50: V 69.55% bns 69.13% 66.15% 66.75%
+
+% ~ boolean selected words: 400 81.75% 
+
+%% Boolean ~IG 350 81.79%
+
+
+Y = genders_train;
+X = [words_train, image_features_train];
+IG=calc_information_gain(genders_train,X, [1:size(X,2)],10);
+[~, idx]=sort(IG,'descend'); %---- and sort
+
+% % and pick the top words
+word_sel=idx(1:50);
+X =X(:,word_sel);
+
+%%
+[n, ~] = size(words_train);
+[parts] = make_xval_partition(n, 8);
+clc
+acc=zeros(8,1);
+acc_nb=zeros(8,1);
+acc_log=zeros(8,1);
+bns = calc_bns(words_train,Y);
+
+new_features = [words_train,image_features_train];
+ IG=calc_information_gain(genders_train,new_features, [1:size(new_features,2)],10);
+%IG = calc_bns(words_train,Y);
+
+%words_train_s=bsxfun(@times,words_train,bns);
+% words_train_s=bsxfun(@times,new_features,IG);
+[top_igs, idx]=sort(IG,'descend');
+%[top_bans, idx]=sort(bns,'descend'); 84.6% ~ 1000 
+words_train_s=new_features;% words_train;
+for i=1:8
+    row_sel1=(parts~=i);
+    row_sel2=(parts==i);
+    cols_sel=idx(1:370);
+    
+    Xtrain=words_train_s(row_sel1,cols_sel);
+    Ytrain=genders_train(row_sel1);
+    Xtest=words_train_s(row_sel2,cols_sel);
+    Ytest=genders_train(row_sel2);
+    
+    [Yhat, ~] = predict_MNNB(Xtrain, Ytrain, Xtest, Ytest);
+   
+    acc_ens(i)=sum(round(Yhat)==Ytest)/length(Ytest);
+    confusionmat(Ytest,double(Yhat))
+   
+end
+acc_ens
+ mean(acc_ens)
+
+%words_train_s=bsxfun(@times,words_train,bns);
+% words_train_s=bsxfun(@times,new_features,IG);
+
+%[accuracy, Ypredicted, Ytest] = cross_validation(X, Y, 8, @predict_MNNB);
+%mean(accuracy)
 
 %%
 [accuracy, Ypredicted, Ytest] = cross_validation(X, Y, 4, @NB);
