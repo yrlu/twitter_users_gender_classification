@@ -29,8 +29,8 @@ acc_ens=zeros(8,1);
 IG=calc_information_gain(genders_train,words_train,[1:5000],10);
 [top_bans, idx]=sort(IG,'descend');
 %words_train_s=bsxfun(@times,words_train,IG);
-acc = zeros(8,1);
-for i=1:2
+acc = zeros(8,20);
+for i=1:8
     row_sel1=(parts~=i);
     row_sel2=(parts==i);
     cols_sel=idx(1:500);
@@ -41,12 +41,14 @@ for i=1:2
     Ytest=genders_train(row_sel2);
     
     % test 20 clusters
-    Yhat = gaussian_mixture(Xtrain,Ytrain,Xtest,Ytest, 200);
-    acc(i)=sum(round(Yhat)==Ytest)/length(Ytest);
+    for j = 1:20
+        Yhat = gaussian_mixture(Xtrain,Ytrain,Xtest,Ytest, j*5);
+        acc(i,j)=sum(round(Yhat)==Ytest)/length(Ytest);
+    end
     %confusionmat(Ytest,Yhat)
 end
 acc;
-mean(acc)
+mean(acc);
 
 
 %% test Gaussian Mixture 
