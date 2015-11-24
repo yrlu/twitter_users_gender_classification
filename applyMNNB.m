@@ -3,7 +3,7 @@
 % Multinomial Naive Bayes
 
 
-function [yhat] = applyMNNB(prior, condprob, Xtest)
+function [yhat, y_scores] = applyMNNB(prior, condprob, Xtest)
 
 lTest = size(Xtest,1);
 
@@ -15,5 +15,8 @@ scoreA =  sum(preSumA,2) + log(prior);
 scoreB =  sum(preSumB,2) +log(1- prior);
 AminusB = scoreA-scoreB;
 yhat = AminusB > 0;
+%y_scores = [scoreA,scoreB ]
+total = scoreA + scoreB;
+y_scores = [scoreB./total,scoreA./total];
 end
 

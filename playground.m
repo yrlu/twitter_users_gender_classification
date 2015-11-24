@@ -7,9 +7,12 @@
 % -K-means for image features 
 % PCA on only the words data : wrap PCA in classifiers. 
 % Decision Tree 
-% GMM
+% GMM --- not very effective at this stage (on raw data)
 % Image features
 % tf-idf
+
+%%
+[accu, ~,~]= cross_validation_idx(5000, 5, @add_classifier_test);
 
         
 %% playground
@@ -101,10 +104,11 @@ close all
 
 
 
-%%
+%% 
  
  %% 76: 71.55% knn
 features_index = I(1:76)';
+mdl = @(trainX, trainY, testX, testY) predict(fitcknn(trainX,trainY, 'NumNeighbors',j)
 X_selected = X(:,features_index);
 [accuracy, ~,~] = cross_validation(X_selected, Y, 4, mdl);
 mean(accuracy)
@@ -164,7 +168,7 @@ plot(accu)
 %% test majority vote
 X = [words_train, image_features_train];
 Y = genders_train;
-[accuracy, Ypredicted, Ytest] = cross_validation(X, Y, 8, @majority_vote);
+[accuracy, Ypredicted, Ytest] = cross_validation(X, Y, 4, @majority_vote);
 mean(accuracy)
 
 %% 71.43%
@@ -215,6 +219,11 @@ mean(accuracy)
 %% MN Naive Bayes 
 [accuracy, Ypredicted, Ytest] = cross_validation(X, Y, 4, @predict_MNNB);
 mean(accuracy)
+
+%%
+[accuracy, Ypredicted, Ytest] = cross_validation(X, Y, 4, @NB);
+mean(accuracy)
+
 
 %% IG selected KNN feature, 0.7335
 mdl = @(trainX, trainY, testX, testY) predict(fitcknn(trainX,trainY, 'NumNeighbors',12),testX);
