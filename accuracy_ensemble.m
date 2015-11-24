@@ -110,6 +110,9 @@ logRensemble = @(test_x) predict(test_y, sparse(test_x), LogRens, ['-q', 'col'])
 % to achieve better performance). And predict the probabilities on testing
 % set
 
+% **YOUR NEW CLASSIFIER GOES HERE**, please see other acc_{classifier}.m
+% and follow the interface. If special data need, please prepare the data
+% first as above accordingly.
 disp('Generating real model and predicting Yhat..');
 [~, yhat_log] = acc_logistic_regression(train_x, train_y, test_x, test_y);
 [~, yhat_nn] = acc_neural_net(train_x,train_y,test_x,test_y);
