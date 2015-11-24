@@ -60,7 +60,7 @@ IG=calc_information_gain(genders_train,words_train,[1:5000],10);
 [top_bans, idx]=sort(IG,'descend');
 %words_train_s=bsxfun(@times,words_train,IG);
 acc = zeros(8,20);
-for i=1:8
+for i=1:4
     row_sel1=(parts~=i);
     row_sel2=(parts==i);
     cols_sel=idx(1:500);
