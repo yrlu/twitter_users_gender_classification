@@ -17,4 +17,10 @@ disp('Training logistic regression..');
 LogRmodel = train(train_y, sparse(train_x), ['-s 0', 'col']);
 % LogRpredict = @(test_x) sign(predict(ones(size(test_x,1),1), sparse(test_x), LogRmodel, ['-q', 'col']) - 0.5);
 [Yhat, ~, YProb] = predict(test_y, sparse(test_x), LogRmodel, ['-q', 'col']);
+if Yhat(1) == 1 && YProb(1)<0
+    YProb = -YProb;
+elseif Yhat(1) ==0 && YProb(1)>0
+    YProb = -YProb;
+end
+
 end
