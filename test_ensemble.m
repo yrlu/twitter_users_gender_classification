@@ -17,7 +17,17 @@ toc
 % load('ypred.mat', 'ypred');
 % load('test_y.mat','test_y');
 
+load('ypred_testy_fold1.mat','ypred_testy_fold1');
+load('ypred_testy_fold2.mat','ypred_testy_fold2');
+load('ypred_testy_fold3.mat','ypred_testy_fold3');
+load('ypred_testy_fold4.mat','ypred_testy_fold4');
+load('ypred_testy_fold5.mat','ypred_testy_fold5');
+
 % --
+
+ypred_testy = [ypred_testy_fold1;ypred_testy_fold2;ypred_testy_fold3;ypred_testy_fold4;ypred_testy_fold5];
+ypred = ypred_testy(:,[1:end-1]);
+test_y = ypred_testy(:, end);
 
 log = ypred(:, 1);
 nn = ypred(:, [2 3]);
@@ -25,7 +35,7 @@ rf = ypred(:, 4);
 
 
 % logistic regression
-datamat = [log abs(log) log<0 test_y];
+datamat = [log abs(log) log>0 test_y];
 [n m] = size(datamat);
 correct =datamat(datamat(:,3) == datamat(:,4),:);
 incorrect =datamat(datamat(:,3) ~= datamat(:,4),:);
@@ -122,7 +132,7 @@ line([2;2],[min(P6);max(P6)]);
 % P(correct | abs(log_output)>thres1 or abs(nn_c1-nn_c2)>thres2 or abs(rf_output)>thres3)
 % = P(correct, abs(log_output)>thres1 or abs(nn_c1-nn_c2)>thres2 or abs(rf_output)>thres3 )/ P(abs(log_output)>thres1 or abs(nn_c1-nn_c2)>thres2 or abs(rf_output)>thres3);
 % ~ P(correct, abs(log_output)>thres1 or abs(nn_c1-nn_c2)>thres2 or abs(rf_output)>thres3 )/ P(abs(log_output)>thres1 or abs(nn_c1-nn_c2)>thres2 or abs(rf_output)>thres3);
-datalog = [log abs(log ) log<0 test_y];
+datalog = [log abs(log ) log>0 test_y];
 datann = [nn nn(:,1)-nn(:,2) abs(nn(:,1)-nn(:,2)) nn(:,1)>nn(:,2) test_y];
 datarf = [rf abs(rf) rf<0 test_y];
 

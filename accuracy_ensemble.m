@@ -132,6 +132,8 @@ disp('Generating real model and predicting Yhat..');
 % generated from classifiers.
 ypred = [yhat_log yhat_nn yhat_fs];
 
+
+%  Fold 1 data, deprecated
 %   Probability  thres1   thres2   thres3   Proportion
 %     0.9000    0.2000    0.2100    0.3000    0.9910
 %     0.9100    0.4000    0.2700    0.4000    0.9780
@@ -146,7 +148,23 @@ ypred = [yhat_log yhat_nn yhat_fs];
 %     1.0000   10.0000    0.7500    5.8000    0.3800
 
 
-Yhat = acc_cascading(ypred, [10,0.75, 2]);
+
+% Fold 1-5 data:
+%   Probability  thres1   thres2   thres3   Proportion
+%     0.9000    0.5000    0.3100    0.3000    0.9786
+%     0.9100    0.8000    0.4000    0.4000    0.9636
+%     0.9200    1.4000    0.4700    0.5000    0.9406
+%     0.9300    2.0000    0.5300    0.7000    0.9006
+%     0.9400    2.6000    0.6100    0.8000    0.8718
+%     0.9500    3.8000    0.6500    1.0000    0.8224
+%     0.9600    4.6000    0.7200    1.3000    0.7508
+%     0.9700    6.9000    0.7400    1.8000    0.6524
+%     0.9800   10.0000    0.7500    2.8000    0.4900
+%     0.9900   10.0000    0.7500    7.2000    0.2552
+%     1.0000   10.0000    0.7500   10.0000    0.2446
+
+
+Yhat = acc_cascading(ypred, [4.6,  0.72,  1.3]);
 Yuncertain = Yhat==-1;
 Ycertain = Yhat~=-1;
 Yhat_log = logRensemble(ypred);
