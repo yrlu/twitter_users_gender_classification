@@ -1,8 +1,15 @@
-%% To Try %% 
-% -Look for trend in words data.. PCA -> cluster? Gaussian? 
+%% The playground to mess around... 
+
+% -Look for trend in words data.. PCA -> cluster? Gaussian?
+% bns = calc_bns(words_train,Y); %-------------feature selection opt1% 
+% IG=calc_information_gain(genders_train,words_train,[1:5000],10); %trees
+
 % -K-means for image features 
 % PCA on only the words data : wrap PCA in classifiers. 
-
+% Decision Tree 
+% GMM
+% Image features
+% tf-idf
 
         
 %% playground
@@ -92,38 +99,7 @@ close all
  X_selected =X(:,word_sel);
 
 
-%% test Gaussian Mixture 
-close all
 
-X_s = X_selected;
-%X_s = X_train_imagefea_cont;
-GMModel = fitgmdist(X_s,2,'Start', 'plus','RegularizationValue',0.1);
-threshold = [0.4,0.6];
-P = posterior(GMModel,X_s);
-
-n = size(X_s,1);
-[~,order]= sort(P(:,1));
-%%
-
-figure;
-plot(1:n,P(order,1),'r-',1:n,P(order,2),'b-');
-legend({'Cluster 1', 'Cluster 2'});
-ylabel('Cluster Membership Score');
-xlabel('Point Ranking');
-title('GMM with Full Unshared Covariances');
-
-%%
-idx = cluster(GMModel,X_s);
-idxBoth = find(P(:,1)>=threshold(1) & P(:,1)<=threshold(2));
-numInBoth = numel(idxBoth)
-
-figure;
-gscatter(X_s(:,1),X_s(:,2),idx,'rb','+o',5);
-hold on;
-plot(X_s(idxBoth,1),X_s(idxBoth,2),'ko','MarkerSize',10);
-legend({'Cluster 1','Cluster 2','Both Clusters'},'Location','SouthEast');
-title('Scatter Plot - GMM with Full Unshared Covariances')
-hold off;
 
 %%
  
@@ -255,6 +231,7 @@ plot acc;
 
 
 %% K-means with 10 clusters k-means
+
 mdl2 = @(train_x,train_y,test_x,test_y) k_means(train_x,train_y,test_x,test_y, 10);
 [accuracy, ~, ~] = cross_validation(X, Y, 4, mdl2);
 mean(accuracy)

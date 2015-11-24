@@ -1,6 +1,7 @@
-function yhat = info_gain_tree_ensemble(trainX, trainY, testX, num_fea)
+function [yhat, y_scores]  = info_gain_tree_ensemble(trainX, trainY, testX, num_fea)
 % info_gain_tree_ensemble fits an ensembled-tree model to data
 % yhat = the predicted label of testX
+% y_scores 
 % trainX, trainY = the data used to train the model
 % testX = the unlabled data
 % num_fea = number of top-IG features employed for model
@@ -28,4 +29,4 @@ Xtest=testX(:,cols_sel);
 ens = fitensemble(Xtrain,Ytrain,'LogitBoost',200,'Tree' ); %ens=regularize(ens);
     %ens = fitensemble(Xtrain,Ytrain, 'RobustBoost',300,'Tree','RobustErrorGoal',0.01,'RobustMaxMargin',1);
     %
-yhat= predict(ens,Xtest);
+[yhat, y_scores] = predict(ens,Xtest);
