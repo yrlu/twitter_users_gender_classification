@@ -2,20 +2,145 @@
 % Date: Nov 20
 
 
-%% load data first ..
+%% Accuracy ensemble, see @accuracy_ensemble;
+
+tic
+% note that here we are calling cross_validation_idx; I leave data
+% preparation to each classifier.
+disp('Accuracy ensemble + cross-validation');
+[accuracy, Ypredicted, Ytest] = cross_validation_idx(5000, 5, @accuracy_ensemble);
+accuracy
+mean(accuracy)
+toc
+
+%% Analysis of the raw outputs of 3 classifiers and the ground truth
+% load('ypred.mat', 'ypred');
+% load('test_y.mat','test_y');
+
+% --
+
+log = ypred(:, 1);
+nn = ypred(:, [2 3]);
+rf = ypred(:, 4);
 
 
-% Load the data first, see prepare_data.
-if exist('genders_train','var')~= 1
-prepare_data;
-load('train/genders_train.mat', 'genders_train');
-load('train/images_train.mat', 'images_train');
-load('train/image_features_train.mat', 'image_features_train');
-load('train/words_train.mat', 'words_train');
-load('test/images_test.mat', 'images_test');
-load('test/image_features_test.mat', 'image_features_test');
-load('test/words_test.mat', 'words_test');
+% logistic regression
+datamat = [log abs(log) log<0 test_y];
+[n m] = size(datamat);
+correct =datamat(datamat(:,3) == datamat(:,4),:);
+incorrect =datamat(datamat(:,3) ~= datamat(:,4),:);
+% We want to know the threshold that the classifier yields 95+% accuracy.
+%   P(correct|abs(output)>thres) > 95%;
+%   => N(correct, abs(output)>thres) /N(abs(output)>thres) > 0.95
+P1 = [];
+M1 = 10;
+for i = linspace(0,M1,100)
+    P1 = [P1;sum(correct(:,2)>i)/sum(datamat(:,2)>i)];
 end
+subplot(2,3,1);
+plot(linspace(0,M1,100), P1);
+title('Log Regression - P(correct | abs(output)>thres)')
+line([3;3],[min(P1);max(P1)]);
+% We want to know the number of samples remained give the threshold
+%   N(abs(output)>thres)/N(samples);
+
+P2 = [];
+M2 = 10;
+for i = linspace(0, M2, 100)
+    P2 = [P2; sum(datamat(:,2)>i)/n];
+end
+subplot(2,3,4);
+plot(linspace(0, M2, 100), P2);
+title('Log Regression:  P(abs(output)>thres)')
+line([3;3],[min(P2);max(P2)]);
+
+
+% Neural network
+datamat = [nn nn(:,1)-nn(:,2) abs(nn(:,1)-nn(:,2)) nn(:,1)>nn(:,2) test_y];
+[n m] = size(datamat);
+correct =datamat(datamat(:,5) == datamat(:,6),:);
+incorrect =datamat(datamat(:,5) ~= datamat(:,6),:);
+% We want to know the threshold that the classifier yields 95+% accuracy.
+%   P(correct|abs(c1-c2)>thres) > 95%;
+%   => N(correct, abs(c1-c2)>thres) /N(abs(c1-c2)>thres) > 0.95
+P3 = [];
+M3 = 1;
+for i = linspace(0,M3,100)
+    P3 = [P3;sum(correct(:,4)>i)/sum(datamat(:,4)>i)];
+end
+subplot(2,3,2);
+plot(linspace(0,M3,100), P3);
+title('Neural Net:  P(correct | abs(c1-c2)>thres)');
+line([0.6;0.6],[min(P3);max(P3)]);
+
+
+% We want to know the number of samples remained give the threshold
+%   N(abs(c1-c2)>thres)/N(samples);
+
+P4 = [];
+for i = linspace(0, 1, 100)
+    P4 = [P4; sum(datamat(:,4)>i)/n];
+end
+subplot(2,3,5);
+plot(linspace(0, 1, 100), P4);
+title('Neural Net:  P(abs(c1-c2)>thres)');
+line([0.6;0.6],[min(P4);max(P4)]);
+
+% Ensemble trees:
+datamat = [rf abs(rf-mean(rf)) rf<0 test_y];
+[n m] = size(datamat);
+correct =datamat(datamat(:,3) == datamat(:,4),:);
+incorrect =datamat(datamat(:,3) ~= datamat(:,4),:);
+% We want to know the threshold that the classifier yields 95+% accuracy.
+%   P(correct|abs(output)>thres) > 95%;
+%   => N(correct, abs(output)>thres) /N(abs(output)>thres) > 0.95
+P5 = [];
+for i = linspace(0,10,100)
+    P5 = [P5;sum(correct(:,2)>i)/sum(datamat(:,2)>i)];
+end
+subplot(2,3,3);
+plot(linspace(0,10,100), P5);
+title('Ensemble Trees:  P(correct | abs(output)>thres)');
+line([2;2],[min(P5);max(P5)]);
+
+
+% We want to know the number of samples remained give the threshold
+%   N(abs(c1-c2)>thres)/N(samples);
+
+P6 = [];
+for i = linspace(0, 10, 100)
+    P6 = [P6; sum(datamat(:,2)>i)/n];
+end
+subplot(2,3,6);
+plot(linspace(0, 10, 100), P6);
+title('Ensemble Trees:  P(abs(output)>thres)');
+line([2;2],[min(P6);max(P6)]);
+
+
+
+
+% Now we want to know 
+% P(abs(log_output)>thres1 or abs(nn_c1-nn_c2)>thres2 or abs(rf_output)>thres3);
+% P(correct | abs(log_output)>thres1 or abs(nn_c1-nn_c2)>thres2 or abs(rf_output)>thres3)
+% = P(correct, abs(log_output)>thres1 or abs(nn_c1-nn_c2)>thres2 or abs(rf_output)>thres3 )/ P(abs(log_output)>thres1 or abs(nn_c1-nn_c2)>thres2 or abs(rf_output)>thres3);
+% ~ P(correct, abs(log_output)>thres1 or abs(nn_c1-nn_c2)>thres2 or abs(rf_output)>thres3 )/ P(abs(log_output)>thres1 or abs(nn_c1-nn_c2)>thres2 or abs(rf_output)>thres3);
+datalog = [log abs(log) log<0 test_y];
+datann = [nn nn(:,1)-nn(:,2) abs(nn(:,1)-nn(:,2)) nn(:,1)>nn(:,2) test_y];
+datarf = [rf abs(rf-mean(rf)) rf<0 test_y];
+
+thres = [3, 0.6, 2];
+
+log_s = (datalog(:,2) > thres(1));
+nn_s = (datann(:,3) > thres(2));
+rf_s = (datarf(:,2) > thres(3));
+
+N95 = bsxfun(@or, bsxfun(@or, log_s, nn_s), rf_s);
+p = sum(N95)/size(log_s,1)
+
+
+thres = 0.95;
+uint8(sum(P1<thres)/size(P1,1) * 100);
+
 
 
 
@@ -23,16 +148,11 @@ end
 %% analyze for the outputs of 6 classifiers:
 
 % load('yy.mat', 'yy');
-
 % [NB,KNN,LogR,NNet, RF, LinearR];
-
 predY = yy(:,1:end-1);
 testY = yy(:, end);
-
 ycov = cov(predY);
 HeatMap(ycov);
-
-
 yycor = []
 for i = 1:6
     for j = 1:i-1
@@ -43,16 +163,12 @@ for i = 1:6
 end
 
 yycor = [predY];
-
-
 correct= bsxfun(@minus, predY, testY) == 0;
-
 [accuracy, Ypredicted, Ytest] = cross_validation(yycor, testY, 5, @rand_forest);
 accuracy
 mean(accuracy)
 
-%%
-
+%% 5 folds cross-validation yields nice accuracy, see @majority_voting;
 
 tic
 % note that here we are calling cross_validation_idx; I leave data
@@ -64,9 +180,7 @@ mean(accuracy)
 toc
 
 
-
-
-%% Generate submit.txt
+%% Previous approach, deprecated. Please see the next section.
 
 train_x = [words_train;words_train(1,:);words_train(2,:)];
 train_y = [genders_train;genders_train(1,:);genders_train(2,:)];
@@ -218,7 +332,7 @@ toc
 
 
 
-%% generate submit.txt
+%% generate submit.txt, new benchmark. 90.11%
 
 
 
@@ -243,14 +357,16 @@ toc
 disp('Preparing data..');
 
 
-proportion = 0.75;
+proportion = 0.8;
 
 X = [words_train; words_train(1,:); words_train(2,:)];
 Y = [genders_train; genders_train(1); genders_train(2,:)];
-train_x = X(~idx, :);
-train_y = Y(~idx);
-test_x = X(idx, :);
-test_y = Y(idx);
+% train_x = X(~idx, :);
+% train_y = Y(~idx);
+train_x = X;
+train_y = Y;
+% test_x = X(idx, :);
+% test_y = Y(idx);
 
 
 
@@ -296,9 +412,11 @@ IG=calc_information_gain(genders_train,[words_train, image_features_train],[1:si
 [top_igs, index]=sort(IG,'descend');
 
 cols_sel=index(1:1000);
-train_x_fs = words_train_s(~idx, cols_sel);
-train_y_fs = genders_train_s(~idx);
-test_x_fs = words_train_s(idx, cols_sel);
+% train_x_fs = words_train_s(~idx, cols_sel);
+% train_y_fs = genders_train_s(~idx);
+train_x_fs = words_train_s(:, cols_sel);
+train_y_fs = genders_train_s;
+% test_x_fs = words_train_s(idx, cols_sel);
 
 train_x_fs_train = train_x_fs(1:end*proportion,:);
 train_y_fs_train = train_y_fs(1:end*proportion);
@@ -326,7 +444,7 @@ ypred = [yhat_logr yhat_nn yhat_fs];
 
 LogRens = train(train_y_test, sparse(ypred), ['-s 0', 'col']);
 % [predicted_label, accuracy, prob_estimates]
-logRensemble = @(test_x) predict(test_y, sparse(test_x), LogRens, ['-q', 'col']);
+logRensemble = @(test_x) predict(ones(size(test_x,1),1), sparse(test_x), LogRens, ['-q', 'col']);
 
 toc
 
@@ -344,10 +462,12 @@ disp('Generating real model..');
 
 X = [words_train; words_train(1,:); words_train(2,:)];
 Y = [genders_train; genders_train(1); genders_train(2,:)];
-train_x = X(~idx, :);
-train_y = Y(~idx);
-test_x = X(idx, :);
-test_y = Y(idx);
+train_x = X;
+train_y = Y;
+% train_x = X(~idx, :);
+% train_y = Y(~idx);
+% test_x = X(idx, :);
+% test_y = Y(idx);
 
 
 % 
@@ -393,9 +513,13 @@ IG=calc_information_gain(genders_train,[words_train, image_features_train],[1:si
 [top_igs, index]=sort(IG,'descend');
 
 cols_sel=index(1:1000);
-train_x_fs = words_train_s(~idx, cols_sel);
-train_y_fs = genders_train_s(~idx);
-test_x_fs = words_train_s(idx, cols_sel);
+% train_x_fs = words_train_s(~idx, cols_sel);
+% train_y_fs = genders_train_s(~idx);
+train_x_fs = words_train_s(:, cols_sel);
+train_y_fs = genders_train_s;
+test_x_fs = words_train_s(:, cols_sel);
+
+
 
 % train_x_fs_train = train_x_fs(1:end*proportion,:);
 % train_y_fs_train = train_y_fs(1:end*proportion);
@@ -414,8 +538,11 @@ toc
 disp('Predicting Yhat..');
 
 
+test_x = words_test;
+test_x_fs = [words_test, image_features_test];
+test_x_fs = test_x_fs(:, cols_sel);
 
-[predicted_label, accuracy, yhat_logr] = predict(test_y, sparse(test_x), LogRmodel, ['-q', 'col']);
+[predicted_label, accuracy, yhat_logr] = predict(ones(size(test_x,1),1), sparse(test_x), LogRmodel, ['-q', 'col']);
 [Yhat yhat_nn] = nnpredict_my(nn, test_x);
 yhat_nn = yhat_nn(:,1)-yhat_nn(:,2);
 [Yhat yhat_fs]= predict(ens,test_x_fs);

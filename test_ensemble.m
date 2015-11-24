@@ -2,69 +2,6 @@
 % Date: Nov 20
 
 
-%% load data first ..
-
-
-% Load the data first, see prepare_data.
-if exist('genders_train','var')~= 1
-prepare_data;
-load('train/genders_train.mat', 'genders_train');
-load('train/images_train.mat', 'images_train');
-load('train/image_features_train.mat', 'image_features_train');
-load('train/words_train.mat', 'words_train');
-load('test/images_test.mat', 'images_test');
-load('test/image_features_test.mat', 'image_features_test');
-load('test/words_test.mat', 'words_test');
-end
-
-
-
-
-%% analyze for the outputs of 6 classifiers:
-
-% load('yy.mat', 'yy');
-
-% [NB,KNN,LogR,NNet, RF, LinearR];
-
-predY = yy(:,1:end-1);
-testY = yy(:, end);
-
-ycov = cov(predY);
-HeatMap(ycov);
-
-
-yycor = []
-for i = 1:6
-    for j = 1:i-1
-%         for q = 1:j-1
-            yycor = [yycor predY(:,i)*2+predY(:,j)];
-%         end
-    end
-end
-
-yycor = [predY];
-
-
-correct= bsxfun(@minus, predY, testY) == 0;
-
-[accuracy, Ypredicted, Ytest] = cross_validation(yycor, testY, 5, @rand_forest);
-accuracy
-mean(accuracy)
-
-%% 5 folds cross-validation yields nice accuracy, see @majority_voting;
-
-
-tic
-% note that here we are calling cross_validation_idx; I leave data
-% preparation to each classifier.
-disp('Ensemble + cross-validation');
-[accuracy, Ypredicted, Ytest] = cross_validation_idx(5000, 5, @majority_voting);
-accuracy
-mean(accuracy)
-toc
-
-
-
 %% Accuracy ensemble, see @accuracy_ensemble;
 
 tic
@@ -76,9 +13,213 @@ accuracy
 mean(accuracy)
 toc
 
+%% Analysis of the raw outputs of 3 classifiers and the ground truth
+% load('ypred.mat', 'ypred');
+% load('test_y.mat','test_y');
+
+% --
+
+log = ypred(:, 1);
+nn = ypred(:, [2 3]);
+rf = ypred(:, 4);
 
 
-%% Previous approach, deprecated. Please look the next section.
+% logistic regression
+datamat = [log abs(log) log<0 test_y];
+[n m] = size(datamat);
+correct =datamat(datamat(:,3) == datamat(:,4),:);
+incorrect =datamat(datamat(:,3) ~= datamat(:,4),:);
+% We want to know the threshold that the classifier yields 95+% accuracy.
+%   P(correct|abs(output)>thres) > 95%;
+%   => N(correct, abs(output)>thres) /N(abs(output)>thres) > 0.95
+P1 = [];
+M1 = 10;
+for i = linspace(0,M1,100)
+    P1 = [P1;sum(correct(:,2)>i)/sum(datamat(:,2)>i)];
+end
+subplot(2,3,1);
+plot(linspace(0,M1,100), P1);
+title('Log Regression - P(correct | abs(output)>thres)')
+line([3;3],[min(P1);max(P1)]);
+% We want to know the number of samples remained give the threshold
+%   N(abs(output)>thres)/N(samples);
+
+P2 = [];
+
+for i = linspace(0, M1, 100)
+    P2 = [P2; sum(datamat(:,2)>i)/n];
+end
+subplot(2,3,4);
+plot(linspace(0, M1, 100), P2);
+title('Log Regression:  P(abs(output)>thres)')
+line([3;3],[min(P2);max(P2)]);
+
+
+% Neural network
+datamat = [nn nn(:,1)-nn(:,2) abs(nn(:,1)-nn(:,2)) nn(:,1)>nn(:,2) test_y];
+[n m] = size(datamat);
+correct =datamat(datamat(:,5) == datamat(:,6),:);
+incorrect =datamat(datamat(:,5) ~= datamat(:,6),:);
+% We want to know the threshold that the classifier yields 95+% accuracy.
+%   P(correct|abs(c1-c2)>thres) > 95%;
+%   => N(correct, abs(c1-c2)>thres) /N(abs(c1-c2)>thres) > 0.95
+P3 = [];
+M2 = 1;
+for i = linspace(0,M2,100)
+    P3 = [P3;sum(correct(:,4)>i)/sum(datamat(:,4)>i)];
+end
+subplot(2,3,2);
+plot(linspace(0,M2,100), P3);
+title('Neural Net:  P(correct | abs(c1-c2)>thres)');
+line([0.6;0.6],[min(P3);max(P3)]);
+
+
+% We want to know the number of samples remained give the threshold
+%   N(abs(c1-c2)>thres)/N(samples);
+
+P4 = [];
+for i = linspace(0, M2, 100)
+    P4 = [P4; sum(datamat(:,4)>i)/n];
+end
+subplot(2,3,5);
+plot(linspace(0, M2, 100), P4);
+title('Neural Net:  P(abs(c1-c2)>thres)');
+line([0.6;0.6],[min(P4);max(P4)]);
+
+% Ensemble trees:
+datamat = [rf abs(rf) rf<0 test_y];
+[n m] = size(datamat);
+correct =datamat(datamat(:,3) == datamat(:,4),:);
+incorrect =datamat(datamat(:,3) ~= datamat(:,4),:);
+% We want to know the threshold that the classifier yields 95+% accuracy.
+%   P(correct|abs(output)>thres) > 95%;
+%   => N(correct, abs(output)>thres) /N(abs(output)>thres) > 0.95
+P5 = [];
+M3 =10;
+for i = linspace(0,M3,100)
+    P5 = [P5;sum(correct(:,2)>i)/sum(datamat(:,2)>i)];
+end
+subplot(2,3,3);
+plot(linspace(0,M3,100), P5);
+title('Ensemble Trees:  P(correct | abs(output)>thres)');
+line([2;2],[min(P5);max(P5)]);
+
+
+% We want to know the number of samples remained give the threshold
+%   N(abs(c1-c2)>thres)/N(samples);
+
+P6 = [];
+for i = linspace(0, M3, 100)
+    P6 = [P6; sum(datamat(:,2)>i)/n];
+end
+subplot(2,3,6);
+plot(linspace(0, M3, 100), P6);
+title('Ensemble Trees:  P(abs(output)>thres)');
+line([2;2],[min(P6);max(P6)]);
+
+% Now we want to know 
+% P(abs(log_output)>thres1 or abs(nn_c1-nn_c2)>thres2 or abs(rf_output)>thres3);
+% P(correct | abs(log_output)>thres1 or abs(nn_c1-nn_c2)>thres2 or abs(rf_output)>thres3)
+% = P(correct, abs(log_output)>thres1 or abs(nn_c1-nn_c2)>thres2 or abs(rf_output)>thres3 )/ P(abs(log_output)>thres1 or abs(nn_c1-nn_c2)>thres2 or abs(rf_output)>thres3);
+% ~ P(correct, abs(log_output)>thres1 or abs(nn_c1-nn_c2)>thres2 or abs(rf_output)>thres3 )/ P(abs(log_output)>thres1 or abs(nn_c1-nn_c2)>thres2 or abs(rf_output)>thres3);
+datalog = [log abs(log ) log<0 test_y];
+datann = [nn nn(:,1)-nn(:,2) abs(nn(:,1)-nn(:,2)) nn(:,1)>nn(:,2) test_y];
+datarf = [rf abs(rf) rf<0 test_y];
+
+
+thres = [3, 0.6, 2];
+log_s = (datalog(:,2) > thres(1));
+nn_s = (datann(:,3) > thres(2));
+rf_s = (datarf(:,2) > thres(3));
+
+
+
+log_correct =datalog(datalog(:,3) == datalog(:,4),:);
+nn_correct =datann(datann(:,5) == datann(:,6),:);
+rf_correct =datarf(datarf(:,3) == datarf(:,4),:);
+
+
+
+N95 = bsxfun(@or, bsxfun(@or, log_s, nn_s), rf_s);
+p = sum(N95)/size(log_s,1);
+
+
+prob = 0.91;
+P2(uint8(sum(P1<prob)/size(P1,1) * 100));
+P4(uint8(sum(P3<prob)/size(P3,1) * 100));
+P6(uint8(sum(P5<prob)/size(P5,1) * 100));
+
+thres = [sum(P1<prob)/size(P1,1)*M1;sum(P3<prob)/size(P3,1)*M2;sum(P5<prob)/size(P5,1)*M3];
+thres
+log_s = (datalog(:,2) > thres(1));
+nn_s = (datann(:,3) > thres(2));
+rf_s = (datarf(:,2) > thres(3));
+N95 = bsxfun(@or, bsxfun(@or, log_s, nn_s), rf_s);
+p = sum(N95)/size(log_s,1)
+
+P = [];
+probs= [];
+thresholds = [];
+for i = 1:11
+prob = 0.89+i/100;
+P2(uint8(sum(P1<prob)/size(P1,1) * 100));
+P4(uint8(sum(P3<prob)/size(P3,1) * 100));
+P6(uint8(sum(P5<prob)/size(P5,1) * 100));
+
+thres = [sum(P1<prob)/size(P1,1)*M1;sum(P3<prob)/size(P3,1)*M2;sum(P5<prob)/size(P5,1)*M3];
+log_s = (datalog(:,2) > thres(1));
+nn_s = (datann(:,3) > thres(2));
+rf_s = (datarf(:,2) > thres(3));
+N95 = bsxfun(@or, bsxfun(@or, log_s, nn_s), rf_s);
+p = sum(N95)/size(log_s,1);
+P = [P;p];
+prob;
+thres;
+probs = [probs;prob];
+thresholds = [thresholds;thres'];
+end
+disp('  Probability  thres1   thres2   thres3   Proportion');
+disp([probs thresholds P])
+figure;plot(linspace(90,100,11), P);
+line([91,91],[min(P),max(P)], 'Color','r');
+title('The probability x to correctly predict y proportion of data with ensembled 3 classifiers');
+
+%% analyze for the outputs of 6 classifiers:
+
+% load('yy.mat', 'yy');
+% [NB,KNN,LogR,NNet, RF, LinearR];
+predY = yy(:,1:end-1);
+testY = yy(:, end);
+ycov = cov(predY);
+HeatMap(ycov);
+yycor = []
+for i = 1:6
+    for j = 1:i-1
+%         for q = 1:j-1
+            yycor = [yycor predY(:,i)*2+predY(:,j)];
+%         end
+    end
+end
+
+yycor = [predY];
+correct= bsxfun(@minus, predY, testY) == 0;
+[accuracy, Ypredicted, Ytest] = cross_validation(yycor, testY, 5, @rand_forest);
+accuracy
+mean(accuracy)
+
+%% 5 folds cross-validation yields nice accuracy, see @majority_voting;
+
+tic
+% note that here we are calling cross_validation_idx; I leave data
+% preparation to each classifier.
+disp('Ensemble + cross-validation');
+[accuracy, Ypredicted, Ytest] = cross_validation_idx(5000, 5, @majority_voting);
+accuracy
+mean(accuracy)
+toc
+
+
+%% Previous approach, deprecated. Please see the next section.
 
 train_x = [words_train;words_train(1,:);words_train(2,:)];
 train_y = [genders_train;genders_train(1,:);genders_train(2,:)];
