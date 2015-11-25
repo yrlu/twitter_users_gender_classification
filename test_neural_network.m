@@ -17,24 +17,7 @@ load('test/image_features_test.mat', 'image_features_test');
 load('test/words_test.mat', 'words_test');
 end
 
-% Prepare/Load PCA-ed data,  
-if exist('eigens','var')~= 1
-    if exist('coef.mat','file') ~= 2 
-        X = [words_train, image_features_train; words_test, image_features_test]; 
-        [coef, scores, eigens] = pca(X);
-        save('coef.mat', 'coef');
-        save('scores.mat', 'scores');
-        save('eigens.mat', 'eigens');
-    else 
-        load('coef.mat', 'coef');
-        load('scores.mat', 'scores');
-        load('eigens.mat', 'eigens');
-    end
-end
-
 %%
-
-
 
 X = [words_train, image_features_train; words_test, image_features_test];
 Y = genders_train;
@@ -57,3 +40,8 @@ accuracy
 mean(accuracy)
 toc
 
+
+
+
+
+%% 

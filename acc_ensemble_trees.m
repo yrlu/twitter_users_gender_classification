@@ -13,7 +13,7 @@
 %   YProb: This is all the *RAW* outputs of the classifier.
 
 function [Yhat, YProb] = acc_ensemble_trees(train_x, train_y, test_x, test_y, accuracy, opts)
-ens = fitensemble(train_x,train_y,'LogitBoost',330,'Tree' ); 
+ens = fitensemble(train_x,train_y,'LogitBoost',200,'Tree' ); 
 % FSPredict = @(test_x) sign(predict(ens,test_x)-0.5);
 [Yhat, YProb]= predict(ens,test_x);
 end

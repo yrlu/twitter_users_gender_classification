@@ -438,6 +438,7 @@ Ycertain = Yhat~=-1;
 Yhat_log = logRensemble(ypred);
 Yhat = bsxfun(@times, Yhat, Ycertain)+bsxfun(@times, Yhat_log, Yuncertain);
 
+Yhat = Yhat_log
 YProb = ypred;
 Ytest = test_y;
 
