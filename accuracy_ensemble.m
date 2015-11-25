@@ -72,6 +72,12 @@ train_y_fs = genders_train_s(~idx);
 test_x_fs = words_train_s(idx, cols_sel);
 
 
+cols_sel_knn = index(1:350);
+train_x_knn = words_train_s(~idx, cols_sel_knn);
+train_y_knn = genders_train_s(~idx); %?
+test_x_knn = words_train_s(idx, cols_sel_knn);
+
+
 % The first thing to do is to train a ensembler, currently we use logistic
 % regression. To do that, we seperate the training set into 2 pieces:
 % 1) The first piece to train the classifiers 
@@ -87,6 +93,12 @@ train_y_test = train_y(end*proportion+1:end);
 train_x_fs_train = train_x_fs(1:end*proportion,:);
 train_y_fs_train = train_y_fs(1:end*proportion);
 train_x_fs_test = train_x_fs(end*proportion+1:end, :);
+
+% knn
+train_x_knn_train = train_x_knn(1:end*proportion,:);
+train_y_knn_train = train_y_knn(1:end*proportion);
+train_x_knn_test = train_x_knn(end*proportion+1:end, :);
+
 
 toc
 
@@ -105,9 +117,9 @@ disp('Building ensemble..');
 [~, yhat_log] = acc_logistic_regression(train_x_train, train_y_train, train_x_test, train_y_test);
 [~, yhat_nn] = acc_neural_net(train_x_train, train_y_train, train_x_test, train_y_test);
 [~, yhat_fs] = acc_ensemble_trees(train_x_fs_train, train_y_fs_train, train_x_fs_test, train_y_test);
-
+[~, yhat_nb] = predict_MNNB(train_x_knn_train, train_y_knn_train, train_x_knn_test, train_y_test);
 % The probabilities produced by the classifiers
-ypred = [yhat_log yhat_nn yhat_fs];
+ypred = [yhat_log yhat_nn yhat_fs yhat_nb];
 
 % Train a log_reg ensembler.
 LogRens = train(train_y_test, sparse(ypred), ['-s 0', 'col']);
@@ -127,10 +139,10 @@ disp('Generating real model and predicting Yhat..');
 [~, yhat_log] = acc_logistic_regression(train_x, train_y, test_x, test_y);
 [~, yhat_nn] = acc_neural_net(train_x,train_y,test_x,test_y);
 [~, yhat_fs] = acc_ensemble_trees(train_x_fs, train_y_fs, test_x_fs, test_y);
-
+[~, yhat_nb] = predict_MNNB(train_x_knn, train_y_knn, test_x_knn, test_y);
 % Use trained ensembler to predict Yhat based on the probabilities
 % generated from classifiers.
-ypred = [yhat_log yhat_nn yhat_fs];
+ypred = [yhat_log yhat_nn yhat_fs yhat_nb];
 
 
 %  Fold 1 data, deprecated
@@ -163,8 +175,22 @@ ypred = [yhat_log yhat_nn yhat_fs];
 %     0.9900   10.0000    0.7500    7.2000    0.2552
 %     1.0000   10.0000    0.7500   10.0000    0.2446
 
+% thres for NB
+%   Probability  thres   proportion
+%     0.9000    0.0019    0.6208
+%     0.9100    0.0021    0.5660
+%     0.9200    0.0024    0.5176
+%     0.9300    0.0031    0.3707
+%     0.9400    0.0040    0.2231
+%     0.9500    0.0050    0.1066
+%     0.9600    0.0050    0.1066
+%     0.9700    0.0050    0.1066
+%     0.9800    0.0050    0.1066
+%     0.9900    0.0050    0.1066
+%     1.0000    0.0050    0.1066
 
-Yhat = acc_cascading(ypred, [4.6,  0.72,  1.3]);
+
+Yhat = acc_cascading(ypred, [4.6,  0.72,  1.3, 0.0024]);
 Yuncertain = Yhat==-1;
 Ycertain = Yhat~=-1;
 Yhat_log = logRensemble(ypred);
