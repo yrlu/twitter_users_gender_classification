@@ -14,6 +14,62 @@ mean(accuracy)
 toc
 
 %% Analysis of the raw outputs of 3 classifiers and the ground truth
+
+
+load('data_fold1.mat', 'ypred_testy_fold1');
+load('data_fold2.mat', 'ypred_testy_fold2');
+load('data_fold3.mat', 'ypred_testy_fold3');
+load('data_fold4.mat', 'ypred_testy_fold4');
+load('data_fold5.mat', 'ypred_testy_fold5');
+
+% --
+
+nb_testy = [ypred_testy_fold1;ypred_testy_fold2;ypred_testy_fold3;ypred_testy_fold4;ypred_testy_fold5];
+nb = nb_testy(:,[1:end-1]);
+test_y = nb_testy(:, end);
+datamat = [nb abs(nb(:,1) - nb(:,2)) nb(:,1) - nb(:,2)>0 test_y];
+[n m] = size(datamat);
+correct =datamat(datamat(:,5) == datamat(:,4),:);
+incorrect =datamat(datamat(:,5) ~= datamat(:,4),:);
+
+
+% We want to know the threshold that the classifier yields 95+% accuracy.
+%   P(correct|abs(output)>thres) > 95%;
+%   => N(correct, abs(output)>thres) /N(abs(output)>thres) > 0.95
+P7 = [];
+M4 = 0.005;
+for i = linspace(0,M4,100)
+    P7 = [P7;sum(correct(:,3)>i)/sum(datamat(:,3)>i)];
+end
+subplot(2,1,1);
+plot(linspace(0,M4,100), P7);
+title('Naive Bayes: P(correct | abs(output)>thres)')
+% line([3;3],[min(P1);max(P1)]);
+% We want to know the number of samples remained give the threshold
+%   N(abs(output)>thres)/N(samples);
+
+P8 = [];
+for i = linspace(0, M4, 100)
+    P8 = [P8; sum(datamat(:,3)>i)/n];
+end
+subplot(2,1,2);
+plot(linspace(0, M4, 100), P8);
+title('Naive Bayes:  P(abs(output)>thres)')
+% line([3;3],[min(P2);max(P2)]);
+
+P= []
+for i = 1:11
+prob = 0.89+i/100;
+thres = sum(P7<prob)/size(P7,1) * M4;
+proportion = P8(uint8(thres/M4*100));
+P = [P;prob thres proportion];
+end
+disp(P)
+
+
+
+
+%%
 % load('ypred.mat', 'ypred');
 % load('test_y.mat','test_y');
 
@@ -23,7 +79,6 @@ load('ypred_testy_fold3.mat','ypred_testy_fold3');
 load('ypred_testy_fold4.mat','ypred_testy_fold4');
 load('ypred_testy_fold5.mat','ypred_testy_fold5');
 
-% --
 
 ypred_testy = [ypred_testy_fold1;ypred_testy_fold2;ypred_testy_fold3;ypred_testy_fold4;ypred_testy_fold5];
 ypred = ypred_testy(:,[1:end-1]);
@@ -226,13 +281,12 @@ Y = [genders_train; genders_train(1); genders_train(2,:)];
 % train_y = Y(~idx);
 % test_x = X(idx, :);
 % test_y = Y(idx);
+
 train_x = X;
 train_y = Y;
 test_x = words_test;
 test_y = ones(size(words_test,1),1);
-
-
-
+% test_y = genders_test;
 
 % % Features selection 
 % Use information gain to select the top features from BOTH word_features
@@ -242,7 +296,7 @@ Nfeatures = 1000;
 disp('Training random forest with selected features..');
 words_train_s = [words_train, image_features_train];
 words_train_s = [words_train_s; words_train_s(1,:); words_train_s(2,:)];
-words_test_s = [words_test,image_features_test];
+words_test_s = [words_test, image_features_test];
 genders_train_s = [genders_train; genders_train(1);genders_train(2)];
 IG=calc_information_gain(genders_train,[words_train, image_features_train],[1:size([words_train, image_features_train],2)],10);
 [top_igs, index]=sort(IG,'descend');
@@ -252,13 +306,19 @@ cols_sel=index(1:Nfeatures);
 % train_x_fs = words_train_s(~idx, cols_sel);
 % train_y_fs = genders_train_s(~idx);
 % test_x_fs = words_train_s(idx, cols_sel);
+% 
+
 train_x_fs = words_train_s(:, cols_sel);
 train_y_fs = genders_train_s(:);
 test_x_fs = words_test_s(:, cols_sel);
 
-
-
-
+cols_sel_knn = index(1:350);
+% train_x_knn = words_train_s(~idx, cols_sel_knn);
+% train_y_knn = genders_train_s(~idx); %?
+% test_x_knn = words_train_s(idx, cols_sel_knn);
+train_x_knn = words_train_s(:, cols_sel_knn);
+train_y_knn = genders_train_s(:); %?
+test_x_knn = words_test_s(:, cols_sel_knn);
 
 % The first thing to do is to train a ensembler, currently we use logistic
 % regression. To do that, we seperate the training set into 2 pieces:
@@ -275,6 +335,12 @@ train_y_test = train_y(end*proportion+1:end);
 train_x_fs_train = train_x_fs(1:end*proportion,:);
 train_y_fs_train = train_y_fs(1:end*proportion);
 train_x_fs_test = train_x_fs(end*proportion+1:end, :);
+
+% knn
+train_x_knn_train = train_x_knn(1:end*proportion,:);
+train_y_knn_train = train_y_knn(1:end*proportion);
+train_x_knn_test = train_x_knn(end*proportion+1:end, :);
+
 
 toc
 
@@ -293,9 +359,9 @@ disp('Building ensemble..');
 [~, yhat_log] = acc_logistic_regression(train_x_train, train_y_train, train_x_test, train_y_test);
 [~, yhat_nn] = acc_neural_net(train_x_train, train_y_train, train_x_test, train_y_test);
 [~, yhat_fs] = acc_ensemble_trees(train_x_fs_train, train_y_fs_train, train_x_fs_test, train_y_test);
-
+[~, yhat_nb] = predict_MNNB(train_x_knn_train, train_y_knn_train, train_x_knn_test, train_y_test);
 % The probabilities produced by the classifiers
-ypred = [yhat_log yhat_nn yhat_fs];
+ypred = [yhat_log yhat_nn yhat_fs yhat_nb];
 
 % Train a log_reg ensembler.
 LogRens = train(train_y_test, sparse(ypred), ['-s 0', 'col']);
@@ -315,11 +381,13 @@ disp('Generating real model and predicting Yhat..');
 [~, yhat_log] = acc_logistic_regression(train_x, train_y, test_x, test_y);
 [~, yhat_nn] = acc_neural_net(train_x,train_y,test_x,test_y);
 [~, yhat_fs] = acc_ensemble_trees(train_x_fs, train_y_fs, test_x_fs, test_y);
-
+[~, yhat_nb] = predict_MNNB(train_x_knn, train_y_knn, test_x_knn, test_y);
 % Use trained ensembler to predict Yhat based on the probabilities
 % generated from classifiers.
-ypred = [yhat_log yhat_nn yhat_fs];
+ypred = [yhat_log yhat_nn yhat_fs yhat_nb];
 
+
+%  Fold 1 data, deprecated
 %   Probability  thres1   thres2   thres3   Proportion
 %     0.9000    0.2000    0.2100    0.3000    0.9910
 %     0.9100    0.4000    0.2700    0.4000    0.9780
@@ -334,7 +402,37 @@ ypred = [yhat_log yhat_nn yhat_fs];
 %     1.0000   10.0000    0.7500    5.8000    0.3800
 
 
-Yhat = acc_cascading(ypred, [10,0.75, 2]);
+
+% Fold 1-5 data:
+%   Probability  thres1   thres2   thres3   Proportion
+%     0.9000    0.5000    0.3100    0.3000    0.9786
+%     0.9100    0.8000    0.4000    0.4000    0.9636
+%     0.9200    1.4000    0.4700    0.5000    0.9406
+%     0.9300    2.0000    0.5300    0.7000    0.9006
+%     0.9400    2.6000    0.6100    0.8000    0.8718
+%     0.9500    3.8000    0.6500    1.0000    0.8224
+%     0.9600    4.6000    0.7200    1.3000    0.7508
+%     0.9700    6.9000    0.7400    1.8000    0.6524
+%     0.9800   10.0000    0.7500    2.8000    0.4900
+%     0.9900   10.0000    0.7500    7.2000    0.2552
+%     1.0000   10.0000    0.7500   10.0000    0.2446
+
+% thres for NB
+%   Probability  thres   proportion
+%     0.9000    0.0019    0.6208
+%     0.9100    0.0021    0.5660
+%     0.9200    0.0024    0.5176
+%     0.9300    0.0031    0.3707
+%     0.9400    0.0040    0.2231
+%     0.9500    0.0050    0.1066
+%     0.9600    0.0050    0.1066
+%     0.9700    0.0050    0.1066
+%     0.9800    0.0050    0.1066
+%     0.9900    0.0050    0.1066
+%     1.0000    0.0050    0.1066
+
+
+Yhat = acc_cascading(ypred, [4.6,  0.72,  1.3, 0.0024]);
 Yuncertain = Yhat==-1;
 Ycertain = Yhat~=-1;
 Yhat_log = logRensemble(ypred);
@@ -344,6 +442,8 @@ YProb = ypred;
 Ytest = test_y;
 
 toc
+
+
 
 
 %% analyze for the outputs of 6 classifiers:

@@ -17,13 +17,15 @@
 function [Yhat] = acc_cascading(ypred, thres)
     Yhat = [];
     for i = 1:size(ypred,1)
-%        if abs(ypred(i,1)) > thres(1)
-%            Yhat = [Yhat;ypred(i,1)<0];
-       if abs(ypred(i,2)-ypred(i,3)) > thres(2)
+       if abs(ypred(i,1)) > thres(1)
+           Yhat = [Yhat;ypred(i,1)>0];
+       elseif abs(ypred(i,2)-ypred(i,3)) > thres(2)
            Yhat = [Yhat;ypred(i,2)>ypred(i,3)];
-       elseif abs(ypred(i,4)) > thres(2)
+       elseif abs(ypred(i,4)) > thres(3)
            Yhat = [Yhat;ypred(i,4)<0];
-       else 
+       elseif abs(ypred(i,6)-ypred(i,7)) > thres(4) 
+           Yhat = [Yhat;ypred(i,6)-ypred(i,7)>0];
+       else
            Yhat = [Yhat;-1];
        end
     end
