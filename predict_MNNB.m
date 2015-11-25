@@ -7,3 +7,4 @@ function [yhat, ys] = predict_MNNB(trainX, trainY, testX, testY)
 testX(testX>0) = 1;
 
 [yhat, ys] = applyMNNB(prior, condprob, testX);
+end
