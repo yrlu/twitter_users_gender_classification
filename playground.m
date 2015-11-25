@@ -11,9 +11,35 @@
 % Image features
 % tf-idf
 
+% 
+
 %%
 [accu, ~,~]= cross_validation_idx(5000, 5, @add_classifier_test);
 mean(accu);
+
+
+
+%%
+% Bernoulli: 5000: 78.99% 2000: 79.71%; 1000: 80.39% 500: 81.19%  
+% 450: 81.53% 400: 81.65% 355: 81.87% 350: 81.73% 300: 81.31% 200: 80.45%
+% 
+% words_train_s = [words_train, image_features_train];
+% words_train_s = [words_train_s; words_train_s(1,:); words_train_s(2,:)];
+% genders_train_s = [genders_train; genders_train(1);genders_train(2)];
+X =[words_train, image_features_train];
+IG=calc_information_gain(genders_train,[words_train, image_features_train],[1:size([words_train, image_features_train],2)],10);
+[top_igs, index]=sort(IG,'descend');
+
+cols_sel=index(1:355);
+% prepare data for ensemble trees to train and test.
+train_x_fs = X(:, cols_sel);
+
+%
+[accu, ~,~]= cross_validation(train_x_fs,Y, 5, @predict_MNNB);
+mean(accu)
+
+
+%%
 % 3 + knn + V-NB: 89.02
 % 3: 88.76%
 % 3 + B-NB (IG350): 0.8934
@@ -220,7 +246,8 @@ testY = Y(4001:end,:);
 [accuracy, ~, ~] = cross_validation(X, Y, 4, @random_forest);
 mean(accuracy)
   
-%% MN Naive Bayes Vanilla 63.59%  boolean 79%
+%% MN Naive Bayes 
+% Vanilla 63.59%  boolean 79%
 % 2000: V 67.57% 78.85% Boolean 2*79.47% 
 % After 1000 words selection: Vanilla 69.91% 80.09% Boolean 80.39% bns 79.39%
 % 500: Vanilla 72.27% 79.27% B 81.25% b 79.77% 

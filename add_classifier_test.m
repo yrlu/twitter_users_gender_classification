@@ -106,15 +106,16 @@ disp('Building ensemble..');
 [~, yhat_nn] = acc_neural_net(train_x_train, train_y_train, train_x_test, train_y_test);
 [~, yhat_fs] = acc_ensemble_trees(train_x_fs_train, train_y_fs_train, train_x_fs_test, train_y_test);
 %[~,yhat_knn] = acc_knn(train_x_knn_train, train_y_knn_train, train_x_knn_test, train_y_test);
-%[~,yhat_nb] = predict_MNNB(train_x_knn_train, train_y_knn_train, train_x_knn_test, train_y_test);
+[~,yhat_nb] = predict_MNNB(train_x_knn_train, train_y_knn_train, train_x_knn_test, train_y_test);
 % The probabilities produced by the classifiers
-ypred = [yhat_log yhat_nn yhat_fs]; % yhat_knn]; % yhat_nb];
+ypred = [yhat_log yhat_nn yhat_fs yhat_nb]; % yhat_knn]; % yhat_nb];
 
 % Train a log_reg ensembler.
 LogRens = train(train_y_test, sparse(ypred), ['-s 0', 'col']);
 logRensemble = @(test_x) predict(test_y, sparse(test_x), LogRens, ['-q', 'col']);
-
-
+%NumTrees = 50;
+%B = TreeBagger(NumTrees,ypred,train_y_test);
+%B = fitctree(ypred,train_y_test);
 
 % Here, we re-train the classifiers using the whole training set (in order 
 % to achieve better performance). And predict the probabilities on testing
@@ -128,15 +129,14 @@ disp('Generating real model and predicting Yhat..');
 [~, yhat_nn] = acc_neural_net(train_x,train_y,test_x,test_y);
 [~, yhat_fs] = acc_ensemble_trees(train_x_fs, train_y_fs, test_x_fs, test_y);
 % [~,yhat_knn] = acc_knn(train_x_knn, train_y_knn, test_x_knn, test_y);
-%[~,yhat_nb] = predict_MNNB(train_x_knn, train_y_knn, test_x_knn, test_y);
+[~,yhat_nb] = predict_MNNB(train_x_knn, train_y_knn, test_x_knn, test_y);
 % Use trained ensembler to predict Yhat based on the probabilities
 % generated from classifiers.
-ypred = [yhat_log yhat_nn yhat_fs];%  yhat_knn]; %  yhat_nb];
-%Yhat = logRensemble(ypred);
-NumTrees = 50;
+ypred = [yhat_log yhat_nn yhat_fs yhat_nb];%  yhat_knn]; %  yhat_nb];
+Yhat = logRensemble(ypred);
 
-Yhat = predict(TreeBagger(NumTrees,ypred,train_y_test),ypred);
-Yhat = [cellfun(@str2num,Yhat)]
+% Yhat = predict(B,ypred);
+% Yhat = [cellfun(@str2num,Yhat)];
 YProb = ypred;
 Ytest = test_y;
 end
