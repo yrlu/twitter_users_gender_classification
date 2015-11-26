@@ -49,8 +49,8 @@ for i=1:8
     row_sel2=(parts==i);
     
     %cols_sel=idx_ig(1:1000);
-    cols_sel=idx_bns(1:2000);
-    %cols_sel=unique([idx_ig(1:1000),idx_bns(1:2000)]); % or ensemble the
+    %cols_sel=idx_bns(1:2000);
+    cols_sel=unique([idx_ig(1:1000),idx_bns(1:2000)]); % or ensemble the
     %top features from both ig and bns
     Xtrain=Xtrainset(row_sel1,cols_sel);
     Ytrain=Y(row_sel1);
