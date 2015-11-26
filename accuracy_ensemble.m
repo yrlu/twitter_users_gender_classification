@@ -117,9 +117,9 @@ disp('Building ensemble..');
 [~, yhat_log] = acc_logistic_regression(train_x_train, train_y_train, train_x_test, train_y_test);
 [~, yhat_nn] = acc_neural_net(train_x_train, train_y_train, train_x_test, train_y_test);
 [~, yhat_fs] = acc_ensemble_trees(train_x_fs_train, train_y_fs_train, train_x_fs_test, train_y_test);
-[~, yhat_nb] = predict_MNNB(train_x_knn_train, train_y_knn_train, train_x_knn_test, train_y_test);
+% [~, yhat_nb] = predict_MNNB(train_x_knn_train, train_y_knn_train, train_x_knn_test, train_y_test);
 % The probabilities produced by the classifiers
-ypred = [yhat_log yhat_nn yhat_fs yhat_nb];
+ypred = [yhat_log yhat_nn yhat_fs];
 
 % Train a log_reg ensembler.
 LogRens = train(train_y_test, sparse(ypred), ['-s 0', 'col']);
@@ -139,10 +139,10 @@ disp('Generating real model and predicting Yhat..');
 [~, yhat_log] = acc_logistic_regression(train_x, train_y, test_x, test_y);
 [~, yhat_nn] = acc_neural_net(train_x,train_y,test_x,test_y);
 [~, yhat_fs] = acc_ensemble_trees(train_x_fs, train_y_fs, test_x_fs, test_y);
-[~, yhat_nb] = predict_MNNB(train_x_knn, train_y_knn, test_x_knn, test_y);
+% [~, yhat_nb] = predict_MNNB(train_x_knn, train_y_knn, test_x_knn, test_y);
 % Use trained ensembler to predict Yhat based on the probabilities
 % generated from classifiers.
-ypred = [yhat_log yhat_nn yhat_fs yhat_nb];
+ypred = [yhat_log yhat_nn yhat_fs];
 
 
 %  Fold 1 data, deprecated
@@ -190,11 +190,11 @@ ypred = [yhat_log yhat_nn yhat_fs yhat_nb];
 %     1.0000    0.0050    0.1066
 
 
-Yhat = acc_cascading(ypred, [4.6,  0.72,  1.3, 0.0024]);
-Yuncertain = Yhat==-1;
-Ycertain = Yhat~=-1;
+% Yhat = acc_cascading(ypred, [4.6,  0.72,  1.3, 0.0024]);
+% Yuncertain = Yhat==-1;
+% Ycertain = Yhat~=-1;
 Yhat_log = logRensemble(ypred);
-Yhat = bsxfun(@times, Yhat, Ycertain)+bsxfun(@times, Yhat_log, Yuncertain);
+% Yhat = bsxfun(@times, Yhat, Ycertain)+bsxfun(@times, Yhat_log, Yuncertain);
 Yhat = Yhat_log;
 YProb = ypred;
 Ytest = test_y;
