@@ -41,7 +41,7 @@ IG=calc_information_gain(Y,Xtrainset,[1:size(Xtrainset,2)],10);
 % s      - type for -s option
 % c      - cost parameter
 s=6;
-c=0.1;
+c=0.01;
 option  = sprintf('-s %d -q -c %g', s, c);
 %words_train_s=bsxfun(@times,words_train,IG);
 for i=1:8
