@@ -379,7 +379,8 @@ toc
 % first as above accordingly.
 disp('Generating real model and predicting Yhat..');
 [~, yhat_log] = acc_logistic_regression(train_x, train_y, test_x, test_y);
-[~, yhat_nn] = acc_neural_net(train_x,train_y,test_x,test_y);
+% [~, yhat_nn] = acc_neural_net(train_x,train_y,test_x,test_y);
+[~, yhat_nn] = nn_load_predict(train_x,train_y,test_x,test_y);
 [~, yhat_fs] = acc_ensemble_trees(train_x_fs, train_y_fs, test_x_fs, test_y);
 % [~, yhat_nb] = predict_MNNB(train_x_knn, train_y_knn, test_x_knn, test_y);
 % Use trained ensembler to predict Yhat based on the probabilities
