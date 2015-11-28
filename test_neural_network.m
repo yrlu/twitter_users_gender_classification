@@ -17,28 +17,12 @@ load('test/image_features_test.mat', 'image_features_test');
 load('test/words_test.mat', 'words_test');
 end
 
-% Prepare/Load PCA-ed data,  
-if exist('eigens','var')~= 1
-    if exist('coef.mat','file') ~= 2 
-        X = [words_train, image_features_train; words_test, image_features_test]; 
-        [coef, scores, eigens] = pca(X);
-        save('coef.mat', 'coef');
-        save('scores.mat', 'scores');
-        save('eigens.mat', 'eigens');
-    else 
-        load('coef.mat', 'coef');
-        load('scores.mat', 'scores');
-        load('eigens.mat', 'eigens');
-    end
-end
-
 %%
-
-
 
 X = [words_train, image_features_train; words_test, image_features_test];
 Y = genders_train;
 
+[n m] = size(words_train);
 % PCA features
 % X = scores(1:n, 1:2000);
 X = X(1:n,:);
@@ -46,7 +30,7 @@ X = X(1:n,:);
 X = [X;X(1,:);X(1,:)];
 Y = [Y;Y(1,:);Y(1,:)];
 % X = normc(X);
-[n m] = size(words_train);
+
 
 addpath('./DL_toolbox/util','./DL_toolbox/NN','./DL_toolbox/DBN');
 
@@ -57,3 +41,18 @@ accuracy
 mean(accuracy)
 toc
 
+%% train a low training error neural network and save
+
+X = words_train;
+Y = genders_train;
+X = [X;X(1,:);X(1,:)];
+Y = [Y;Y(1,:);Y(1,:)];
+
+testX = words_test;
+testY = ones(size(words_test,1),1);
+
+Yhat = neural_network(X,Y,testX,testY);
+
+
+
+%% 

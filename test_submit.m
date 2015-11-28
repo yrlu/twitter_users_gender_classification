@@ -1,31 +1,7 @@
 % Author: Max Lu
-% Date: Nov 23
+% Date: Nov 27
 
-% This is an updated version of majority_voting.m, we can incorprate more
-% classifiers later. This function is compatible with cross_validation_idx.
-% If you create new classifiers, please follow the interface below!
-
-
-% Inputs: 
-%   idx: the indices of the testing set. 
-%       Here we assume that we have
-%       5000 samples (We manually add 2 samples to the training set, so that the
-%       neural network will not run into trouble:)
-%   accuracy: the expected accuracy
-%   opts: please pass all your options of the classifier here!
-
-% Outputs: 
-%   Yhat: The labels predicted, 1 for female, 0 for male, -1 for uncertain.
-%       Note that we have -1 because we want to limit the accuracy as we
-%       inputed
-%   Ytest: The test ground truth labels. 
-%   YProb: This is all the *RAW* outputs of the classifiers. n*p matrix, n
-%   for number of samples, p for number of classifiers. For a single
-%   classifier, p = 1.
-
-
-function [Yhat, Ytest, YProb] = accuracy_ensemble(idx, accuracy, opts)
-
+%%
 
 tic
 disp('Loading data..');
@@ -45,8 +21,9 @@ load('img_coef_faces.mat', 'img_coef_faces');
 load('img_scores_faces.mat', 'img_scores_faces');
 load('img_eigens_faces.mat', 'img_eigens_faces');
 load('face_certain.mat','certain');
+
 load('train_hog.mat', 'train_hog');
-% load('test_hog.mat', 'test_hog');
+load('test_hog.mat', 'test_hog');
 toc
 
 disp('Preparing data..');
@@ -55,21 +32,32 @@ disp('Preparing data..');
 % Separate the data into training set and testing set.
 X = [words_train; words_train(1,:); words_train(2,:)];
 Y = [genders_train; genders_train(1); genders_train(2,:)];
-train_x = X(~idx, :);
-train_y = Y(~idx);
-test_x = X(idx, :);
-test_y = Y(idx);
+% train_x = X(~idx, :);
+% train_y = Y(~idx);
+% test_x = X(idx, :);
+% test_y = Y(idx);
+train_x = X;
+train_y = Y;
+test_x = words_test;
+test_y = ones(size(words_test,1),1);
+
+
 
 % prepare data for face detection.
 % img_train = img_scores_faces(1:5000, :);
 img_train = double(train_hog);
 certain_train = certain(1:5000,:);
 
-img_train_x = img_train( logical(bsxfun(@times, ~idx, certain_train)), :);
-img_train_y = Y(logical(bsxfun(@times, ~idx, certain_train)), :);
+% img_train_x = img_train( logical(bsxfun(@times, ~idx, certain_train)), :);
+% img_train_y = Y(logical(bsxfun(@times, ~idx, certain_train)), :);
 
-img_test_x = img_train(idx, :);
-certain_test = certain_train(idx,:);
+img_train_x = img_train(logical(certain_train), :);
+img_train_y = Y(logical(certain_train), :);
+
+
+% img_test_x = img_scores_faces(5001:end, :);
+img_test_x = double(test_hog);
+certain_test = certain(5001:end,:);
 % img_test_y = Y(idx);
 
 
@@ -81,29 +69,36 @@ Nfeatures = 1000;
 disp('Training random forest with selected features..');
 words_train_s = [words_train, image_features_train];
 words_train_s = [words_train_s; words_train_s(1,:); words_train_s(2,:)];
+words_test_s = [words_test, image_features_test];
 genders_train_s = [genders_train; genders_train(1);genders_train(2)];
 IG=calc_information_gain(genders_train,[words_train, image_features_train],[1:size([words_train, image_features_train],2)],10);
 [top_igs, index]=sort(IG,'descend');
 
 cols_sel=index(1:Nfeatures);
 % prepare data for ensemble trees to train and test.
-train_x_fs = words_train_s(~idx, cols_sel);
-train_y_fs = genders_train_s(~idx);
-test_x_fs = words_train_s(idx, cols_sel);
+% train_x_fs = words_train_s(~idx, cols_sel);
+% train_y_fs = genders_train_s(~idx);
+% test_x_fs = words_train_s(idx, cols_sel);
+% 
 
+train_x_fs = words_train_s(:, cols_sel);
+train_y_fs = genders_train_s(:);
+test_x_fs = words_test_s(:, cols_sel);
 
 cols_sel_knn = index(1:350);
-train_x_knn = words_train_s(~idx, cols_sel_knn);
-train_y_knn = genders_train_s(~idx); %?
-test_x_knn = words_train_s(idx, cols_sel_knn);
-
+% train_x_knn = words_train_s(~idx, cols_sel_knn);
+% train_y_knn = genders_train_s(~idx); %?
+% test_x_knn = words_train_s(idx, cols_sel_knn);
+train_x_knn = words_train_s(:, cols_sel_knn);
+train_y_knn = genders_train_s(:); %?
+test_x_knn = words_test_s(:, cols_sel_knn);
 
 % The first thing to do is to train a ensembler, currently we use logistic
 % regression. To do that, we seperate the training set into 2 pieces:
 % 1) The first piece to train the classifiers 
 % 2) The second piece to train the ensembler,e.g. logistic regression.
 % There we use $proportion for 1). and the rest for 2).
-proportion = 0.75;
+proportion = 0.8;
 train_x_train=train_x(1:end*proportion,:);
 train_y_train=train_y(1:end*proportion);
 train_x_test = train_x(end*proportion+1:end,:);
@@ -119,14 +114,16 @@ train_x_knn_train = train_x_knn(1:end*proportion,:);
 train_y_knn_train = train_y_knn(1:end*proportion);
 train_x_knn_test = train_x_knn(end*proportion+1:end, :);
 
+
+
 % eigen face
 img_train_x_train = img_train_x(1:end*proportion,:);
 img_train_y_train = img_train_y(1:end*proportion,:);
-img_train_tmp = img_train(~idx, :);
-img_train_x_test = img_train_tmp(end*proportion+1:end, :);
+% img_train_tmp = img_train(~idx, :);
+img_train_x_test = img_train(end*proportion+1:end, :);
 % img_train_y_test = test_y(end*proportion+1:end);
-certain_train_tmp = certain_train(~idx);
-certain_train_train = certain_train_tmp(end*proportion+1:end);
+% certain_train_tmp = certain_train(~idx);
+certain_train_train = certain_train(end*proportion+1:end);
 
 toc
 
@@ -147,7 +144,6 @@ disp('Building ensemble..');
 [~, yhat_fs] = acc_ensemble_trees(train_x_fs_train, train_y_fs_train, train_x_fs_test, train_y_test);
 % [~, yhat_ef] = eigen_face(img_train_x_train,img_train_y_train, img_train_x_test, train_y_test);
 [~, yhat_hog] =acc_logistic_regression(img_train_x_train,img_train_y_train, img_train_x_test, train_y_test);
-
 % yhat_ef(logical(~certain_train_train), :) = -1;
 yhat_hog(logical(~certain_train_train), :) = -1;
 % [~, yhat_nb] = predict_MNNB(train_x_knn_train, train_y_knn_train, train_x_knn_test, train_y_test);
@@ -176,6 +172,7 @@ disp('Generating real model and predicting Yhat..');
 [~, yhat_hog] = acc_logistic_regression(img_train_x,img_train_y, img_test_x, test_y);
 % yhat_ef(logical(~certain_test),:) = -1;
 yhat_hog(logical(~certain_test),:) = -1;
+
 % [~, yhat_nb] = predict_MNNB(train_x_knn, train_y_knn, test_x_knn, test_y);
 % Use trained ensembler to predict Yhat based on the probabilities
 % generated from classifiers.
@@ -232,9 +229,9 @@ ypred = [yhat_log yhat_nn yhat_fs yhat_hog];
 % Ycertain = Yhat~=-1;
 Yhat_log = logRensemble(ypred);
 % Yhat = bsxfun(@times, Yhat, Ycertain)+bsxfun(@times, Yhat_log, Yuncertain);
-Yhat = Yhat_log;
+Yhat = Yhat_log
 YProb = ypred;
-Ytest = test_y;
+% Ytest = test_y;
 
 toc
-end
+
