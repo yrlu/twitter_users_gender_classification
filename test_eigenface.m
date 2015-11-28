@@ -48,6 +48,10 @@ end
 
 %% 
 
+load('img_coef.mat', 'img_coef');
+load('img_scores.mat', 'img_scores');
+load('img_eigens.mat', 'img_eigens');
+
 
 % acc = [];
 % for i = 1:50

@@ -57,17 +57,14 @@ load('train/words_stem_train.mat', 'words_stem_train');
 load('train/genders_train.mat', 'genders_train');
 % load('test/words_stem_test.mat', 'words_stem_test');
 
-X = words_stem_train;
-% X = normc(X);
+% X = words_stem_train;
+% X = words_train(:, logical(remove));
+X = words_train;
 Y = genders_train;
-[n m] = size(words_train);
 
-% PCA features
-% X = scores(1:n, 1:3200);
-% X = X(1:n, :);
 addpath('./liblinear');
 disp('logistic regression + cross-validation');
-[accuracy, Ypredicted, Ytest] = cross_validation(X, Y, 5, @logistic);
+[accuracy, Ypredicted, Ytest] = cross_validation(X, Y, 5, @predict_MNNB);
 accuracy
 mean(accuracy)
 
