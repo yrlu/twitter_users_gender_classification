@@ -14,6 +14,9 @@ load('train/words_train.mat', 'words_train');
 load('test/images_test.mat', 'images_test');
 load('test/image_features_test.mat', 'image_features_test');
 load('test/words_test.mat', 'words_test');
+
+load('train_hog.mat', 'train_hog');
+load('test_hog.mat', 'test_hog');
 end
 
 %%

@@ -45,6 +45,8 @@ load('img_coef_faces.mat', 'img_coef_faces');
 load('img_scores_faces.mat', 'img_scores_faces');
 load('img_eigens_faces.mat', 'img_eigens_faces');
 load('face_certain.mat','certain');
+load('train_hog.mat', 'train_hog');
+% load('test_hog.mat', 'test_hog');
 toc
 
 disp('Preparing data..');
@@ -59,7 +61,8 @@ test_x = X(idx, :);
 test_y = Y(idx);
 
 % prepare data for face detection.
-img_train = img_scores_faces(1:5000, :);
+% img_train = img_scores_faces(1:5000, :);
+img_train = double(train_hog);
 certain_train = certain(1:5000,:);
 
 img_train_x = img_train( logical(bsxfun(@times, ~idx, certain_train)), :);
@@ -142,12 +145,14 @@ disp('Building ensemble..');
 [~, yhat_log] = acc_logistic_regression(train_x_train, train_y_train, train_x_test, train_y_test);
 [~, yhat_nn] = acc_neural_net(train_x_train, train_y_train, train_x_test, train_y_test);
 [~, yhat_fs] = acc_ensemble_trees(train_x_fs_train, train_y_fs_train, train_x_fs_test, train_y_test);
-[~, yhat_ef] = eigen_face(img_train_x_train,img_train_y_train, img_train_x_test, train_y_test);
+% [~, yhat_ef] = eigen_face(img_train_x_train,img_train_y_train, img_train_x_test, train_y_test);
+[~, yhat_hog] =acc_logistic_regression(img_train_x_train,img_train_y_train, img_train_x_test, train_y_test);
 
-yhat_ef(logical(~certain_train_train), :) = -1;
+% yhat_ef(logical(~certain_train_train), :) = -1;
+yhat_hog(logical(~certain_train_train), :) = -1;
 % [~, yhat_nb] = predict_MNNB(train_x_knn_train, train_y_knn_train, train_x_knn_test, train_y_test);
 % The probabilities produced by the classifiers
-ypred = [yhat_log yhat_nn yhat_fs yhat_ef];
+ypred = [yhat_log yhat_nn yhat_fs yhat_hog];
 
 % Train a log_reg ensembler.
 LogRens = train(train_y_test, sparse(ypred), ['-s 0', 'col']);
@@ -167,12 +172,14 @@ disp('Generating real model and predicting Yhat..');
 [~, yhat_log] = acc_logistic_regression(train_x, train_y, test_x, test_y);
 [~, yhat_nn] = acc_neural_net(train_x,train_y,test_x,test_y);
 [~, yhat_fs] = acc_ensemble_trees(train_x_fs, train_y_fs, test_x_fs, test_y);
-[~, yhat_ef] = eigen_face(img_train_x,img_train_y, img_test_x, test_y);
-yhat_ef(logical(~certain_test),:) = -1;
+% [~, yhat_ef] = eigen_face(img_train_x,img_train_y, img_test_x, test_y);
+[~, yhat_hog] = acc_logistic_regression(img_train_x,img_train_y, img_test_x, test_y);
+% yhat_ef(logical(~certain_test),:) = -1;
+yhat_hog(logical(~certain_test),:) = -1;
 % [~, yhat_nb] = predict_MNNB(train_x_knn, train_y_knn, test_x_knn, test_y);
 % Use trained ensembler to predict Yhat based on the probabilities
 % generated from classifiers.
-ypred = [yhat_log yhat_nn yhat_fs yhat_ef];
+ypred = [yhat_log yhat_nn yhat_fs yhat_hog];
 
 
 %  Fold 1 data, deprecated
