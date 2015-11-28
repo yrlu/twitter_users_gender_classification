@@ -34,6 +34,7 @@ end
 
 
 %%
+tic
 % X = [words_train, image_features_train; words_test, image_features_test];
 X = [words_train; words_test];
 % X = normc(X);
@@ -49,6 +50,29 @@ disp('logistic regression + cross-validation');
 accuracy
 mean(accuracy)
 toc
+
+%% Use new features from processed data. (Stemming and stopwords removal)
+
+load('train/words_stem_train.mat', 'words_stem_train');
+load('train/genders_train.mat', 'genders_train');
+% load('test/words_stem_test.mat', 'words_stem_test');
+
+X = words_stem_train;
+% X = normc(X);
+Y = genders_train;
+[n m] = size(words_train);
+
+% PCA features
+% X = scores(1:n, 1:3200);
+% X = X(1:n, :);
+addpath('./liblinear');
+disp('logistic regression + cross-validation');
+[accuracy, Ypredicted, Ytest] = cross_validation(X, Y, 5, @logistic);
+accuracy
+mean(accuracy)
+
+
+
 
 %% try image features
 % X = [words_train, image_features_train; words_test, image_features_test];

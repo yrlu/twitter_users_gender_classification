@@ -31,23 +31,8 @@ words_str = table2array(words(:,2));
 size(words_str)
 % wordsleft = words;
 
-remove = ones(size(words_str,1),1);
 
-for i = 1:size(stopwords,1)
-    stopword = stopwords(i);
-%     i
-    for j = 1:size(words_str,1)
-%         words_str(j)
-        if strcmp(words_str(j), stopword)
-            remove(j) = 0;
-        end
-    end
-end
-
-dlmwrite('texts/stopwords_index.txt', remove, '\n');
-
-
-%% words stemming:
+%% words stemming & stopwords:
 % % Read stop words list:
 % stopwords=importdata('texts/stopwords.txt');
 % 
@@ -65,12 +50,44 @@ words_test=dlmread('test/words_test.txt');
 
 
 words = readtable('texts/voc-top-5000.txt','Delimiter',' ');
+
+words.Properties.VariableNames = {'id', 'word'};
+cellPatients = {0, '0.0'};
+% T2 = cell2table(cellPatients(1:end,:));
+% cellPatients = {'LastName','Gender','Age','Height','Weight',...
+%     'Smoker','Systolic','Diastolic';
+%     'Edwards','Male',42,70,158,0,116,83;
+%     'Falk','Female',28,62,125,1,120,71};
+T2 = cell2table(cellPatients);
+T2.Properties.VariableNames = {'id', 'word'};
+
+words = [T2;words];
+
+
 words_index = table2array(words(:,1));
-% words_index = [0;words_index];
 words_str = table2array(words(:,2));
-% 1
-% words_str = [{'0.0'}, words_str];
-% 2
+
+
+
+
+
+remove = ones(size(words_str,1),1);
+
+for i = 1:size(stopwords,1)
+    stopword = stopwords(i);
+%     i
+    for j = 1:size(words_str,1)
+%         words_str(j)
+        if strcmp(words_str(j), stopword)
+            remove(j) = 0;
+        end
+    end
+end
+
+dlmwrite('texts/stopwords_index.txt', remove, '\n');
+
+%%
+
 
 
 stem_map = containers.Map('KeyType','char', 'ValueType','any')
@@ -96,19 +113,16 @@ for i = 1:size(words_str,1)
 end
 
 
-word_stem
-
-words_train = words_train(:, 2:end);
-% words_train = words_train(:, logical(remove));
+% word_stem
 
 words_stem_train = zeros(size(words_train,1), mapping_idx(end));
 
 for i = 1:size(words_train,1)
 %     i
-    for j = 1:size(words_train,2)-1;
+    for j = 1:size(words_train,2);
 %         j
         if remove(j) 
-            words_stem_train(i, mapping_idx(j)) =  words_stem_train(i, mapping_idx(j)) + words_train(i,j+1);
+            words_stem_train(i, mapping_idx(j)) =  words_stem_train(i, mapping_idx(j)) + words_train(i,j);
         end
     end
 end
@@ -116,21 +130,14 @@ end
 
 save('train/words_stem_train.mat', 'words_stem_train');
 
-
-
-
-words_test = words_test(:, 2:end);
-% words_test = words_test(:, logical(remove));
-
-
 words_stem_test = zeros(size(words_test,1), mapping_idx(end));
 
 for i = 1:size(words_test,1)
 %     i
-    for j = 1:size(words_test,2)-1;
+    for j = 1:size(words_test,2);
 %         j
         if remove(j)
-            words_stem_test(i, mapping_idx(j)) =  words_stem_test(i, mapping_idx(j)) + words_test(i,j+1);
+            words_stem_test(i, mapping_idx(j)) =  words_stem_test(i, mapping_idx(j)) + words_test(i,j);
         end
     end
 end
@@ -138,3 +145,5 @@ end
 save('test/words_stem_test.mat', 'words_stem_test');
 
 save('texts/word_stem.mat', 'word_stem');
+
+
