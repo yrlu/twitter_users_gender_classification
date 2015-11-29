@@ -46,6 +46,9 @@ load('img_scores_faces.mat', 'img_scores_faces');
 load('img_eigens_faces.mat', 'img_eigens_faces');
 load('face_certain.mat','certain');
 load('train_hog.mat', 'train_hog');
+load('train_nose_hog.mat', 'train_nose_hog');
+load('train_eyes_hog.mat', 'train_eyes_hog');
+
 % load('test_hog.mat', 'test_hog');
 toc
 
@@ -62,7 +65,7 @@ test_y = Y(idx);
 
 % prepare data for face detection.
 % img_train = img_scores_faces(1:5000, :);
-img_train = double(train_hog);
+img_train = double([train_hog train_nose_hog train_eyes_hog]);
 certain_train = certain(1:5000,:);
 
 img_train_x = img_train( logical(bsxfun(@times, ~idx, certain_train)), :);

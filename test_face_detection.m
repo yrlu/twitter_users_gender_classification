@@ -22,6 +22,108 @@ test_x =  images_test;
 [train_r, train_g, train_b, train_grey] = convert_to_img(train_x);
 [test_r, test_g, test_b, test_grey] = convert_to_img(test_x);
 toc
+
+
+%% Detect eyes, nose and mouth.
+tic
+
+nose_hog = [];
+eyes_hog = [];
+
+% MouthDetect = vision.CascadeObjectDetector('Mouth');
+NoseDetect = vision.CascadeObjectDetector('Nose');
+EyeDetect = vision.CascadeObjectDetector('EyePairBig');
+for i  = 1:size(train_grey,3)
+profile = train_grey(:,:, i);
+bbox        = step(NoseDetect, profile);
+if ~isempty(bbox)
+    i
+% Draw the returned bounding box around the detected face.
+% videoOut = insertObjectAnnotation(profile,'rectangle',bbox(1,:),'Eyes');
+% imshow(videoOut);
+size(bbox)
+bbox
+nose = imcrop(profile,bbox(1,:));
+nose=imresize(nose,[50 50]);
+[featureVector_nose, hogVisualization_nose] = extractHOGFeatures(nose);
+nose_hog = [nose_hog;featureVector_nose];
+else
+    nose_hog = [nose_hog;zeros(1,900)];
+end
+
+
+bbox        = step(EyeDetect, profile);
+if ~isempty(bbox)
+eyes = imcrop(profile,bbox(1,:));
+eyes=imresize(eyes,[25 100]);
+[featureVector_eye, hogVisualization_eye] = extractHOGFeatures(nose);
+eyes_hog = [eyes_hog;featureVector_eye];
+else
+    eyes_hog = [eyes_hog; zeros(1, 900)];
+end
+
+end
+
+train_nose_hog = nose_hog;
+train_eyes_hog = eyes_hog;
+
+save('train_nose_hog.mat', 'train_nose_hog');
+save('train_eyes_hog.mat', 'train_eyes_hog');
+
+toc
+
+
+%%
+
+tic
+
+nose_hog = [];
+eyes_hog = [];
+
+% MouthDetect = vision.CascadeObjectDetector('Mouth');
+NoseDetect = vision.CascadeObjectDetector('Nose');
+EyeDetect = vision.CascadeObjectDetector('EyePairBig');
+for i  = 1:size(test_grey,3)
+profile = test_grey(:,:, i);
+bbox        = step(NoseDetect, profile);
+if ~isempty(bbox)
+    i
+% Draw the returned bounding box around the detected face.
+% videoOut = insertObjectAnnotation(profile,'rectangle',bbox(1,:),'Eyes');
+% imshow(videoOut);
+size(bbox)
+bbox
+nose = imcrop(profile,bbox(1,:));
+nose=imresize(nose,[50 50]);
+[featureVector_nose, hogVisualization_nose] = extractHOGFeatures(nose);
+nose_hog = [nose_hog;featureVector_nose];
+else
+    nose_hog = [nose_hog;zeros(1,900)];
+end
+
+
+bbox        = step(EyeDetect, profile);
+if ~isempty(bbox)
+eyes = imcrop(profile,bbox(1,:));
+eyes=imresize(eyes,[25 100]);
+[featureVector_eye, hogVisualization_eye] = extractHOGFeatures(nose);
+eyes_hog = [eyes_hog;featureVector_eye];
+else
+    eyes_hog = [eyes_hog; zeros(1, 900)];
+end
+
+end
+
+test_nose_hog = nose_hog;
+test_eyes_hog = eyes_hog;
+
+save('test_nose_hog.mat', 'test_nose_hog');
+save('test_eyes_hog.mat', 'test_eyes_hog');
+
+toc
+
+
+
 %%
 tic
 
@@ -45,6 +147,10 @@ bbox
 profile = imcrop(profile,bbox(1,:));
 profile=imresize(profile,[100 100]);
 train_grey(:,:, i) = profile;
+
+
+
+
 else
     bbox_r            = step(faceDetector, train_r(:,:, i));
     bbox_g            = step(faceDetector, train_g(:,:, i));
@@ -262,12 +368,18 @@ end
 
 
 %% HOG features classification with logistic regression
+
+% load('train_hog.mat', 'train_hog');
+load('train_nose_hog.mat', 'train_nose_hog');
+load('train_eyes_hog.mat', 'train_eyes_hog');
+
 tic
 acc = [];
 % for i = 1:50
 pc = 1:170;
 certain_train = certain(1:5000);
-X = train_hog(1:5000, :);
+
+X =  [train_hog train_nose_hog train_eyes_hog];
 X = X(logical(certain_train),:);
 X = double(X);
 Y = train_y(logical(certain_train),:);
@@ -286,5 +398,102 @@ mean(accuracy)
 toc
 
 
+%% other features:
+
+% Detect SURF features
+% train_surf = [];
+min_eigen = [];
+haar_corners = [];
+for i = 1:size(train_grey,3)
+    i
+face = train_grey(:,:,70);
+% ftrs = detectSURFFeatures(face);
+
+me = detectMinEigenFeatures(face);
+me=me.selectStrongest(20);
+me_feat = [me.Location, me.Metric];
+me_feat = reshape(me_feat, [1 60]);
+min_eigen = [min_eigen; me_feat];
+
+haar  = detectHarrisFeatures(face);
+haar = haar.selectStrongest(20);
+haar_feat = [haar.Location haar.Metric];
+haar_feat = reshape(haar_feat, [1 size(haar_feat,1)*size(haar_feat,2)]);
+haar_corners = [haar_corners; haar_feat];
+
+% regions = detectMSERFeatures(face);
+% figure; imshow(face); hold on;
+% plot(regions, 'showPixelList', true, 'showEllipses', false);
+% region_feat = [regions.Location regions.Axes regions.Orietation];
+% mser = [mser; region_feat];
+% imshow(face); hold on;
+% plot(corners.selectStrongest(20));
+%Plot facial features.
+% imshow(face);hold on; plot(ftrs);
+% ftrs = ftrs.selectStrongest(3);
+% surfvector = [ftrs.Location ftrs.Scale ftrs.Metric ftrs.SignOfLaplacian ftrs.Orientation];
+% surfvector = reshape(surfvector,[18 1]);
+% train_surf = [train_surf;surfvector'];
+end
+
+%% 
+% load('face_certain.mat', 'certain');
+
+tic
+acc = [];
+% for i = 1:50
+% pc = 1:170;
+certain_train = certain(1:5000);
+X = train_hog;
+X = X(logical(certain_train),:);
+X = double(X);
+train_y = [genders_train; genders_train(1); genders_train(2)];
+Y = train_y(logical(certain_train),:);
+% Y = train_y;
+addpath('./liblinear');
+
+% B = TreeBagger(95,X,Y, 'Method', 'classification');
+% RFpredict = @(train_x, train_y, test_x) sign(str2double(B.predict(test_x)) - 0.5);
+
+[accuracy, Ypredicted, Ytest] = cross_validation(X, Y, 5, @logistic);
+i
+accuracy
+acc = [acc;accuracy];
+mean(accuracy)
+% end
+toc
+
+%% Face Alignment
+addpath ./face-release1.0-basic
+% load('train_grey_faces.mat', 'train_grey');
+% load('test_grey_faces.mat', 'test_grey');
 
 
+load face_p146_small.mat
+% 5 levels for each octave
+model.interval = 5;
+% set up the threshold
+model.thresh = min(-0.65, model.thresh);
+
+
+% define the mapping from view-specific mixture id to viewpoint
+if length(model.components)==13 
+    posemap = 90:-15:-90;
+elseif length(model.components)==18
+    posemap = [90:-15:15 0 0 0 0 0 0 -15:-15:-90];
+else
+    error('Can not recognize this model');
+end
+
+tic
+im = train_grey(:,:,100);
+im2 = cat(3, im, im);
+im3 = cat(3, im, im2);
+size(im3)
+% im = reshape(im, [100 100 3]);
+bs = detect(im3, model, model.thresh);
+bs = clipboxes(im3, bs);
+% insertObjectAnnotation(im3,'rectangle',bs.,'Face');
+bs = nms_face(bs,0.3);
+toc
+figure,showboxes(im3, bs(1),posemap),title('Highest scoring detection');
