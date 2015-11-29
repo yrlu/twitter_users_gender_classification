@@ -1,4 +1,4 @@
-%Testing various weak-learners. 
+%Testing various weak-learners. -Playground 
 
 % This is an updated version of majority_voting.m, we can incorprate more
 % classifiers later. This function is compatible with cross_validation_idx.
