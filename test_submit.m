@@ -2,7 +2,7 @@
 % Date: Nov 27
 
 %%
-
+clear;
 tic
 disp('Loading data..');
 load('train/genders_train.mat', 'genders_train');
@@ -22,8 +22,8 @@ load('img_scores_faces.mat', 'img_scores_faces');
 load('img_eigens_faces.mat', 'img_eigens_faces');
 load('face_certain.mat','certain');
 
-load('train_hog.mat', 'train_hog');
-load('test_hog.mat', 'test_hog');
+load('train_hog_pry.mat', 'train_hog');
+load('test_hog_pry.mat', 'test_hog');
 
 load('train_nose_hog.mat', 'train_nose_hog');
 load('train_eyes_hog.mat', 'train_eyes_hog');
