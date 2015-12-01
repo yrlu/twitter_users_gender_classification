@@ -48,7 +48,8 @@ load('face_certain.mat','certain');
 load('train_hog.mat', 'train_hog');
 load('train_nose_hog.mat', 'train_nose_hog');
 load('train_eyes_hog.mat', 'train_eyes_hog');
-
+load('train_lbp.mat', 'train_lbp');
+load('test_lbp.mat', 'test_lbp');
 % load('test_hog.mat', 'test_hog');
 toc
 
@@ -149,7 +150,8 @@ disp('Building ensemble..');
 [~, yhat_nn] = acc_neural_net(train_x_train, train_y_train, train_x_test, train_y_test);
 [~, yhat_fs] = acc_ensemble_trees(train_x_fs_train, train_y_fs_train, train_x_fs_test, train_y_test);
 % [~, yhat_ef] = eigen_face(img_train_x_train,img_train_y_train, img_train_x_test, train_y_test);
-[~, yhat_hog] =acc_logistic_regression(img_train_x_train,img_train_y_train, img_train_x_test, train_y_test);
+% [~, yhat_hog] =acc_logistic_regression(img_train_x_train,img_train_y_train, img_train_x_test, train_y_test);
+[~, yhat_hog] =svm_predict(img_train_x_train,img_train_y_train, img_train_x_test, train_y_test);
 
 % yhat_ef(logical(~certain_train_train), :) = -1;
 yhat_hog(logical(~certain_train_train), :) = -1;
@@ -176,7 +178,9 @@ disp('Generating real model and predicting Yhat..');
 [~, yhat_nn] = acc_neural_net(train_x,train_y,test_x,test_y);
 [~, yhat_fs] = acc_ensemble_trees(train_x_fs, train_y_fs, test_x_fs, test_y);
 % [~, yhat_ef] = eigen_face(img_train_x,img_train_y, img_test_x, test_y);
-[~, yhat_hog] = acc_logistic_regression(img_train_x,img_train_y, img_test_x, test_y);
+% [~, yhat_hog] = acc_logistic_regression(img_train_x,img_train_y, img_test_x, test_y);
+[~, yhat_hog] = svm_predict(img_train_x,img_train_y, img_test_x, test_y);
+
 % yhat_ef(logical(~certain_test),:) = -1;
 yhat_hog(logical(~certain_test),:) = -1;
 % [~, yhat_nb] = predict_MNNB(train_x_knn, train_y_knn, test_x_knn, test_y);

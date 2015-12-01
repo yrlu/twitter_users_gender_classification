@@ -334,15 +334,43 @@ mean(accuracy)
 toc
 
 
+%% Generate LBP features:
+
+load('train_grey_faces.mat', 'train_grey');
+train_lbp = zeros(5000, 59);
+for i = 1:size(train_grey, 3)
+i
+img = train_grey(:,:,i);
+lbp_feat = extractLBPFeatures(img);
+train_lbp(i,:) = lbp_feat;
+end 
+save('train_lbp.mat', 'train_lbp');
+
+
+
+%%
+
+load('test_grey_faces.mat', 'test_grey');
+test_lbp = zeros(4997, 59);
+for i = 1:size(test_grey, 3)
+i
+img = test_grey(:,:,i);
+lbp_feat = extractLBPFeatures(img);
+test_lbp(i,:) = lbp_feat;
+end 
+save('test_lbp.mat', 'test_lbp');
+
 
 %% Generate HOG features:
 
-train_hog = zeros(5000, 5400);
+param = [6,6];
+
+train_hog = zeros(5000, 10224);
 % train_hog_vis = [];
 for i = 1:size(train_grey,3)
 i
 img = train_grey(:,:,i);
-[featureVector, hogVisualization] = extractHOGFeatures(img);
+[featureVector, hogVisualization] = extractHOGFeatures(img,'CellSize',param);
 
 
 
@@ -350,31 +378,31 @@ img = train_grey(:,:,i);
 img = imgaussfilt(img);
 img = imresize(img, [50 50]);
 
-[featureVector2, hogVisualization] = extractHOGFeatures(img);
+[featureVector2, hogVisualization] = extractHOGFeatures(img,'CellSize',param);
 
 img = imgaussfilt(img);
 img = imresize(img, [25 25]);
 
-[featureVector3, hogVisualization] = extractHOGFeatures(img);
+[featureVector3, hogVisualization] = extractHOGFeatures(img,'CellSize',param);
 
 
 img = imgaussfilt(img);
 img = imresize(img, [12 12]);
 
-[featureVector4, hogVisualization] = extractHOGFeatures(img);
+[featureVector4, hogVisualization] = extractHOGFeatures(img,'CellSize',param);
 
 
 img = imgaussfilt(img);
 img = imresize(img, [8 8]);
 
-[featureVector5, hogVisualization] = extractHOGFeatures(img);
+[featureVector5, hogVisualization] = extractHOGFeatures(img,'CellSize',param);
 
 
 
 img = imgaussfilt(img);
 img = imresize(img, [4 4]);
 
-[featureVector6, hogVisualization] = extractHOGFeatures(img);
+[featureVector6, hogVisualization] = extractHOGFeatures(img,'CellSize',param);
 
 
 
