@@ -436,16 +436,19 @@ end
 %% HOG features classification with logistic regression
 
 % load('train_hog.mat', 'train_hog');
-load('train_nose_hog.mat', 'train_nose_hog');
-load('train_eyes_hog.mat', 'train_eyes_hog');
-
+% load('face_certain.mat', 'certain');
+% load('train_nose_hog.mat', 'train_nose_hog');
+% load('train_eyes_hog.mat', 'train_eyes_hog');
+% load('train_hog_pry.mat', 'train_hog');
+% load('train/genders_train.mat', 'genders_train');
+train_y = [genders_train; genders_train(1); genders_train(2)];
 tic
 acc = [];
 % for i = 1:50
 pc = 1:170;
 certain_train = certain(1:5000);
 
-% X =  [train_hog train_nose_hog train_eyes_hog];
+X =  [train_hog train_nose_hog train_eyes_hog];
 % X = train_hog;
 X = X(logical(certain_train),:);
 X = double(X);
@@ -456,7 +459,7 @@ addpath('./liblinear');
 % B = TreeBagger(95,X,Y, 'Method', 'classification');
 % RFpredict = @(train_x, train_y, test_x) sign(str2double(B.predict(test_x)) - 0.5);
 
-[accuracy, Ypredicted, Ytest] = cross_validation(X, Y, 8, @logistic);
+[accuracy, Ypredicted, Ytest] = cross_validation(X, Y, 5, @svm_predict);
 i
 accuracy
 acc = [acc;accuracy];
