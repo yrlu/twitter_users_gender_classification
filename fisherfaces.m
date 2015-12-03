@@ -1,4 +1,4 @@
-function [coeff, score] = fisherfaces(X, Y)
+function [coeff, score,mu] = fisherfaces(X, Y)
 % fisherfaces(X, Y, num_compo) returns the component sidentified by LDA and
 % the projection of X (scores) 
 %
@@ -17,6 +17,7 @@ function [coeff, score] = fisherfaces(X, Y)
 
 N = size(X,1); %num_data
 C = 2; %number of classes 
+mu = mean(X);
 
 % num_comp = c-1; % at most 1
 

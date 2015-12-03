@@ -79,10 +79,13 @@ else
 end
 % imshow(profile), title('Detected face');
 end 
- save('train_grey_faces.mat', 'train_grey');
+ %save('train_grey_faces.mat', 'train_grey');
+ save('train_grey_certain.mat', 'certain');
 toc
 
 %%
+load('train_grey_faces.mat', 'train_grey');
+
 certain_train = certain(1:size(train_grey,3));
 
 %%
@@ -125,6 +128,7 @@ toTest = reshape(x(:,2),[100,100,1]);
 imshow(toTest);
 
 %% What I need is
+load certain.mat train_grey_certain train_y_certain 
 % train_grey_certain = train_grey(:,:,logical(certain_train));
 % train_y_certain = train_y(logical(certain_train));
 
@@ -140,17 +144,17 @@ size(image_train_Y)
 
 % [fisher_coeff, fisher_score] = fisherfaces(x', Y, pca_coeff, pca_scores)
 tic
-[fisher_coeff, fisher_score] = fisherfaces(image_train_X', image_train_Y);
+[fisher_coeff, fisher_score, mu] = fisherfaces(image_train_X', image_train_Y);
 toc
 
 %%
 %tic
-[fisher_coeff, fisher_score] = fisherfaces(image_train_X(:,1:10)', image_train_Y(1:10));
+[fisher_coeff, fisher_score,mu] = fisherfaces(image_train_X(:,1:10)', image_train_Y(1:10));
 %toc
-%imagesc(reshape(fisher_coeff,[100,100,1]))
+imagesc(reshape(fisher_coeff,[100,100,1]))
 
 %%
-Q = image_train_X(:,11:20)'*fisher_coeff;
+Q = (image_train_X(:,11:20)-repmat(mu,10,1)')'*fisher_coeff;
 C = predict(fitcknn(fisher_score,image_train_Y(1:10), 'NumNeighbors',3),Q);
 
 %%
@@ -159,11 +163,11 @@ sum(C == T)
 
 %% 
 for i = 1:2
-    [fisher_coeff, fisher_score] = fisherfaces(image_train_X(:,1:100*i)', image_train_Y(1:100*i));
-    Q = image_train_X(:,1000:1100)'*fisher_coeff;
-    C = predict(fitcknn(fisher_score,image_train_Y(1:100*i), 'NumNeighbors',5),Q);
+    [fisher_coeff, fisher_score,mu] = fisherfaces(image_train_X(:,1:10*i)', image_train_Y(1:10*i));
+    Q = (image_train_X(:,1000:1100)-repmat(mu,101,1)')'*fisher_coeff;
+    C = predict(fitcknn(fisher_score,image_train_Y(1:10*i), 'NumNeighbors',5),Q);
     T = image_train_Y(1000:1100);
-    i*10
+    i*100
     sum(C == T)
 end
 
@@ -198,18 +202,53 @@ mean(accu);
 % words_train_s = [words_train, image_features_train];
 % words_train_s = [words_train_s; words_train_s(1,:); words_train_s(2,:)];
 % genders_train_s = [genders_train; genders_train(1);genders_train(2)];
-X =[words_train, image_features_train];
-IG=calc_information_gain(genders_train,[words_train, image_features_train],[1:size([words_train, image_features_train],2)],10);
+X =words_train;
+Y = genders_train;
+IG=calc_information_gain(genders_train,[words_train],[1:size([words_train],2)],10);
 [top_igs, index]=sort(IG,'descend');
 
 cols_sel=index(1:355);
 % prepare data for ensemble trees to train and test.
 train_x_fs = X(:, cols_sel);
 
-%
-[accu, ~,~]= cross_validation(train_x_fs,Y, 5, @predict_MNNB);
-mean(accu)
+%% after EM 0.8249 (350); before 0.8231 - Limit reached: very close to reconstruction error. 
+acc = zeros(10:1);
+for i = 1:1
+    train_x_fs = X;
+    [accu, ~,~]= cross_validation(train_x_fs,Y, 5, @predict_MNNB);
+    %i
+    acc(i) = mean(accu);
+end
 
+%% 
+[n, ~] = size(image_features_train);
+[parts] = make_xval_partition(n, 8);
+clc
+acc_ens=zeros(8,1);
+
+
+%bns = calc_bns(words_train,Y);
+%IG=calc_information_gain(genders_train,words_train,[1:5000],10);
+%[top_bans, idx]=sort(IG,'descend');
+%words_train_s=bsxfun(@times,words_train,IG);
+acc = zeros(8,1);
+for i=1:8
+    row_sel1=(parts~=i);
+    row_sel2=(parts==i);
+    %cols_sel=idx(1:7);
+    
+    Xtrain=images_train(row_sel1,:);
+    Ytrain=genders_train(row_sel1);
+    Xtest=images_train(row_sel2,:);
+    Ytest=genders_train(row_sel2);
+    
+    Yhat = predict(fitcnb(Xtrain,Ytrain),Xtest);
+    acc(i,j) = sum(round(Yhat)==Ytest)/length(Ytest);
+    
+    %confusionmat(Ytest,Yhat)
+end
+acc
+mean(acc)
 
 %%
 % 3 + knn + V-NB: 89.02
@@ -547,7 +586,7 @@ load('test/image_features_test.mat', 'image_features_test');
 load('test/words_test.mat', 'words_test');
 end
 
-% Prepare/Load PCA-ed data,  
+%% Prepare/Load PCA-ed data,  
 if exist('eigens','var')~= 1
     if exist('coef.mat','file') ~= 2 
         X = [words_train, image_features_train; words_test, image_features_test]; 

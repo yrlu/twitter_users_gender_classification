@@ -334,17 +334,80 @@ mean(accuracy)
 toc
 
 
+%% Generate LBP features:
+
+load('train_grey_faces.mat', 'train_grey');
+train_lbp = zeros(5000, 59);
+for i = 1:size(train_grey, 3)
+i
+img = train_grey(:,:,i);
+lbp_feat = extractLBPFeatures(img);
+train_lbp(i,:) = lbp_feat;
+end 
+save('train_lbp.mat', 'train_lbp');
+
+
+
+%%
+
+load('test_grey_faces.mat', 'test_grey');
+test_lbp = zeros(4997, 59);
+for i = 1:size(test_grey, 3)
+i
+img = test_grey(:,:,i);
+lbp_feat = extractLBPFeatures(img);
+test_lbp(i,:) = lbp_feat;
+end 
+save('test_lbp.mat', 'test_lbp');
+
 
 %% Generate HOG features:
 
-train_hog = [];
-train_hog_vis = [];
+param = [6,6];
+
+train_hog = zeros(5000, 10224);
+% train_hog_vis = [];
 for i = 1:size(train_grey,3)
 i
 img = train_grey(:,:,i);
-[featureVector, hogVisualization] = extractHOGFeatures(img);
-train_hog = [train_hog;featureVector];
-train_hog_vis = [train_hog_vis;hogVisualization];
+[featureVector, hogVisualization] = extractHOGFeatures(img,'CellSize',param);
+
+
+
+
+img = imgaussfilt(img);
+img = imresize(img, [50 50]);
+
+[featureVector2, hogVisualization] = extractHOGFeatures(img,'CellSize',param);
+
+img = imgaussfilt(img);
+img = imresize(img, [25 25]);
+
+[featureVector3, hogVisualization] = extractHOGFeatures(img,'CellSize',param);
+
+
+img = imgaussfilt(img);
+img = imresize(img, [12 12]);
+
+[featureVector4, hogVisualization] = extractHOGFeatures(img,'CellSize',param);
+
+
+img = imgaussfilt(img);
+img = imresize(img, [8 8]);
+
+[featureVector5, hogVisualization] = extractHOGFeatures(img,'CellSize',param);
+
+
+
+img = imgaussfilt(img);
+img = imresize(img, [4 4]);
+
+[featureVector6, hogVisualization] = extractHOGFeatures(img,'CellSize',param);
+
+
+
+train_hog(i,:) = [featureVector featureVector2 featureVector3 featureVector4 featureVector5 featureVector6];
+% train_hog_vis = [train_hog_vis;hogVisualization];
 % imshow(img); hold on;
 % plot(hogVisualization);
 end
@@ -352,14 +415,45 @@ end
 % save('train_hog_vis.mat','train_hog_vis');
 %%
 
-test_hog = [];
+test_hog = zeros(4997, 5400);
 test_hog_vis = [];
 for i = 1:size(test_grey,3)
 i
 img = test_grey(:,:,i);
 [featureVector, hogVisualization] = extractHOGFeatures(img);
-test_hog = [test_hog;featureVector];
-test_hog_vis = [test_hog_vis;hogVisualization];
+
+
+img = imgaussfilt(img);
+img = imresize(img, [50 50]);
+
+[featureVector2, hogVisualization] = extractHOGFeatures(img);
+
+img = imgaussfilt(img);
+img = imresize(img, [25 25]);
+
+[featureVector3, hogVisualization] = extractHOGFeatures(img);
+
+
+img = imgaussfilt(img);
+img = imresize(img, [12 12]);
+
+[featureVector4, hogVisualization] = extractHOGFeatures(img);
+
+
+img = imgaussfilt(img);
+img = imresize(img, [8 8]);
+
+[featureVector5, hogVisualization] = extractHOGFeatures(img);
+
+
+
+img = imgaussfilt(img);
+img = imresize(img, [4 4]);
+
+[featureVector6, hogVisualization] = extractHOGFeatures(img);
+
+test_hog(i,:) = [featureVector featureVector2 featureVector3 featureVector4 featureVector5 featureVector6];
+% test_hog_vis = [test_hog_vis;hogVisualization];
 % imshow(img); hold on;
 % plot(hogVisualization);
 end
@@ -370,9 +464,12 @@ end
 %% HOG features classification with logistic regression
 
 % load('train_hog.mat', 'train_hog');
-load('train_nose_hog.mat', 'train_nose_hog');
-load('train_eyes_hog.mat', 'train_eyes_hog');
-
+% load('face_certain.mat', 'certain');
+% load('train_nose_hog.mat', 'train_nose_hog');
+% load('train_eyes_hog.mat', 'train_eyes_hog');
+% load('train_hog_pry.mat', 'train_hog');
+% load('train/genders_train.mat', 'genders_train');
+train_y = [genders_train; genders_train(1); genders_train(2)];
 tic
 acc = [];
 % for i = 1:50
@@ -380,6 +477,7 @@ pc = 1:170;
 certain_train = certain(1:5000);
 
 X =  [train_hog train_nose_hog train_eyes_hog];
+% X = train_hog;
 X = X(logical(certain_train),:);
 X = double(X);
 Y = train_y(logical(certain_train),:);
@@ -389,7 +487,7 @@ addpath('./liblinear');
 % B = TreeBagger(95,X,Y, 'Method', 'classification');
 % RFpredict = @(train_x, train_y, test_x) sign(str2double(B.predict(test_x)) - 0.5);
 
-[accuracy, Ypredicted, Ytest] = cross_validation(X, Y, 5, @logistic);
+[accuracy, Ypredicted, Ytest] = cross_validation(X, Y, 5, @svm_predict);
 i
 accuracy
 acc = [acc;accuracy];
@@ -438,7 +536,8 @@ end
 
 %% 
 % load('face_certain.mat', 'certain');
-
+% load('train_hog.mat', 'train_hog');
+% load('test_hog.mat', 'test_hog');
 tic
 acc = [];
 % for i = 1:50

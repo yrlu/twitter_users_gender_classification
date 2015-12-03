@@ -45,7 +45,7 @@ mean_words_diff = abs(mean_words_female - mean_words_male);
 figure;
 plot(1:5001, mean_words_diff);
 [V, I] = sort(mean_words_diff,'descend' );
-X_words = words_train(I
+X_words = words_train;
 
 %%
 
