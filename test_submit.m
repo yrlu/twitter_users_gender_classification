@@ -30,6 +30,7 @@ load('train_eyes_hog.mat', 'train_eyes_hog');
 
 load('test_nose_hog.mat', 'test_nose_hog');
 load('test_eyes_hog.mat', 'test_eyes_hog');
+load('scores_faces.mat','scores_faces');
 toc
 
 disp('Preparing data..');
@@ -51,7 +52,8 @@ test_y = ones(size(words_test,1),1);
 
 % prepare data for face detection.
 % img_train = img_scores_faces(1:5000, :);
-img_train = double([train_hog train_nose_hog train_eyes_hog]);
+img_train = scores_faces(1:5000, 1:3000);
+% img_train = double([train_hog train_nose_hog train_eyes_hog]);
 certain_train = certain(1:5000,:);
 
 % img_train_x = img_train( logical(bsxfun(@times, ~idx, certain_train)), :);
@@ -62,7 +64,8 @@ img_train_y = Y(logical(certain_train), :);
 
 
 % img_test_x = img_scores_faces(5001:end, :);
-img_test_x = double([test_hog test_nose_hog test_eyes_hog]);
+img_test_x = scores_faces(5001:end,1:3000);
+% img_test_x = double([test_hog test_nose_hog test_eyes_hog]);
 certain_test = certain(5001:end,:);
 % img_test_y = Y(idx);
 
