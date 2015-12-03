@@ -464,11 +464,11 @@ end
 %% HOG features classification with logistic regression
 
 % load('train_hog.mat', 'train_hog');
-% load('face_certain.mat', 'certain');
-% load('train_nose_hog.mat', 'train_nose_hog');
-% load('train_eyes_hog.mat', 'train_eyes_hog');
-% load('train_hog_pry.mat', 'train_hog');
-% load('train/genders_train.mat', 'genders_train');
+load('face_certain.mat', 'certain');
+load('train_nose_hog.mat', 'train_nose_hog');
+load('train_eyes_hog.mat', 'train_eyes_hog');
+load('train_hog_pry.mat', 'train_hog');
+load('train/genders_train.mat', 'genders_train');
 train_y = [genders_train; genders_train(1); genders_train(2)];
 tic
 acc = [];
@@ -483,11 +483,12 @@ X = double(X);
 Y = train_y(logical(certain_train),:);
 % Y = train_y;
 addpath('./liblinear');
-
+[coef scores eigens] = pca(X);
+size(scores)
+%%
 % B = TreeBagger(95,X,Y, 'Method', 'classification');
 % RFpredict = @(train_x, train_y, test_x) sign(str2double(B.predict(test_x)) - 0.5);
-
-[accuracy, Ypredicted, Ytest] = cross_validation(X, Y, 5, @svm_predict);
+[accuracy, Ypredicted, Ytest] = cross_validation(scores(:,1:2000), Y, 5, @svm_predict);
 i
 accuracy
 acc = [acc;accuracy];
@@ -495,6 +496,42 @@ mean(accuracy)
 % end
 toc
 
+
+
+%% PCA over both training and testing set:
+
+load('face_certain.mat', 'certain');
+load('train_nose_hog.mat', 'train_nose_hog');
+load('train_eyes_hog.mat', 'train_eyes_hog');
+load('train_hog_pry.mat', 'train_hog');
+load('train/genders_train.mat', 'genders_train');
+
+load('test_hog_pry.mat', 'test_hog');
+load('test_nose_hog.mat', 'test_nose_hog');
+load('test_eyes_hog.mat', 'test_eyes_hog');
+
+train_y = [genders_train; genders_train(1); genders_train(2)];
+tic
+acc = [];
+certain_train = certain(1:5000);
+
+X =  [train_hog train_nose_hog train_eyes_hog; test_hog test_nose_hog test_eyes_hog];
+% X = train_hog;
+% X = X(logical(certain),:);
+X = double(X);
+Y = train_y(logical(certain_train),:);
+% Y = train_y;
+addpath('./liblinear');
+[coef scores eigens] = pca(X);
+size(scores)
+scores_train = scores(1:5000,:);
+scores_train_certain = scores_train(logical(certain_train), :);
+toc
+%%
+tic
+[accuracy, Ypredicted, Ytest] = cross_validation(scores_train_certain(:,1:3000), Y, 5, @svm_predict);
+mean(accuracy)
+toc
 
 %% other features:
 

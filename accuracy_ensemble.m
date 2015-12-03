@@ -65,7 +65,7 @@ load('test_nose_hog_certain.mat', 'test_nose_hog_certain');
 load('test_eyes_hog_certain.mat', 'test_eyes_hog_certain');
 load('face_certain_test.mat','face_certain_test');
 
-
+load('scores_faces.mat','scores_faces');
 toc
 
 disp('Preparing data..');
@@ -81,7 +81,8 @@ test_y = Y(idx);
 
 % prepare data for face detection. 
 % img_train = img_scores_faces(1:5000, :);
-img_train = double([train_hog train_nose_hog train_eyes_hog]);
+% img_train = double([train_hog train_nose_hog train_eyes_hog]);
+img_train  =scores_faces(1:5000, 1:3000);
 certain_train = certain(1:5000,:);
 
 img_train_x = img_train( logical(bsxfun(@times, ~idx, certain_train)), :);
@@ -178,6 +179,7 @@ ypred = sigmf(ypred, [2 0]);
 
 % Train a log_reg ensembler.
 LogRens = train(train_y_test, sparse(ypred), ['-s 0', 'col']);
+save('./models/log_ensemble.mat','LogRens');
 logRensemble = @(test_x) predict(test_y, sparse(test_x), LogRens, ['-q', 'col']);
 
 

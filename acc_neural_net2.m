@@ -1,5 +1,5 @@
 % Author: Max Lu
-% Date: Nov 23
+% Date: Dec 2
 
 % This function is compatible with cross_validation.m
 
@@ -14,7 +14,7 @@
 %       "accuracy" for that sample!
 %   YProb: This is all the *RAW* outputs of the neural network.
 
-function [Yhat, YProb] = acc_neural_net(train_x, train_y, test_x, test_y, accuracy, opts)
+function [Yhat, YProb] = acc_neural_net2(train_x, train_y, test_x, test_y, accuracy, opts)
 % % neural network
 % disp('Training neural network..');
 % X=train_x;
@@ -32,7 +32,7 @@ function [Yhat, YProb] = acc_neural_net(train_x, train_y, test_x, test_y, accura
 % [Yhat, YProb] = nnpredict_my(nn, test_x);
 % return;
 
-printtesterr = 0;
+printtesterr = 1;
 
 X=train_x(1:2900,:);
 Y=train_y(1:2900);
@@ -42,12 +42,12 @@ train_y = [Y, ~Y];
 testY = test_y;
 
 rand('state',0);
-nn = nnsetup([size(X,2) 100 50 2]);
+nn = nnsetup([size(X,2) 500 300 50 2]);
 
 % nn.momentum    = 0;  
 nn.activation_function = 'sigm';
-nn.weightPenaltyL2 = 1e-2;  %  L2 weight decay
-nn.scaling_learningRate = 1;
+% nn.weightPenaltyL2 = 1e-2;  %  L2 weight decay
+nn.scaling_learningRate = 0.99;
 % nn.dropoutFraction     = 0.1;
 % nn.nonSparsityPenalty = 0.001;
 opts.numepochs = 5;        %  Number of full sweeps through data
@@ -59,7 +59,6 @@ nn.learningRate = 0.1;
 
 for i = 1:10
 [nn loss] = nntrain(nn, train_x, train_y, opts);
-% new_feat = nnpredict(nn, train_x);
 
 [Yhat_t prob_t] = nnpredict_my(nn, train_x);
 if printtesterr==1
@@ -73,63 +72,7 @@ i
 train_err(end)
 end
 
-nn.learningRate = 0.01;
-
-for i = 1:10
-[nn loss] = nntrain(nn, train_x, train_y, opts);
-% new_feat = nnpredict(nn, train_x);
-
-[Yhat_t prob_t] = nnpredict_my(nn, train_x);
-train_err = [train_err;sum(~(Yhat_t-1) ~= Y)/size(train_y,1)];
-if printtesterr == 1
-[Yhat prob] = nnpredict_my(nn, test_x);
-test_err = [test_err; sum(~(Yhat-1) ~= testY)/size(testY,1)];
-test_err(end)
-end
-i
-
-train_err(end)
-end
-
-nn.learningRate = 0.001;
-
-for i = 1:10
-[nn loss] = nntrain(nn, train_x, train_y, opts);
-% new_feat = nnpredict(nn, train_x);
-
-[Yhat_t prob_t] = nnpredict_my(nn, train_x);
-train_err = [train_err;sum(~(Yhat_t-1) ~= Y)/size(train_y,1)];
-
-if printtesterr==1
-[Yhat prob] = nnpredict_my(nn, test_x);
-test_err = [test_err; sum(~(Yhat-1) ~= testY)/size(testY,1)];
-test_err(end)
-end 
-
-i
-
-train_err(end)
-end
-
-nn.learningRate = 0.0001;
-
-for i = 1:10
-[nn loss] = nntrain(nn, train_x, train_y, opts);
-% new_feat = nnpredict(nn, train_x);
-[Yhat_t prob_t] = nnpredict_my(nn, train_x);
-train_err = [train_err;sum(~(Yhat_t-1) ~= Y)/size(train_y,1)];
-if printtesterr == 1
-[Yhat prob] = nnpredict_my(nn, test_x);
-test_err = [test_err; sum(~(Yhat-1) ~= testY)/size(testY,1)];
-test_err(end)
-end
-i
-
-train_err(end)
-end
-
-
-save('./models/nn.mat','nn');
+% save('./models/nn.mat','nn');
 
 [Yhat, YProb] = nnpredict_my(nn, test_x);
 
