@@ -50,8 +50,8 @@ load('train_hog_pry.mat', 'train_hog');
 
 load('train_nose_hog.mat', 'train_nose_hog');
 load('train_eyes_hog.mat', 'train_eyes_hog');
-load('train_lbp.mat', 'train_lbp');
-load('test_lbp.mat', 'test_lbp');
+%load('train_lbp.mat', 'train_lbp');
+%load('test_lbp.mat', 'test_lbp');
 % load('test_hog.mat', 'test_hog');
 
 

@@ -34,7 +34,7 @@ toc
 
 disp('Preparing data..');
 
-
+%%
 % Separate the data into training set and testing set.
 X = [words_train; words_train(1,:); words_train(2,:)];
 Y = [genders_train; genders_train(1); genders_train(2,:)];

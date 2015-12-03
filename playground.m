@@ -186,6 +186,8 @@ fisher_face = reshape(fisher_coeff,[100,100,1]);
 [accu, ~,~]= cross_validation_idx(5000, 5, @add_classifier_test);
 mean(accu);
 
+
+
 %% 
 %transform image_train_X
 transformed_image_X = fisher_coeff'*image_train_X;
@@ -566,9 +568,11 @@ accuracy
 mean(accuracy)
 %% kernel_libsvm
 addpath('./liblinear');
-addpath('./libsvm');
+addpath ./libsvm
 disp('svm + cross-validation');
-[accuracy, Ypredicted, Ytest] = cross_validation(X, Y, 4, @kernel_libsvm);
+X = words_train;
+Y = genders_train;
+[accuracy, Ypredicted, Ytest] = cross_validation(X, Y, 4, @svm_pcdr);
 accuracy
 mean(accuracy)
 
