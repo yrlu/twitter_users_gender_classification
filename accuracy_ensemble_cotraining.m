@@ -1,5 +1,5 @@
 % Author: Max Lu
-% Date: Nov 23
+% Date: Dec 2
 
 % This is an updated version of majority_voting.m, we can incorprate more
 % classifiers later. This function is compatible with cross_validation_idx.
@@ -9,7 +9,7 @@
 % Inputs: 
 %   idx: the indices of the testing set. 
 %       Here we assume that we have
-%       5000 samples (We manually add 2 samples to the training set, so that the
+%       6250 samples (We manually add 2 samples to the training set, so that the
 %       neural network will not run into trouble:)
 %   accuracy: the expected accuracy
 %   opts: please pass all your options of the classifier here!
@@ -24,7 +24,7 @@
 %   classifier, p = 1.
 
 
-function [Yhat, Ytest, YProb] = accuracy_ensemble(idx, accuracy, opts)
+function [Yhat, Ytest, YProb] = accuracy_ensemble_cotraining(idx, accuracy, opts)
 
 
 tic
@@ -72,8 +72,8 @@ disp('Preparing data..');
 
 
 % Separate the data into training set and testing set.
-X = [words_train; words_train(1,:); words_train(2,:)];
-Y = [genders_train; genders_train(1); genders_train(2,:)];
+X = [words_train; words_train(1,:); words_train(2,:);words_test_certain];
+Y = [genders_train; genders_train(1); genders_train(2,:);genders_test_certain];
 train_x = X(~idx, :);
 train_y = Y(~idx);
 test_x = X(idx, :);
@@ -81,8 +81,8 @@ test_y = Y(idx);
 
 % prepare data for face detection. 
 % img_train = img_scores_faces(1:5000, :);
-img_train = double([train_hog train_nose_hog train_eyes_hog]);
-certain_train = certain(1:5000,:);
+img_train = double([train_hog train_nose_hog train_eyes_hog; test_hog_certain test_nose_hog_certain test_eyes_hog_certain]);
+certain_train = [certain(1:5000,:);face_certain_test];
 
 img_train_x = img_train( logical(bsxfun(@times, ~idx, certain_train)), :);
 img_train_y = Y(logical(bsxfun(@times, ~idx, certain_train)), :);
@@ -100,7 +100,8 @@ Nfeatures = 1000;
 disp('Training random forest with selected features..');
 words_train_s = [words_train, image_features_train];
 words_train_s = [words_train_s; words_train_s(1,:); words_train_s(2,:)];
-genders_train_s = [genders_train; genders_train(1);genders_train(2)];
+words_train_s = [words_train_s; words_test_certain, image_features_test_certain];
+genders_train_s = Y; % [genders_train; genders_train(1);genders_train(2)];
 IG=calc_information_gain(genders_train,[words_train, image_features_train],[1:size([words_train, image_features_train],2)],10);
 [top_igs, index]=sort(IG,'descend');
 
