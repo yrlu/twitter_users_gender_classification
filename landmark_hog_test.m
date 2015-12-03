@@ -26,20 +26,21 @@ ptof(:,2) = ppt(30:58);
 % plot(vis) 
 hogs(i,1:1044) = imresize(hog, [1 1044]);
 end
-%%
+
+% save 'hogs_landmarks' 'hogs'
 %% 
 train_hogs_full = zeros(4997, 5400);
 test_hog_vis = [];
 for i = 1:size(test_grey,3)
 i
 img = test_grey(:,:,i);
-[featureVector, hogVisualization] = extractHOGFeatures(img);
+[featureVector, ~] = extractHOGFeatures(img);
 
 
 img = imgaussfilt(img);
 img = imresize(img, [50 50]);
 
-[featureVector2, hogVisualization] = extractHOGFeatures(img);
+[featureVector2, ~] = extractHOGFeatures(img);
 
 img = imgaussfilt(img);
 img = imresize(img, [25 25]);
@@ -76,8 +77,12 @@ for i = 1:n
 [hogFull, ~] = extractHOGFeatures(IsT{i});
 train_hogs_full(i,:) = hogFull;
 end
+% save hogs_full_certain train_hogs_full
 %%
-
+addpath('./train');
+load genders_train
+%
+%%
 X = [train_hogs_full hogs];
 Y = genders_train(logical(certain));
 % Y = train_y;
@@ -92,7 +97,8 @@ accuracy
 mean(accuracy)
 % end
 %%
-% [accuracy, Ypredicted, Ytest] = cross_validation(X, Y, 5, @logistic);
-% i
-% accuracy
-% mean(accuracy)
+addpath('./liblinear');
+[accuracy, Ypredicted, Ytest] = cross_validation(train_hogs_full, Y, 5, @logistic);
+i
+accuracy
+mean(accuracy)

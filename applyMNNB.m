@@ -33,7 +33,7 @@ scoreB = scoreB + sum(unpreSumB,2);
 AminusB = scoreA-scoreB;
 yhat = AminusB > 0;
 %y_scores = [scoreA,scoreB ]
-total = scoreA + scoreB;
-y_scores = [scoreB./total,scoreA./total];
+%total = scoreA + scoreB;
+%y_scores = [scoreB./total,scoreA./total];
 end
 

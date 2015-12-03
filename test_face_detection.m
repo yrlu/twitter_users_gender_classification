@@ -221,7 +221,7 @@ end
 end
 
 % save('test_grey_faces.mat', 'test_grey');
-% save('face_certain.mat', 'certain');
+ save('face_certain.mat', 'certain');
 toc
 
 %%
@@ -411,14 +411,14 @@ train_hog(i,:) = [featureVector featureVector2 featureVector3 featureVector4 fea
 % imshow(img); hold on;
 % plot(hogVisualization);
 end
-% save('train_hog.mat', 'train_hog');
+ save('train_hog.mat', 'train_hog');
 % save('train_hog_vis.mat','train_hog_vis');
 %%
-
+tic
 test_hog = zeros(4997, 5400);
 test_hog_vis = [];
 for i = 1:size(test_grey,3)
-i
+%i
 img = test_grey(:,:,i);
 [featureVector, hogVisualization] = extractHOGFeatures(img);
 
@@ -457,6 +457,7 @@ test_hog(i,:) = [featureVector featureVector2 featureVector3 featureVector4 feat
 % imshow(img); hold on;
 % plot(hogVisualization);
 end
+toc
 % save('test_hog.mat', 'test_hog');
 % save('test_hog_vis.mat','test_hog_vis');
 
