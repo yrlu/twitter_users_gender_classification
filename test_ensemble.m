@@ -13,6 +13,17 @@ accuracy
 mean(accuracy)
 toc
 
+%% incorprated certain test data 1250
+
+tic
+% note that here we are calling cross_validation_idx; I leave data
+% preparation to each classifier.
+disp('Accuracy ensemble + cross-validation');
+[accuracy, Ypredicted, Ytest] = cross_validation_idx(6250, 5, @accuracy_ensemble_cotraining);
+accuracy
+mean(accuracy)
+toc
+
 %% Analysis of the raw outputs of 3 classifiers and the ground truth
 
 

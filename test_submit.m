@@ -239,11 +239,73 @@ ypred = sigmf(ypred, [2 0]);
 % Yhat = acc_cascading(ypred, [4.6,  0.72,  1.3, 0.0024]);
 % Yuncertain = Yhat==-1;
 % Ycertain = Yhat~=-1;
-Yhat_log = logRensemble(ypred);
+% Yhat_log = logRensemble(ypred);
+[Yhat, ~, YProb] = predict(ones(size(ypred,1),1), sparse(ypred), LogRens, ['-q', 'col']);
 % Yhat = bsxfun(@times, Yhat, Ycertain)+bsxfun(@times, Yhat_log, Yuncertain);
-Yhat = Yhat_log
-YProb = ypred;
+% Yhat = Yhat_log
+% YProb = ypred;
 % Ytest = test_y;
 
 toc
+
+
+%%
+
+
+certain_subset = predictedtest(:,3) > 4;
+
+genders_test_certain = predictedtest(certain_subset,1);
+genders_test_certain = genders_test_certain(1:1250, :);
+save('genders_test_certain.mat', 'genders_test_certain');
+words_test_certain = words_test(certain_subset,:);
+words_test_certain = words_test_certain(1:1250, :);
+save('words_test_certain.mat', 'words_test_certain')
+images_test_certain = images_test(certain_subset,:);
+images_test_certain = images_test_certain(1:1250, :);
+save('images_test_certain.mat', 'images_test_certain');
+image_features_test_certain = image_features_test(certain_subset,:);
+image_features_test_certain = image_features_test_certain(1:1250,:);
+save('image_features_test_certain.mat', 'image_features_test_certain');
+
+
+
+%% 
+load('face_certain.mat','certain');
+load('test_hog_pry.mat', 'test_hog');
+load('test_nose_hog.mat', 'test_nose_hog');
+load('test_eyes_hog.mat', 'test_eyes_hog');
+
+
+face_certain_test = certain(5001:9997);
+face_certain_test = face_certain_test(certain_subset,:);
+face_certain_test = face_certain_test(1:1250);
+
+test_hog_certain = test_hog(certain_subset,:);
+test_hog_certain = test_hog_certain(1:1250,:);
+
+test_nose_hog_certain = test_nose_hog(certain_subset,:);
+test_nose_hog_certain = test_nose_hog_certain(1:1250,:);
+
+test_eyes_hog_certain = test_eyes_hog(certain_subset,:);
+test_eyes_hog_certain = test_eyes_hog_certain(1:1250,:);
+
+save('test_hog_certain.mat', 'test_hog_certain');
+save('test_nose_hog_certain.mat', 'test_nose_hog_certain');
+save('test_eyes_hog_certain.mat', 'test_eyes_hog_certain');
+save('face_certain_test.mat','face_certain_test');
+
+
+%% 
+
+
+load('genders_test_certain.mat', 'genders_test_certain');
+load('words_test_certain.mat', 'words_test_certain')
+load('images_test_certain.mat', 'images_test_certain');
+load('image_features_test_certain.mat', 'image_features_test_certain');
+
+%%
+
+
+
+
 

@@ -49,7 +49,7 @@ nn.scaling_learningRate = 1;
 % nn.dropoutFraction     = 0.1;
 % nn.nonSparsityPenalty = 0.001;
 opts.numepochs = 5;        %  Number of full sweeps through data
-opts.batchsize = 100;       %  Take a mean gradient step over this many samples
+opts.batchsize = 50;       %  Take a mean gradient step over this many samples
 
 train_err = [];
 % test_err = [];
