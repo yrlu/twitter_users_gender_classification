@@ -9,7 +9,7 @@ N = size(Xtrain,1);
 prior = sum(Ytrain)/N; %for Ytrain = 1
 %priorB = 1-priorA; %for Ytrain = 0 
 
-% for 
+
 
 % Binarized (Boolean) Multinomial Naive Bayes model; Also the Bernoulli
 % documment model
@@ -22,8 +22,8 @@ countAllA = sum(countTermA);
 countAllB = sum(countTermB);
 
 % for each term compute conditional probability
-condprobA = (countTermA+1)./(countAllA+5000);
-condprobB = (countTermB+1)./(countAllB+5000);
+condprobA = (countTermA+1)./(countAllA+N);
+condprobB = (countTermB+1)./(countAllB+N);
 %indexNotNA = ~isnan(condprobA);
 %indexNotNB = ~isnan(condprobB);
 condprob = [condprobA; condprobB];

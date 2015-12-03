@@ -1,22 +1,198 @@
 %% The playground to mess around... 
-
-% -Look for trend in words data.. PCA -> cluster? Gaussian?
+% TO DO: 
+% -Look for trend in words data.. PCA -> cluster? Gaussian? -- unlikely to
+% be obvious, using tf-idf? bns/IG seems to be better
 % bns = calc_bns(words_train,Y); %-------------feature selection opt1% 
 % IG=calc_information_gain(genders_train,words_train,[1:5000],10); %trees
 
-% -K-means for image features 
+% -K-means for image features: works 
 % PCA on only the words data : wrap PCA in classifiers. 
-% Decision Tree 
 % GMM --- not very effective at this stage (on raw data)
 % Image features
-% tf-idf
-
+%
 % 
+
+% Have done:
+% data load
+% SVM
+% Logistic
+% Linear-Regression
+% K-means
+% KNN
+% TreeBagger
+% Majority Vote
+% MN Naive Bayes
+% fisherface
+
+%%
+%% 
+tic
+train_x = [images_train; images_train(1,:); images_train(2,:)];
+train_y = [genders_train; genders_train(1); genders_train(2)];
+test_x =  images_test;
+
+[train_r, train_g, train_b, train_grey] = convert_to_img(train_x);
+[test_r, test_g, test_b, test_grey] = convert_to_img(test_x);
+toc
+%%
+tic
+
+% Create a cascade detector object.
+faceDetector = vision.CascadeObjectDetector();
+
+% Read a video frame and run the detector.
+% videoFileReader = vision.VideoFileReader('visionface.avi');
+% videoFrame      = step(videoFileReader);
+certain = ones(size(train_grey,3)+size(test_grey,3),1);
+for i  = 1:size(train_grey,3)
+profile = train_grey(:,:, i);
+bbox            = step(faceDetector, profile);
+
+if ~isempty(bbox)
+    i
+% Draw the returned bounding box around the detected face.
+% videoOut = insertObjectAnnotation(profile,'rectangle',bbox,'Face');
+size(bbox);
+bbox;
+profile = imcrop(profile,bbox(1,:));
+profile=imresize(profile,[100 100]);
+train_grey(:,:, i) = profile;
+else
+    bbox_r            = step(faceDetector, train_r(:,:, i));
+    bbox_g            = step(faceDetector, train_g(:,:, i));
+    bbox_b            = step(faceDetector, train_b(:,:, i));
+    if ~isempty(bbox_r)
+        profile = imcrop(profile,bbox_r(1,:));
+        profile=imresize(profile,[100 100]);
+        train_grey(:,:, i) = profile;
+    elseif ~isempty(bbox_g)
+        profile = imcrop(profile,bbox_g(1,:));
+        profile=imresize(profile,[100 100]);
+        train_grey(:,:, i) = profile;
+    elseif ~isempty(bbox_b)
+        profile = imcrop(profile,bbox_b(1,:));
+        profile=imresize(profile,[100 100]);
+        train_grey(:,:, i) = profile;
+    else
+        certain(i) = 0;
+    end
+end
+% imshow(profile), title('Detected face');
+end 
+ %save('train_grey_faces.mat', 'train_grey');
+ save('train_grey_certain.mat', 'certain');
+toc
+
+%%
+load('train_grey_faces.mat', 'train_grey');
+
+certain_train = certain(1:size(train_grey,3));
+
+%%
+train_grey_certain = train_grey(:,:,logical(certain_train));
+train_y_certain = train_y(logical(certain_train));
+
+save certain.mat train_grey_certain train_y_certain 
+%%
+for i = 1:size(train_grey_certain,3)
+    i
+   imshow(train_grey_certain(:,:,i)); 
+end
+
+
+%% Mean men's faces and women's faces:
+tic
+women_mean = mean(train_grey(:,:,logical(bsxfun(@times, certain(1:5000), train_y==1))),3);
+figure;imshow(women_mean);
+
+men_mean = mean(train_grey(:,:,logical(bsxfun(@times, certain(1:5000), train_y==0))),3);
+figure;imshow(men_mean);
+% faces = cat(3,train_grey, test_grey);
+toc
+%%
+X = cat(3, train_grey, test_grey);
+[h w n] = size(X);
+x = reshape(X,[h*w n]); 
+%% 
+[img_coef_faces, img_scores_faces, img_eigens_faces] = pca(x');
+save('img_coef_faces.mat', 'img_coef_faces');
+save('img_scores_faces.mat', 'img_scores_faces');
+save('img_eigens_faces.mat', 'img_eigens_faces');
+%%
+load('img_coef_faces.mat', 'img_coef_faces');
+load('img_scores_faces.mat', 'img_scores_faces');
+load('img_eigens_faces.mat', 'img_eigens_faces');
+
+%% play with 2d to 3d
+toTest = reshape(x(:,2),[100,100,1]);
+imshow(toTest);
+
+%% What I need is
+load certain.mat train_grey_certain train_y_certain 
+% train_grey_certain = train_grey(:,:,logical(certain_train));
+% train_y_certain = train_y(logical(certain_train));
+
+[h, w, n] = size(train_grey_certain);
+image_train_X = reshape(train_grey_certain,[h*w n]);
+image_train_Y = train_y_certain;%[genders_train;genders_train(1);genders_train(2)];
+
+size(image_train_X)
+size(image_train_Y)
+
+
+%%
+
+% [fisher_coeff, fisher_score] = fisherfaces(x', Y, pca_coeff, pca_scores)
+tic
+[fisher_coeff, fisher_score, mu] = fisherfaces(image_train_X', image_train_Y);
+toc
+
+%%
+%tic
+[fisher_coeff, fisher_score,mu] = fisherfaces(image_train_X(:,1:10)', image_train_Y(1:10));
+%toc
+imagesc(reshape(fisher_coeff,[100,100,1]))
+
+%%
+Q = (image_train_X(:,11:20)-repmat(mu,10,1)')'*fisher_coeff;
+C = predict(fitcknn(fisher_score,image_train_Y(1:10), 'NumNeighbors',3),Q);
+
+%%
+T = image_train_Y(11:20);
+sum(C == T)
+
+%% 
+for i = 1:2
+    [fisher_coeff, fisher_score,mu] = fisherfaces(image_train_X(:,1:10*i)', image_train_Y(1:10*i));
+    Q = (image_train_X(:,1000:1100)-repmat(mu,101,1)')'*fisher_coeff;
+    C = predict(fitcknn(fisher_score,image_train_Y(1:10*i), 'NumNeighbors',5),Q);
+    T = image_train_Y(1000:1100);
+    i*100
+    sum(C == T)
+end
+
+%%
+mean_database = mean(image_train_X,2);
+imshow(reshape(mean_database,[100,100,1]));
+
+%%
+% lda_w = lda(pca_coeff_image_train_for_fisher, image_train_Y');
+
+
+%%
+fisher_face = reshape(fisher_coeff,[100,100,1]);
 
 %%
 [accu, ~,~]= cross_validation_idx(5000, 5, @add_classifier_test);
 mean(accu);
 
+%% 
+%transform image_train_X
+transformed_image_X = fisher_coeff'*image_train_X;
+
+%%
+[accu, ~,~]= cross_validation(transformed_image_X, image_train_Y, 5, @logistic);
+mean(accu);
 
 
 %%
@@ -26,23 +202,58 @@ mean(accu);
 % words_train_s = [words_train, image_features_train];
 % words_train_s = [words_train_s; words_train_s(1,:); words_train_s(2,:)];
 % genders_train_s = [genders_train; genders_train(1);genders_train(2)];
-X =[words_train, image_features_train];
-IG=calc_information_gain(genders_train,[words_train, image_features_train],[1:size([words_train, image_features_train],2)],10);
+X =words_train;
+Y = genders_train;
+IG=calc_information_gain(genders_train,[words_train],[1:size([words_train],2)],10);
 [top_igs, index]=sort(IG,'descend');
 
 cols_sel=index(1:355);
 % prepare data for ensemble trees to train and test.
 train_x_fs = X(:, cols_sel);
 
-%
-[accu, ~,~]= cross_validation(train_x_fs,Y, 5, @predict_MNNB);
-mean(accu)
+%% after EM 0.8249 (350); before 0.8231 - Limit reached: very close to reconstruction error. 
+acc = zeros(10:1);
+for i = 1:1
+    train_x_fs = X;
+    [accu, ~,~]= cross_validation(train_x_fs,Y, 5, @predict_MNNB);
+    %i
+    acc(i) = mean(accu);
+end
 
+%% 
+[n, ~] = size(image_features_train);
+[parts] = make_xval_partition(n, 8);
+clc
+acc_ens=zeros(8,1);
+
+
+%bns = calc_bns(words_train,Y);
+%IG=calc_information_gain(genders_train,words_train,[1:5000],10);
+%[top_bans, idx]=sort(IG,'descend');
+%words_train_s=bsxfun(@times,words_train,IG);
+acc = zeros(8,1);
+for i=1:8
+    row_sel1=(parts~=i);
+    row_sel2=(parts==i);
+    %cols_sel=idx(1:7);
+    
+    Xtrain=images_train(row_sel1,:);
+    Ytrain=genders_train(row_sel1);
+    Xtest=images_train(row_sel2,:);
+    Ytest=genders_train(row_sel2);
+    
+    Yhat = predict(fitcnb(Xtrain,Ytrain),Xtest);
+    acc(i,j) = sum(round(Yhat)==Ytest)/length(Ytest);
+    
+    %confusionmat(Ytest,Yhat)
+end
+acc
+mean(acc)
 
 %%
 % 3 + knn + V-NB: 89.02
 % 3: 88.76%
-% 3 + B-NB (IG350): 0.8934
+% 3 + B-NB (IG350): 0.8934/ 89.48/ 89.6
 
         
 %% playground
@@ -134,8 +345,6 @@ close all
 
 
 
-%% 
- 
  %% 76: 71.55% knn
 features_index = I(1:76)';
 mdl = @(trainX, trainY, testX, testY) predict(fitcknn(trainX,trainY, 'NumNeighbors',j)
@@ -143,7 +352,7 @@ X_selected = X(:,features_index);
 [accuracy, ~,~] = cross_validation(X_selected, Y, 4, mdl);
 mean(accuracy)
 
-%% max 16 neighbors, 76 words 72.89% 
+%% KNN limit: max 16 neighbors, 76 words 72.89% 
 accuS = zeros(100, 50);
 % size(X_selected);
 for i = 1:100
@@ -184,7 +393,7 @@ mean(accuracy)
 
 %%  
 
-%% fount 12 neighbors work the best. 
+%% fount 12 neighbors work the best. KNN words
 X = scores(:,1:25);
 accu = zeros(30,1);
 for i = 1:50
@@ -201,17 +410,11 @@ Y = genders_train;
 [accuracy, Ypredicted, Ytest] = cross_validation(X, Y, 4, @majority_vote);
 mean(accuracy)
 
-%% 71.43%
+%% 71.43% minkowski distance K-NN
 X = scores(:,1:84);
 mdl = @(trainX, trainY, testX, testY) predict(fitcknn(trainX,trainY, 'Distance','minkowski', 'Exponent',3, 'NumNeighbors',30),testX);
 [accuracy, Ypredicted, Ytest] = cross_validation(X, Y, 4, mdl);
 mean(accuracy)
-
-
-
-%% Random Forest packed
-[accuracy, Ypredicted, Ytest] = cross_validation(X, Y, 4, @random_forest);
-
 
 
 %% normalization
@@ -235,14 +438,13 @@ plot(oobErrorBaggedEnsemble)
 xlabel 'Number of grown trees';
 ylabel 'Out-of-bag classification error';
 
-%%
-%% 
+%% manual separate train and test
 Xtrain = X;
 trainX = Xtrain(1:4000,:);
 trainY = Y(1:4000,:);
 testX = Xtrain(4001:end,:);
 testY = Y(4001:end,:);
-%% ==>  90- 82.79% 95-83.21%, 100-82.99% 125-82.63%
+%% ==> TreeBagger 90- 82.79% 95-83.21%, 100-82.99% 125-82.63%
 [accuracy, ~, ~] = cross_validation(X, Y, 4, @random_forest);
 mean(accuracy)
   
@@ -269,7 +471,7 @@ IG=calc_information_gain(genders_train,X, [1:size(X,2)],10);
 word_sel=idx(1:50);
 X =X(:,word_sel);
 
-%%
+%% MNNB
 [n, ~] = size(words_train);
 [parts] = make_xval_partition(n, 8);
 clc
@@ -331,22 +533,24 @@ end
 plot acc;
 
 
-%% K-means with 10 clusters k-means
+%% K-means with 10 clusters 
 
 mdl2 = @(train_x,train_y,test_x,test_y) k_means(train_x,train_y,test_x,test_y, 10);
 [accuracy, ~, ~] = cross_validation(X, Y, 4, mdl2);
 mean(accuracy)
-%% Kernel Regression
 
-%%
+%% linear regression << logistic 
 folds = 4;
-disp('linear regression + auto-encoder');
+disp('linear regression + linear_regression');
 X = new_feat(1:n,:);
 [accuracy, Ypredicted, Ytest] = cross_validation(X, Y, folds, @linear_regression);
 accuracy
 mean(accuracy)
 
-%% 100 81.65%, 1000 85.79% 1500 86.01% 1800 86.15% 3000 85.97% 4000 86.47% 4500 86.53% 5000 86.96%
+%% logistic: testing feature selection
+% 100 81.65%, 1000 85.79% 1500 86.01% 1800 86.15% 3000 85.97% 4000 86.47% 4500 86.53% 5000 86.96%
+% Logistic works the best on raw data
+%
 addpath('./liblinear');
 features_index = I(1:4000)';
 X_selected = X(:,features_index);
@@ -355,12 +559,12 @@ disp('logistic regression + cross-validation');
 accuracy
 mean(accuracy)
 
-%% 
+%% logistic
 disp('logistic regression + cross-validation');
 [accuracy, Ypredicted, Ytest] = cross_validation(X, Y, 4, @logistic);
 accuracy
 mean(accuracy)
-%%
+%% kernel_libsvm
 addpath('./liblinear');
 addpath('./libsvm');
 disp('svm + cross-validation');
@@ -382,7 +586,7 @@ load('test/image_features_test.mat', 'image_features_test');
 load('test/words_test.mat', 'words_test');
 end
 
-% Prepare/Load PCA-ed data,  
+%% Prepare/Load PCA-ed data,  
 if exist('eigens','var')~= 1
     if exist('coef.mat','file') ~= 2 
         X = [words_train, image_features_train; words_test, image_features_test]; 
