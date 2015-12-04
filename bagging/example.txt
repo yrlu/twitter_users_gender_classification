@@ -1,0 +1,17 @@
+example:
+for j=1:5
+    %---------------use linear for ensembling-------------
+    ytrainscores=bag.ytrainscores{j};
+    yscores=bag.yscores{j};
+    Ytest=    bag.test_y{j};
+    train_y_test=bag.train_y_test{j};
+    s=6;
+    c=100;
+    F=0.85;%
+    M_libre=20; % number of linear models
+    [models_linear_re,cols_sel_linear_re]=train_bag_linear(ytrainscores,train_y_test,size(ytrainscores,2),0,scale_bns,s,c,F,M_lib_re);
+    [Yhat_lib_re,~,~,~]= predict_bagged_linear(models_linear_re,yscores,M_lib_re);
+    acc_ens_re_lib(j)=sum(Yhat_lib_re==Ytest)/length(Ytest) ;
+end
+
+-Deng, Xiang
