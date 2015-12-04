@@ -34,8 +34,8 @@ function [Yhat, YProb] = acc_neural_net(train_x, train_y, test_x, test_y, accura
 
 printtesterr = 0;
 
-X=train_x(1:2900,:);
-Y=train_y(1:2900);
+X=train_x;
+Y=train_y;
 train_x = X;
 train_y = [Y, ~Y];
 % test_x = testX;

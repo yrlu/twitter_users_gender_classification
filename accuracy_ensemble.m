@@ -50,6 +50,10 @@ load('train_hog_pry.mat', 'train_hog');
 
 load('train_nose_hog.mat', 'train_nose_hog');
 load('train_eyes_hog.mat', 'train_eyes_hog');
+
+
+
+load('img_pca_basis.mat', 'U', 'mu', 'vars');
 %load('train_lbp.mat', 'train_lbp');
 %load('test_lbp.mat', 'test_lbp');
 % load('test_hog.mat', 'test_hog');
@@ -82,7 +86,11 @@ test_y = Y(idx);
 % prepare data for face detection. 
 % img_train = img_scores_faces(1:5000, :);
 % img_train = double([train_hog train_nose_hog train_eyes_hog]);
-img_train  =scores_faces(1:5000, 1:3000);
+% img_train  =scores_faces(1:5000, 1:3000);
+[img_train,Xhat,avsq] = pcaApply([train_hog train_nose_hog train_eyes_hog]', U, mu, 1500);
+img_train = double(img_train');
+% img_train = 
+
 certain_train = certain(1:5000,:);
 
 img_train_x = img_train( logical(bsxfun(@times, ~idx, certain_train)), :);
@@ -176,10 +184,14 @@ yhat_hog(logical(~certain_train_train), :) = 0;
 % The probabilities produced by the classifiers
 ypred = [yhat_log yhat_nn yhat_fs yhat_hog];
 ypred = sigmf(ypred, [2 0]);
+% ypred = normc(ypred);
 
 % Train a log_reg ensembler.
 LogRens = train(train_y_test, sparse(ypred), ['-s 0', 'col']);
+% svmmodel = svmtrain(train_y_test, ypred, '-t 2 -c 10000');
+svmmodel = svmtrain(train_y_test, ypred, '-t 0 -c 5');
 save('./models/log_ensemble.mat','LogRens');
+save('./models/svm_ensemble.mat', 'svmmodel');
 logRensemble = @(test_x) predict(test_y, sparse(test_x), LogRens, ['-q', 'col']);
 
 
@@ -208,6 +220,7 @@ yhat_hog(logical(~certain_test),:) = 0;
 % generated from classifiers.
 ypred = [yhat_log yhat_nn yhat_fs yhat_hog];
 ypred = sigmf(ypred, [2 0]);
+% ypred = normc(ypred);
 
 %  Fold 1 data, deprecated
 %   Probability  thres1   thres2   thres3   Proportion
@@ -258,10 +271,12 @@ ypred = sigmf(ypred, [2 0]);
 % Yuncertain = Yhat==-1;
 % Ycertain = Yhat~=-1;
 Yhat_log = logRensemble(ypred);
+[Yhat_svm,~, Yprob_svm] = svmpredict(zeros(size(ypred,1),1), ypred, svmmodel);
 % Yhat = bsxfun(@times, Yhat, Ycertain)+bsxfun(@times, Yhat_log, Yuncertain);
 Yhat = Yhat_log;
 YProb = ypred;
 Ytest = test_y;
+sum(Yhat == test_y)
 
 toc
 end

@@ -1,4 +1,4 @@
-function [U,mu,vars] = pca( X )
+function [U,mu,vars] = pca_1( X )
 % Principal components analysis (alternative to princomp).
 %
 % A simple linear dimensionality reduction technique. Use to create an

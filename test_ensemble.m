@@ -24,6 +24,141 @@ accuracy
 mean(accuracy)
 toc
 
+
+
+%% test ensemblers:
+
+
+
+addpath ./libsvm
+load bag2.mat
+
+train_y_test = [bag.train_y_test{1};bag.train_y_test{2};bag.train_y_test{3};bag.train_y_test{4};bag.train_y_test{5}];
+ytrainscores = [bag.ytrainscores{1};bag.ytrainscores{2};bag.ytrainscores{3};bag.ytrainscores{4};bag.ytrainscores{5}];
+% train ensembler
+addpath ./liblinear
+addpath('./DL_toolbox/util','./DL_toolbox/NN','./DL_toolbox/DBN');
+% LogRmodel = train(train_y_test, sparse(ytrainscores), ['-s 0', 'col']);
+% [Yhat_lr, ~, YProb_lr] = predict(train_y_test, sparse(ytrainscores), LogRmodel, ['-q', 'col']);
+% sum(Yhat_lr == train_y_test)/size(train_y_test,1)
+
+
+
+% svmmodel = svmtrain(train_y_test, ytrainscores, '-t 2 -c 10000');
+% [Yhat_svm,~, Yprob_svm] = svmpredict(train_y_test, ytrainscores, svmmodel);
+% sum(Yhat_svm == train_y_test)/size(train_y_test,1)
+% [accuracy, Ypredicted, Ytest] = cross_validation(train_y_test, ytrainscores, 5, @acc_logistic_regression);
+% mean(accuracy)
+
+
+
+svm_acc= [];
+lr_acc = [];
+nn_acc= [];
+for i = 1:5
+train_x = [];    
+train_y = [];
+for j = 1:5
+    if j ~= i
+    train_x = [train_x; bag.ytrainscores{j}];
+    train_y = [train_y;bag.train_y_test{j}];
+    end
+end
+% test_x = bag.ytrainscores{i};
+% test_y = bag.train_y_test{i};
+test_x = bag.yscores{i};
+test_y = bag.test_y{i};
+
+%  -g 0.003 -d 2
+svmmodel = svmtrain(train_y, train_x, '-t 1 -c 800 -d 6');
+[Yhat_svm,~, Yprob_svm] = svmpredict(test_y, test_x, svmmodel);
+
+
+LogRmodel = train(train_y, sparse(train_x), ['-s 0', 'col']);
+[Yhat_lr, ~, YProb_lr] = predict(test_y, sparse(test_x), LogRmodel, ['-q', 'col']);
+
+svm_acc = [svm_acc;sum(Yhat_svm == test_y)/size(test_y,1)];
+lr_acc = [lr_acc;sum(Yhat_lr == test_y)/size(test_y,1)];
+i
+svm_acc(end)
+lr_acc(end)
+
+
+
+
+
+printtesterr=1
+X=train_x;
+Y=train_y;
+train_x = X;
+train_y = [Y, ~Y];
+% test_x = testX;
+testY = test_y;
+
+rand('state',0);
+nn = nnsetup([size(X,2) 5 2]);
+
+% nn.momentum    = 0;  
+nn.activation_function = 'sigm';
+% nn.weightPenaltyL2 = 1e-2;  %  L2 weight decay
+nn.scaling_learningRate = 0.9;
+% nn.dropoutFraction     = 0.1;
+% nn.nonSparsityPenalty = 0.001;
+opts.numepochs = 6;        %  Number of full sweeps through data
+opts.batchsize = 1;       %  Take a mean gradient step over this many samples
+
+train_err = [];
+test_err = [];
+nn.learningRate = 1;
+
+for k = 1:3
+[nn loss] = nntrain(nn, train_x, train_y, opts);
+% new_feat = nnpredict(nn, train_x);
+
+[Yhat_t prob_t] = nnpredict_my(nn, train_x);
+train_err = [train_err;sum(~(Yhat_t-1) == Y)/size(train_y,1)];
+k
+train_err(end)
+
+if printtesterr==1
+[Yhat prob] = nnpredict_my(nn, test_x);
+test_err = [test_err; sum(~(Yhat-1) == testY)/size(testY,1)];
+test_err(end)
+end
+
+end
+
+[Yhat_nn prob_nn] = nnpredict_my(nn, test_x);
+nn_acc = [nn_acc;sum(~(Yhat_nn-1) == testY)/size(testY,1)];
+
+
+
+
+
+
+
+
+
+end
+[svm_acc lr_acc nn_acc]
+mean(svm_acc)
+mean(lr_acc)
+mean(nn_acc)
+% [accuracy, Ypredicted, Ytest] = cross_validation(train_y_test, ytrainscores, 5, @svm_predict);
+% mean(accuracy)
+%%
+% LogRmodel = train(train_y_test, sparse(ytrainscores), ['-s 0', 'col']);
+% svmmodel = svmtrain(train_y_test, ytrainscores, '-t 2 -c 1');
+
+% predict Yhat
+yscores = [bag.yscores{1};bag.yscores{2};bag.yscores{3};bag.yscores{4};bag.yscores{5}];
+test_y = [bag.test_y{1};bag.test_y{2};bag.test_y{3};bag.test_y{4};bag.test_y{5}];
+
+[Yhat_lr, ~, YProb_lr] = predict(test_y, sparse(yscores), LogRmodel, ['-q', 'col']);
+[Yhat_svm,~, Yprob_svm] = svmpredict(test_y, yscores, svmmodel);
+
+sum(Yhat_lr == test_y)/size(test_y,1)
+sum(Yhat_svm == test_y)/size(test_y,1)
 %% Analysis of the raw outputs of 3 classifiers and the ground truth
 
 
