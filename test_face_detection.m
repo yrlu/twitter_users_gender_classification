@@ -482,7 +482,39 @@ X =  [train_hog train_nose_hog train_eyes_hog];
 X = double(X);
 Y = train_y(logical(certain_train),:);
 
-%% HOG features classification with logistic regression
+
+%% Train+test PCA
+load('face_certain.mat', 'certain');
+load('train_nose_hog.mat', 'train_nose_hog');
+load('train_eyes_hog.mat', 'train_eyes_hog');
+load('train_hog_pry.mat', 'train_hog');
+load('train/genders_train.mat', 'genders_train');
+load('test_hog_pry.mat', 'test_hog');
+load('test_nose_hog.mat', 'test_nose_hog');
+load('test_eyes_hog.mat', 'test_eyes_hog');
+
+tic
+
+certain_train = certain(1:5000);
+
+traintest =  [train_hog train_nose_hog train_eyes_hog ; test_hog test_nose_hog test_eyes_hog];
+traintest_certain = traintest(logical(certain),:);
+[U mu vars] = pca_1(traintest_certain');
+%%
+tic
+[YPC,Xhat,avsq] = pcaApply(traintest_certain', U, mu, 1500);
+YPC = double(YPC');
+PC_train = YPC(1:sum(certain(1:5000,:)),:);
+train_y = [genders_train; genders_train(1); genders_train(2)];
+train_y_certain = train_y(logical(certain(1:5000)),:);
+[accuracy, Ypredicted, Ytest] = cross_validation(PC_train, train_y_certain, 5, @svm_predict);
+accuracy
+mean(accuracy)
+toc
+
+
+
+%% PCA
 
 % load('train_hog.mat', 'train_hog');
 load('face_certain.mat', 'certain');
@@ -503,7 +535,6 @@ train_y = [genders_train; genders_train(1); genders_train(2)];
 tic
 acc = [];
 % for i = 1:50
-pc = 1:170;
 certain_train = certain(1:5000);
 
 X =  [train_hog train_nose_hog train_eyes_hog];
@@ -536,6 +567,13 @@ toc
 
 
 %%
+
+load('img_pca_basis.mat', 'U', 'mu', 'vars');
+certain_train = certain(1:5000);
+X =  [train_hog train_nose_hog train_eyes_hog];
+X_certain = X(logical(certain_train),:);
+Y = train_y(logical(certain_train),:);
+
 % B = TreeBagger(95,X,Y, 'Method', 'classification');
 % RFpredict = @(train_x, train_y, test_x) sign(str2double(B.predict(test_x)) - 0.5);
 train_y = [genders_train; genders_train(1); genders_train(2)];

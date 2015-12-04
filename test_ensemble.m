@@ -38,6 +38,7 @@ ytrainscores = [bag.ytrainscores{1};bag.ytrainscores{2};bag.ytrainscores{3};bag.
 % train ensembler
 addpath ./liblinear
 addpath('./DL_toolbox/util','./DL_toolbox/NN','./DL_toolbox/DBN');
+addpath ./bagging
 % LogRmodel = train(train_y_test, sparse(ytrainscores), ['-s 0', 'col']);
 % [Yhat_lr, ~, YProb_lr] = predict(train_y_test, sparse(ytrainscores), LogRmodel, ['-q', 'col']);
 % sum(Yhat_lr == train_y_test)/size(train_y_test,1)
@@ -54,16 +55,22 @@ addpath('./DL_toolbox/util','./DL_toolbox/NN','./DL_toolbox/DBN');
 
 svm_acc= [];
 lr_acc = [];
+bg_acc = [];
 nn_acc= [];
+
 for i = 1:5
 train_x = [];    
 train_y = [];
-for j = 1:5
-    if j ~= i
-    train_x = [train_x; bag.ytrainscores{j}];
-    train_y = [train_y;bag.train_y_test{j}];
-    end
-end
+% for j = 1:5
+%     if j ~= i
+%     train_x = [train_x;bag.ytrainscores{j}];
+%     train_y = [train_y;bag.train_y_test{j}];
+%     end
+% end
+
+train_x = bag.ytrainscores{j};
+train_y = bag.train_y_test{j};
+
 % test_x = bag.ytrainscores{i};
 % test_y = bag.train_y_test{i};
 test_x = bag.yscores{i};
@@ -79,6 +86,15 @@ LogRmodel = train(train_y, sparse(train_x), ['-s 0', 'col']);
 
 svm_acc = [svm_acc;sum(Yhat_svm == test_y)/size(test_y,1)];
 lr_acc = [lr_acc;sum(Yhat_lr == test_y)/size(test_y,1)];
+
+s=6;
+c=100;
+F=0.85;%
+M_lib_re=20; % number of linear models
+[models_linear_re,cols_sel_linear_re]=train_bag_linear(train_x,train_y,size(train_x,2),0,0,s,c,F,M_lib_re);
+[Yhat_lib_re,~,~,~]= predict_bagged_linear(models_linear_re,test_x,M_lib_re);
+bg_acc = [bg_acc; sum(Yhat_lib_re == test_y)/size(test_y,1)];
+
 i
 svm_acc(end)
 lr_acc(end)
@@ -104,7 +120,7 @@ nn.activation_function = 'sigm';
 nn.scaling_learningRate = 0.9;
 % nn.dropoutFraction     = 0.1;
 % nn.nonSparsityPenalty = 0.001;
-opts.numepochs = 6;        %  Number of full sweeps through data
+opts.numepochs = 5;        %  Number of full sweeps through data
 opts.batchsize = 1;       %  Take a mean gradient step over this many samples
 
 train_err = [];
@@ -140,10 +156,11 @@ nn_acc = [nn_acc;sum(~(Yhat_nn-1) == testY)/size(testY,1)];
 
 
 end
-[svm_acc lr_acc nn_acc]
+[svm_acc lr_acc nn_acc bg_acc]
 mean(svm_acc)
 mean(lr_acc)
 mean(nn_acc)
+mean(bg_acc)
 % [accuracy, Ypredicted, Ytest] = cross_validation(train_y_test, ytrainscores, 5, @svm_predict);
 % mean(accuracy)
 %%

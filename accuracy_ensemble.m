@@ -40,6 +40,7 @@ load('test/words_test.mat', 'words_test');
 addpath('./liblinear');
 addpath('./DL_toolbox/util','./DL_toolbox/NN','./DL_toolbox/DBN');
 addpath('./libsvm');
+addpath ./bagging
 
 load('img_coef_faces.mat', 'img_coef_faces');
 load('img_scores_faces.mat', 'img_scores_faces');
@@ -190,6 +191,15 @@ ypred = sigmf(ypred, [2 0]);
 LogRens = train(train_y_test, sparse(ypred), ['-s 0', 'col']);
 % svmmodel = svmtrain(train_y_test, ypred, '-t 2 -c 10000');
 svmmodel = svmtrain(train_y_test, ypred, '-t 0 -c 5');
+
+s=6;
+c=100;
+F=0.85;%
+M_lib_re=20; % number of linear models
+[models_linear_re,cols_sel_linear_re]=train_bag_linear(ypred,train_y_test,size(ypred,2),0,0,s,c,F,M_lib_re);
+
+
+
 save('./models/log_ensemble.mat','LogRens');
 save('./models/svm_ensemble.mat', 'svmmodel');
 logRensemble = @(test_x) predict(test_y, sparse(test_x), LogRens, ['-q', 'col']);
@@ -272,6 +282,7 @@ ypred = sigmf(ypred, [2 0]);
 % Ycertain = Yhat~=-1;
 Yhat_log = logRensemble(ypred);
 [Yhat_svm,~, Yprob_svm] = svmpredict(zeros(size(ypred,1),1), ypred, svmmodel);
+[Yhat_lib_re,~,~,~]= predict_bagged_linear(models_linear_re,ypred,M_lib_re);
 % Yhat = bsxfun(@times, Yhat, Ycertain)+bsxfun(@times, Yhat_log, Yuncertain);
 Yhat = Yhat_log;
 YProb = ypred;
