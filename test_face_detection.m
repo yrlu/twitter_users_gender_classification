@@ -502,10 +502,10 @@ traintest_certain = traintest(logical(certain),:);
 [U mu vars] = pca_1(traintest_certain');
 % [U mu vars] = pca_1(traintest');
 toc
-save('img_pca_basis.mat', 'U', 'mu', 'vars');
+% save('img_pca_basis.mat', 'U', 'mu', 'vars');
 %%
 tic
-[YPC,Xhat,avsq] = pcaApply(traintest_certain', U, mu, 1500);
+[YPC,Xhat,avsq] = pcaApply(traintest_certain', U, mu, 3000);
 % [YPC,Xhat,avsq] = pcaApply(traintest', U, mu, 1500);
 YPC = double(YPC');
 % YPC = YPC(logical(certain),:);

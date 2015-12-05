@@ -93,13 +93,21 @@ img_train = double(img_train');
 % img_train = 
 
 certain_train = certain(1:5000,:);
+certain_test = certain_train(idx,:);
 
 img_train_x = img_train( logical(bsxfun(@times, ~idx, certain_train)), :);
 img_train_y = Y(logical(bsxfun(@times, ~idx, certain_train)), :);
-
 img_test_x = img_train(idx, :);
-certain_test = certain_train(idx,:);
+
 % img_test_y = Y(idx);
+
+img_raw_train = double([train_hog train_nose_hog train_eyes_hog]);
+img_raw_train_x = img_raw_train(logical(bsxfun(@times, ~idx, certain_train)), :);
+% img_raw_train_y = Y(logical(bsxfun(@times, ~idx, certain_train)), :);
+img_raw_test_x = img_raw_train(idx,:);
+
+
+
 
 
 % % Features selection 
@@ -157,6 +165,13 @@ img_train_x_test = img_train_tmp(end*proportion+1:end, :);
 certain_train_tmp = certain_train(~idx);
 certain_train_train = certain_train_tmp(end*proportion+1:end);
 
+
+img_raw_train_x_train = img_raw_train_x(1:end*proportion,:);
+% img_raw_train_y_train = img_train_y(1:end*proportion,:);
+img_raw_train_tmp = img_raw_train(~idx, :);
+img_raw_train_x_test = img_raw_train_tmp(end*proportion+1:end, :);
+
+
 toc
 
 
@@ -175,7 +190,7 @@ disp('Building ensemble..');
 [~, yhat_nn] = acc_neural_net(train_x_train, train_y_train, train_x_test, train_y_test);
 [~, yhat_fs] = acc_ensemble_trees(train_x_fs_train, train_y_fs_train, train_x_fs_test, train_y_test);
 % [~, yhat_ef] = eigen_face(img_train_x_train,img_train_y_train, img_train_x_test, train_y_test);
-% [~, yhat_hog] =acc_logistic_regression(img_train_x_train,img_train_y_train, img_train_x_test, train_y_test);
+[~, yhat_hog_log] =acc_logistic_regression(img_raw_train_x_train,img_train_y_train, img_raw_train_x_test, train_y_test);
 [~, yhat_hog] =svm_predict(img_train_x_train,img_train_y_train, img_train_x_test, train_y_test);
 
 % yhat_ef(logical(~certain_train_train), :) = -1;
@@ -219,8 +234,8 @@ disp('Generating real model and predicting Yhat..');
 [~, yhat_nn] = acc_neural_net(train_x,train_y,test_x,test_y);
 [~, yhat_fs] = acc_ensemble_trees(train_x_fs, train_y_fs, test_x_fs, test_y);
 % [~, yhat_ef] = eigen_face(img_train_x,img_train_y, img_test_x, test_y);
-% [~, yhat_hog] = acc_logistic_regression(img_train_x,img_train_y, img_test_x, test_y);
-[~, yhat_hog] = svm_predict(img_train_x,img_train_y, img_test_x, test_y);
+[yhog_log, yhat_hog_log] = acc_logistic_regression(img_raw_train_x,img_train_y, img_raw_test_x, test_y);
+[yhog, yhat_hog] = svm_predict(img_train_x,img_train_y, img_test_x, test_y);
 
 % yhat_ef(logical(~certain_test),:) = -1;
 % yhat_hog = sigmf(yhat_hog, [0.1 0]);
@@ -231,6 +246,7 @@ yhat_hog(logical(~certain_test),:) = 0;
 ypred = [yhat_log yhat_nn yhat_fs yhat_hog];
 ypred = sigmf(ypred, [2 0]);
 % ypred = normc(ypred);
+
 
 %  Fold 1 data, deprecated
 %   Probability  thres1   thres2   thres3   Proportion
