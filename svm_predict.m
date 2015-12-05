@@ -3,7 +3,7 @@ function [Yhat, Yprob] = svm_predict( train_x, train_y, test_x, test_y )
 disp('training svm...')
 addpath('./libsvm')
 model = svmtrain(train_y, train_x, '-t 2 -c 10');
-save('./models/svm_hog.mat','model');
+% save('./models/svm_hog.mat','model');
 [Yhat acc Yprob] = svmpredict(test_y, test_x, model);
 if Yhat(1) == 1 && Yprob(1)<0
     Yprob = -Yprob;
