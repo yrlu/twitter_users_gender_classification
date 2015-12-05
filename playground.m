@@ -114,6 +114,74 @@ X = cat(3, train_grey, test_grey);
 [h w n] = size(X);
 x = reshape(X,[h*w n]); 
 %% 
+
+% [U,mu,vars] = pca( I3D1(:,:,1:12) );
+%  [Y,Xhat,avsq] = pcaApply( I3D1(:,:,1), U, mu, 5 );
+%  pcaVisualize( U, mu, vars, I3D1, 13, [0:12], [], 1 );
+%  Xr = pcaRandVec( U, mu, vars, 1, 25, 0, 3 );
+%
+%[img_train_coeff,img_train_scores, ~] = pca_toolbox(train_grey)
+x_train = x(:,1:4998);
+x_train_f = x_train(:,logical(genders_train));
+x_train_m = x_train(:,~logical(genders_train));
+
+%%
+[U_train_f,mu_train_f,vars_train_f] = pca_toolbox(x_train_f);
+[U_train_m,mu_train_m,vars_train_m] = pca_toolbox(x_train_m);
+
+[img_scores_f,~,~] = pcaApply(x_train, U_train_f, mu_train_f, 1000);
+[img_scores_m,~,~] = pcaApply(x_train, U_train_m, mu_train_m, 1000);
+
+%%
+tic
+[img_scores,~,~] = pcaApply(x, U_train, mu_train, 1000);
+toc
+ scores_train = [img_scores_f' img_scores_m'];
+
+%%
+tic
+[~,img_scores_2,~] = pca(x','NumComponents', 1000);
+toc
+%%
+scores_train = img_scores_2(1:4998,:);
+%% 
+x_train_5000 = [scores_train; scores_train(1,:); scores_train(2,:)];
+y_train_5000 = [genders_train;genders_train(1);genders_train(2)];
+
+%%
+
+
+%%
+X = x_train_5000;
+Y = y_train_5000;
+n = size(X,1);
+[parts] = make_xval_partition(n, 5);
+
+acc_ens=zeros(5,1);
+
+acc = zeros(5,1);
+for i=1:5
+    row_sel1=(parts~=i);
+    row_sel2=(parts==i);
+    %cols_sel=idx(1:7);
+    
+    Xtrain=X(row_sel1,:);
+    Ytrain=Y(row_sel1);
+    Xtest=X(row_sel2,:);
+    Ytest=Y(row_sel2);
+    
+    
+    Yhat = svm_predict( Xtrain, Ytrain, Xtest, Ytest )
+    acc(i) = sum(Yhat==Ytest)/length(Ytest);
+    
+    %confusionmat(Ytest,Yhat)
+end
+acc
+mean(acc)
+
+
+%%
+
 [img_coef_faces, img_scores_faces, img_eigens_faces] = pca(x');
 save('img_coef_faces.mat', 'img_coef_faces');
 save('img_scores_faces.mat', 'img_scores_faces');
@@ -139,6 +207,37 @@ image_train_Y = train_y_certain;%[genders_train;genders_train(1);genders_train(2
 size(image_train_X)
 size(image_train_Y)
 
+%%
+Y = train_y_certain+1; %avoid 0
+Xorig = image_train_X;
+
+[T,Z]=SELF(Xorig,Y,0.5,2000);
+X = Z';
+%%
+n = size(X,1);
+[parts] = make_xval_partition(n, 4);
+
+acc_ens=zeros(4,1);
+
+acc = zeros(4,1);
+for i=1:4
+    row_sel1=(parts~=i);
+    row_sel2=(parts==i);
+    %cols_sel=idx(1:7);
+    
+    Xtrain=X(row_sel1,:);
+    Ytrain=Y(row_sel1);
+    Xtest=X(row_sel2,:);
+    Ytest=Y(row_sel2);
+    
+    
+    Yhat = logistic(Xtrain, Ytrain, Xtest, Ytest );
+    acc(i,j) = sum(round(Yhat)==Ytest)/length(Ytest);
+    
+    %confusionmat(Ytest,Yhat)
+end
+acc
+mean(acc)
 
 %%
 
@@ -334,6 +433,8 @@ close all
  bns = calc_bns(words_train,Y); %-------------feature selection opt1% 
  IG=calc_information_gain(genders_train,words_train,[1:5000],10);% --------or try to compute the information gain
  
+ %% 
+ IG=calc_information_gain(genders_train,words_train,[1:5000],10);
  % you can further scale the words
  %words_train_s=bsxfun(@times,words_train,bns);% or...
  %words_train_s=bsxfun(@times,words_train,IG);
@@ -341,17 +442,22 @@ close all
  [top_igs, idx]=sort(IG,'descend'); %---- and sort
 
 % % and pick the top words
- word_sel=idx(1:1000);
- X_selected =X(:,word_sel);
+ word_sel=idx(1:100);
+ X_selected =words_train(:,word_sel);
 
 
 
 
  %% 76: 71.55% knn
-features_index = I(1:76)';
-mdl = @(trainX, trainY, testX, testY) predict(fitcknn(trainX,trainY, 'NumNeighbors',j)
-X_selected = X(:,features_index);
-[accuracy, ~,~] = cross_validation(X_selected, Y, 4, mdl);
+ % % and pick the top words
+ word_sel=idx(1:70);
+ X_selected =words_train(:,word_sel);
+
+
+% features_index = I(1:76)';
+mdl = @(trainX, trainY, testX, testY) predict(fitcknn(trainX,trainY, 'NumNeighbors',16),testX);
+% X_selected = X(:,features_index);
+[accuracy, ~,~] = cross_validation(X_selected, genders_train, 4, mdl);
 mean(accuracy)
 
 %% KNN limit: max 16 neighbors, 76 words 72.89% 

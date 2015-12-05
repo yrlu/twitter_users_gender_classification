@@ -31,11 +31,14 @@ load('train_eyes_hog.mat', 'train_eyes_hog');
 load('test_nose_hog.mat', 'test_nose_hog');
 load('test_eyes_hog.mat', 'test_eyes_hog');
 load('scores_faces.mat','scores_faces');
+
+load('img_pca_basis.mat', 'U', 'mu', 'vars');
 toc
 
 disp('Preparing data..');
 
 %%
+tic
 % Separate the data into training set and testing set.
 X = [words_train; words_train(1,:); words_train(2,:)];
 Y = [genders_train; genders_train(1); genders_train(2,:)];
@@ -52,7 +55,9 @@ test_y = ones(size(words_test,1),1);
 
 % prepare data for face detection.
 % img_train = img_scores_faces(1:5000, :);
-img_train = scores_faces(1:5000, 1:3000);
+% img_train = scores_faces(1:5000, 1:3000);
+[img_train,~,~] = pcaApply([train_hog train_nose_hog train_eyes_hog]', U, mu, 1500);
+img_train = double(img_train');
 % img_train = double([train_hog train_nose_hog train_eyes_hog]);
 certain_train = certain(1:5000,:);
 
@@ -64,7 +69,9 @@ img_train_y = Y(logical(certain_train), :);
 
 
 % img_test_x = img_scores_faces(5001:end, :);
-img_test_x = scores_faces(5001:end,1:3000);
+% img_test_x = scores_faces(5001:end,1:3000);
+[img_test_x,~,~] = pcaApply([test_hog test_nose_hog test_eyes_hog]', U, mu, 1500);
+img_test_x = double(img_test_x');
 % img_test_x = double([test_hog test_nose_hog test_eyes_hog]);
 certain_test = certain(5001:end,:);
 % img_test_y = Y(idx);

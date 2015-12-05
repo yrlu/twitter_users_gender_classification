@@ -500,14 +500,19 @@ certain_train = certain(1:5000);
 traintest =  [train_hog train_nose_hog train_eyes_hog ; test_hog test_nose_hog test_eyes_hog];
 traintest_certain = traintest(logical(certain),:);
 [U mu vars] = pca_1(traintest_certain');
+% [U mu vars] = pca_1(traintest');
+toc
+% save('img_pca_basis.mat', 'U', 'mu', 'vars');
 %%
 tic
-[YPC,Xhat,avsq] = pcaApply(traintest_certain', U, mu, 1500);
+[YPC,Xhat,avsq] = pcaApply(traintest_certain', U, mu, 3000);
+% [YPC,Xhat,avsq] = pcaApply(traintest', U, mu, 1500);
 YPC = double(YPC');
+% YPC = YPC(logical(certain),:);
 PC_train = YPC(1:sum(certain(1:5000,:)),:);
 train_y = [genders_train; genders_train(1); genders_train(2)];
 train_y_certain = train_y(logical(certain(1:5000)),:);
-[accuracy, Ypredicted, Ytest] = cross_validation(PC_train, train_y_certain, 5, @svm_predict);
+[accuracy, Ypredicted, Ytest] = cross_validation(PC_train, train_y_certain, 8, @svm_predict);
 accuracy
 mean(accuracy)
 toc

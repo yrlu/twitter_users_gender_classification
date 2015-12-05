@@ -27,7 +27,7 @@ for i=1:size(train_x_r_img,1)
   img_r(:, :, i) = reshape(cur_row_r, [100, 100, 1]);
   img_g(:, :, i) = reshape(cur_row_g, [100, 100, 1]);
   img_b(:, :, i) = reshape(cur_row_b, [100, 100, 1]);
-  img_grey(:,:,i) = (reshape(cur_row_r, [100, 100, 1])+reshape(cur_row_g, [100, 100, 1])+reshape(cur_row_b, [100, 100, 1]))/3;
+  img_grey(:,:,i) = (reshape(cur_row_r, [100, 100, 1])*0.2989+reshape(cur_row_g, [100, 100, 1])*0.5870+reshape(cur_row_b, [100, 100, 1])*0.1140);
 end
 
 
