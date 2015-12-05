@@ -27,9 +27,9 @@ Ktest = kernel(X, Xtest);
 
 % Use built-in libsvm cross validation to choose the C regularization
 % parameter.
-crange = 10.^[-10:2:3];
+crange = [1;0.01];
 for i = 1:numel(crange)
-    acc(i) = svmtrain(Y, [(1:size(K,1))' K], sprintf('-t 4 -v 10 -c %g', crange(i)));
+    acc(i) = svmtrain(Y, [(1:size(K,1))' K], sprintf('-t 4 -v 2 -c %g', crange(i)));
 end
 [~, bestc] = max(acc);
 fprintf('Cross-val chose best C = %g\n', crange(bestc));

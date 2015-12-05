@@ -14,23 +14,24 @@
 %       "accuracy" for that sample!
 %   YProb: This is all the *RAW* outputs of the neural network.
 
-function [Yhat, YProb] = acc_neural_net(train_x, train_y, test_x, test_y, accuracy, opts)
+function [Yhat, YProb, model] = acc_neural_net(train_x, train_y, test_x, test_y, accuracy, opts)
 % neural network
-disp('Training neural network..');
-X=train_x;
-Y=train_y;
-rand('state',0);
-nn = nnsetup([size(X,2) 100 50 2]);
-nn.learningRate = 5;
-nn.activation_function = 'sigm';
-nn.weightPenaltyL2 = 1e-2;  %  L2 weight decay
-nn.scaling_learningRate = 0.9;
-opts.numepochs = 3;        %  Number of full sweeps through data
-opts.batchsize = 100;       %  Take a mean gradient step over this many samples
-[nn loss] = nntrain(nn, train_x, [Y, ~Y], opts);
-% NNetPredict = @(test_x) sign(~(nnpredict(nn, test_x)-1) -0.5);
-[Yhat, YProb] = nnpredict_my(nn, test_x);
-return;
+% disp('Training neural network..');
+% X=train_x;
+% Y=train_y;
+% rand('state',0);
+% nn = nnsetup([size(X,2) 100 50 2]);
+% nn.learningRate = 5;
+% nn.activation_function = 'sigm';
+% nn.weightPenaltyL2 = 1e-2;  %  L2 weight decay
+% nn.scaling_learningRate = 0.9;
+% opts.numepochs = 3;        %  Number of full sweeps through data
+% opts.batchsize = 100;       %  Take a mean gradient step over this many samples
+% [nn loss] = nntrain(nn, train_x, [Y, ~Y], opts);
+% % NNetPredict = @(test_x) sign(~(nnpredict(nn, test_x)-1) -0.5);
+% [Yhat, YProb] = nnpredict_my(nn, test_x);
+% model = nn;
+% return;
 
 printtesterr = 0;
 
@@ -129,8 +130,8 @@ train_err(end)
 end
 
 
-save('./models/nn.mat','nn');
+% save('./models/nn.mat','nn');
 
 [Yhat, YProb] = nnpredict_my(nn, test_x);
-
+model = nn;
 end
