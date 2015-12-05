@@ -8,7 +8,7 @@ The four methods we have implemented (and included here) are:
 Naive Bayes (generative method)
 Logistic Regression; LogitBoost + Trees, ANN, SVM (discriminative method)
 K-nearest Neighbors (instance-based method)
-PCA (Semi-supervised dimensionality reduction of the data)
+Auto-encoder (Semi-supervised dimensionality reduction of the data)
 
 To test ALL, please check alg_demo.m
 
@@ -114,6 +114,20 @@ knn_test.m
 To test: 
 [testLabels] = knn_test(16, trainPoints, trainLabels, testPoints);
 
+%%%%%%%%%%%%%%%%%%
+%% Auto-encoder %%
+%%%%%%%%%%%%%%%%%%
+The Auto-encoder was employed for image dimensionality reduction on face-detected images. We made use of the code samples provided in one of the homework and DL_toolbox, and experimented with multiple number of hidden layers, hidden nodes, and various neural network settings such as learningRate and inputZeroMaskedFraction. Our cross-validation using logistic regression shows over 75% accuracy.  
+
+Training Data: images_train (gray-scale; face-detected)
+Testing Data: images_test (gray-scale; face-detected)
+
+Relevant files: 
+autoencoder.m
+../DL_toolbox
+
+To test: 
+[testLabels] = logistic(new_feat, Ytrain, new_feat_test, ones(size(new_feat_test,1),1));
 
 %%%%%%%%%%
 %% PCA %%
