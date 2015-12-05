@@ -1,8 +1,8 @@
-function [ new_feat,new_feat_test ] = newFeature_rbm( dbn, train_x, test_x )
+function [new_feat,new_feat_test ] = newFeature_rbm(dbn, train_x, test_x)
 
     
     % unfold dbn to nn
-    nn = dbnunfoldtonn(dbn, 4762);
+    nn = dbnunfoldtonn(dbn, 10000);
     nn.activation_function = 'sigm';
 
     % Get new training data features
