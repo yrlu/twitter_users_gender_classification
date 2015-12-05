@@ -1,0 +1,45 @@
+ %--------  LibSVM's Kernel Intersection SVM on 5k+7Image Features Normalized
+    kernel_intersection =  @(x,x2) kernel_intersection(x, x2);
+    FeatTrain = [train_x_fs_train ];
+    FeatTest = [train_x_fs_test];
+    FeatTrainNormRows = sqrt(sum(abs(FeatTrain).^2,2));
+    FeatTrain = bsxfun(@times, FeatTrain, 1./FeatTrainNormRows);
+    FeatTestNormRows = sqrt(sum(abs(FeatTest).^2,2));
+    FeatTest = bsxfun(@times, FeatTest, 1./FeatTestNormRows);
+    [~, SVMK_info]= kernel_libsvm(FeatTrain,train_y_fs_train,...
+        FeatTest,ones(size(train_x_fs_test,1),1),kernel_intersection);
+    model_new_tn{j}=SVMK_info.model;
+    yhat_new_tn{j}=SVMK_info.yhat;
+    yscore_new_tn{j}=SVMK_info.vals;
+    kernel_intersection =  @(x,x2) kernel_intersection(x, x2);
+    FeatTrain = [train_x_fs ];
+    FeatTest = [test_x_fs];
+    FeatTrainNormRows = sqrt(sum(abs(FeatTrain).^2,2));
+    FeatTrain = bsxfun(@times, FeatTrain, 1./FeatTrainNormRows);
+    FeatTestNormRows = sqrt(sum(abs(FeatTest).^2,2));
+    FeatTest = bsxfun(@times, FeatTest, 1./FeatTestNormRows);
+    [~, SVMK_info]= kernel_libsvm(FeatTrain,train_y_fs,...
+        FeatTest,ones(size(test_x_fs,1),1),kernel_intersection);
+    model_new_te{j}=SVMK_info.model;
+    yhat_new_te{j}=SVMK_info.yhat;
+    yscore_new_te{j}=SVMK_info.vals;
+    %-------------------------------------------------------------
+    model_new_tnB{j} = fitensemble(train_x_fs_train,train_y_fs_train,'RobustBoost',300,'Tree','RobustErrorGoal',0.1,'NPrint',10);
+    [yhat_new_tnB{j}, yscore_new_tnB{j}] = predict(model_new_tnB{j}, train_x_fs_test);
+    model_new_teB{j} = fitensemble(train_x_fs,train_y_fs,'RobustBoost',300,'Tree','RobustErrorGoal',0.1,'NPrint',10);
+    [yhat_new_teB{j}, yscore_new_teB{j}] = predict(model_new_teB{j}, test_x_fs);
+
+    %+0.3%
+    %     %----------  LibSVM's Kernel Intersection SVM-----tr-------
+    kernel_intersection =  @(x,x2) kernel_intersection(x, x2);
+    [~,SVMK_infoC]= kernel_libsvm(train_x_fs_train,train_y_fs_train,...
+        train_x_fs_test,ones(size(train_x_fs_test,1),1),kernel_intersection);
+    model_new_tnC{j}=SVMK_infoC.model;
+    yhat_new_tnC{j}=SVMK_infoC.yhat;
+    yscore_new_tnC{j}=SVMK_infoC.vals;%
+    kernel_intersection =  @(x,x2) kernel_intersection(x, x2);
+    [~,SVMK_infoC]= kernel_libsvm(train_x_fs,train_y_fs,...
+        test_x_fs,ones(size(test_x_fs,1),1),kernel_intersection);
+    model_new_teC{j}=SVMK_infoC.model;
+    yhat_new_teC{j}=SVMK_infoC.yhat;
+    yscore_new_teC{j}=SVMK_infoC.vals;
