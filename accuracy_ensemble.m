@@ -42,22 +42,23 @@ addpath('./DL_toolbox/util','./DL_toolbox/NN','./DL_toolbox/DBN');
 addpath('./libsvm');
 addpath ./bagging
 
-load('img_coef_faces.mat', 'img_coef_faces');
-load('img_scores_faces.mat', 'img_scores_faces');
-load('img_eigens_faces.mat', 'img_eigens_faces');
-load('face_certain.mat','certain');
+% load('img_coef_faces.mat', 'img_coef_faces');
+% load('img_scores_faces.mat', 'img_scores_faces');
+% load('img_eigens_faces.mat', 'img_eigens_faces');
+% load('face_certain.mat','certain');
 % load('train_hog.mat', 'train_hog');
-load('train_hog_pry.mat', 'train_hog');
+% load('train_hog_pry.mat', 'train_hog');
+% load('train_nose_hog.mat', 'train_nose_hog');
+% load('train_eyes_hog.mat', 'train_eyes_hog');
+% load('img_pca_basis.mat', 'U', 'mu', 'vars');
 
-load('train_nose_hog.mat', 'train_nose_hog');
-load('train_eyes_hog.mat', 'train_eyes_hog');
+load('certain_HOG.mat', 'U', 'mu', 'eyes_hog', 'face_hog','nose_hog', 'certain');
+load('img_pca_basis_lbp.mat', 'U_lbp', 'mu_lbp', 'vars_lbp');
+load('lbp_feat.mat','lbp_feat');
 
-
-
-load('img_pca_basis.mat', 'U', 'mu', 'vars');
 %load('train_lbp.mat', 'train_lbp');
 %load('test_lbp.mat', 'test_lbp');
-% load('test_hog.mat', 'test_hog');
+%load('test_hog.mat', 'test_hog');
 
 
 
@@ -84,30 +85,42 @@ train_y = Y(~idx);
 test_x = X(idx, :);
 test_y = Y(idx);
 
+
+
+
 % prepare data for face detection. 
-% img_train = img_scores_faces(1:5000, :);
-% img_train = double([train_hog train_nose_hog train_eyes_hog]);
-% img_train  =scores_faces(1:5000, 1:3000);
-[img_train,Xhat,avsq] = pcaApply([train_hog train_nose_hog train_eyes_hog]', U, mu, 1500);
-img_train = double(img_train');
-% img_train = 
 
 certain_train = certain(1:5000,:);
 certain_test = certain_train(idx,:);
 
+% img_train = img_scores_faces(1:5000, :);
+% img_train = double([train_hog train_nose_hog train_eyes_hog]);
+% img_train  =scores_faces(1:5000, 1:3000);
+% [img_train,Xhat,avsq] = pcaApply([train_hog train_nose_hog train_eyes_hog]', U, mu, 1500);
+hog_feat = [face_hog nose_hog face_hog];
+hog_feat_certain = hog_feat(logical(certain),:);
+[U mu vars] = pca_1(hog_feat_certain');
+hog_feat_train = hog_feat(1:5000, :);
+[img_train,Xhat,avsq] = pcaApply(hog_feat_train', U, mu, 1500);
+img_train = double(img_train');
 img_train_x = img_train( logical(bsxfun(@times, ~idx, certain_train)), :);
 img_train_y = Y(logical(bsxfun(@times, ~idx, certain_train)), :);
 img_test_x = img_train(idx, :);
 
 % img_test_y = Y(idx);
-
-img_raw_train = double([train_hog train_nose_hog train_eyes_hog]);
+img_raw_train = double(hog_feat(1:5000,:));
 img_raw_train_x = img_raw_train(logical(bsxfun(@times, ~idx, certain_train)), :);
 % img_raw_train_y = Y(logical(bsxfun(@times, ~idx, certain_train)), :);
 img_raw_test_x = img_raw_train(idx,:);
 
-
-
+lbp_feat_train = lbp_feat(1:5000,:);
+% lbp_feat_train_certain = lbp_feat_train(logical(bsxfun(@times, ~idx, certain_train)), :);
+[img_lbp_train,Xhat,avsq] = pcaApply(lbp_feat_train', U_lbp, mu_lbp, 2000);
+img_lbp_train = double(img_lbp_train');
+img_lbp_train_x = img_lbp_train( logical(bsxfun(@times, ~idx, certain_train)), :);
+% img_lbp_train_x = img_lbp_train( logical(bsxfun(@times, ~idx, certain_train)), :);
+% img_lbp_train_y = Y(logical(bsxfun(@times, ~idx, certain_train)), :);
+img_lbp_test_x = img_lbp_train(idx, :);
 
 
 % % Features selection 
@@ -172,6 +185,12 @@ img_raw_train_tmp = img_raw_train(~idx, :);
 img_raw_train_x_test = img_raw_train_tmp(end*proportion+1:end, :);
 
 
+img_lbp_train_x_train = img_lbp_train_x(1:end*proportion,:);
+% img_raw_train_y_train = img_train_y(1:end*proportion,:);
+img_lbp_train_tmp = img_lbp_train(~idx, :);
+img_lbp_train_x_test = img_lbp_train_tmp(end*proportion+1:end, :);
+
+
 toc
 
 
@@ -192,13 +211,16 @@ disp('Building ensemble..');
 % [~, yhat_ef] = eigen_face(img_train_x_train,img_train_y_train, img_train_x_test, train_y_test);
 [~, yhat_hog_log] =acc_logistic_regression(img_raw_train_x_train,img_train_y_train, img_raw_train_x_test, train_y_test);
 [~, yhat_hog] =svm_predict(img_train_x_train,img_train_y_train, img_train_x_test, train_y_test);
+[~, yhat_lbp] =svm_predict(img_lbp_train_x_train,img_train_y_train, img_lbp_train_x_test, train_y_test);
+
 
 % yhat_ef(logical(~certain_train_train), :) = -1;
 % yhat_hog = sigmf(yhat_hog, [0.1 0]);
-yhat_hog(logical(~certain_train_train), :) = 0;
+yhat_hog(logical(~certain_train_train),:) = 0;
+yhat_lbp(logical(~certain_train_train),:) = 0;
 % [~, yhat_nb] = predict_MNNB(train_x_knn_train, train_y_knn_train, train_x_knn_test, train_y_test);
 % The probabilities produced by the classifiers
-ypred = [yhat_log yhat_nn yhat_fs yhat_hog];
+ypred = [yhat_log yhat_nn yhat_fs yhat_hog yhat_lbp];
 ypred = sigmf(ypred, [2 0]);
 % ypred = normc(ypred);
 
@@ -236,14 +258,16 @@ disp('Generating real model and predicting Yhat..');
 % [~, yhat_ef] = eigen_face(img_train_x,img_train_y, img_test_x, test_y);
 [yhog_log, yhat_hog_log] = acc_logistic_regression(img_raw_train_x,img_train_y, img_raw_test_x, test_y);
 [yhog, yhat_hog] = svm_predict(img_train_x,img_train_y, img_test_x, test_y);
-
+[ylbp, yhat_lbp] = svm_predict(img_lbp_train_x,img_train_y, img_lbp_test_x, test_y);
 % yhat_ef(logical(~certain_test),:) = -1;
 % yhat_hog = sigmf(yhat_hog, [0.1 0]);
 yhat_hog(logical(~certain_test),:) = 0;
+yhat_lbp(logical(~certain_test),:) = 0;
+
 % [~, yhat_nb] = predict_MNNB(train_x_knn, train_y_knn, test_x_knn, test_y);
 % Use trained ensembler to predict Yhat based on the probabilities
 % generated from classifiers.
-ypred = [yhat_log yhat_nn yhat_fs yhat_hog];
+ypred = [yhat_log yhat_nn yhat_fs yhat_hog yhat_lbp];
 ypred = sigmf(ypred, [2 0]);
 % ypred = normc(ypred);
 

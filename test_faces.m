@@ -157,7 +157,21 @@ for i = 1:size(img_grey,3)
     lbp_feat(i,:) = [featureVector1,featureVector2,featureVector3,featureVector4];
 end
 
-
+%% INFO Gain 
+train_y = [genders_train; genders_train(1); genders_train(2)];
+IG=calc_information_gain(train_y,lbp_feat(1:5000,:),[1:size(lbp_feat,2)],0);
+[top_igs, index]=sort(IG,'descend');
+Nfeatures = 9000;
+cols_sel=index(1:Nfeatures);
+lbp_feat_fs = lbp_feat(1:5000, cols_sel);
+lbp_feat_fs_certain = lbp_feat_fs(logical(certain(1:5000)),:);
+Y = train_y(logical(certain(1:5000)));
+%%
+lbp_train = lbp_feat(1:5000, :);
+lbp_train_certain = lbp_train(logical(certain(1:5000)),:);
+[accuracy, Ypredicted, Ytest] = cross_validation(lbp_feat_fs_certain, Y, 5, @logistic);
+accuracy
+mean(accuracy)
 
 %% SURF features;
 tic
