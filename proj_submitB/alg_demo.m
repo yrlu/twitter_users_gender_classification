@@ -148,6 +148,7 @@ Yfull=genders_train;
 scale_bns=0;
 [n, ~] = size(Xfull);
 [parts] = make_xval_partition(n, 8);
+% Bagging with 15 models, test accuracy
 for j=1:8
     
     row_sel1=(parts~=j);
@@ -173,7 +174,7 @@ for j=1:8
 end
 acc_ens
 mean(acc_ens)
-
+% in comparison, no bagging and test accuracy
 for j=1:8
     
     row_sel1=(parts~=j);
