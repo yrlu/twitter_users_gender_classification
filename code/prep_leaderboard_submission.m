@@ -4,8 +4,8 @@ img_feat_test = importdata('../test/image_features_test.txt');
 word_test = importdata('../test/words_test.txt');
 X_test = [word_test img_feat_test]; %img_test
 
-model = init_model;
-predictions = make_final_prediction(model, X_test);
+model = init_model();
+predictions = make_final_prediction(model, X_test, X_train);
 
 % Use turnin on the output file
 % turnin -c cis520 -p leaderboard submit.txt

@@ -14,8 +14,8 @@
 %       "accuracy" for that sample!
 %   YProb: This is all the *RAW* outputs of the neural network.
 
-function [Yhat, YProb] = acc_neural_net(train_x, train_y, test_x, test_y, accuracy, opts)
-% % neural network
+function [Yhat, YProb, model] = acc_neural_net(train_x, train_y, test_x, test_y, accuracy, opts)
+% neural network
 % disp('Training neural network..');
 % X=train_x;
 % Y=train_y;
@@ -30,6 +30,7 @@ function [Yhat, YProb] = acc_neural_net(train_x, train_y, test_x, test_y, accura
 % [nn loss] = nntrain(nn, train_x, [Y, ~Y], opts);
 % % NNetPredict = @(test_x) sign(~(nnpredict(nn, test_x)-1) -0.5);
 % [Yhat, YProb] = nnpredict_my(nn, test_x);
+% model = nn;
 % return;
 
 printtesterr = 0;
@@ -129,8 +130,8 @@ train_err(end)
 end
 
 
-save('./models/nn.mat','nn');
+% save('./models/nn.mat','nn');
 
 [Yhat, YProb] = nnpredict_my(nn, test_x);
-
+model = nn;
 end

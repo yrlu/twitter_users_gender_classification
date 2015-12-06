@@ -1,4 +1,4 @@
-function predictions = make_final_prediction(model,X_test)
+function predictions = make_final_prediction(model,X_test, X_Train)
 % Input
 % X_test : a nxp vector representing "n" test samples with p features.
 % X_test=[words images image_features] a n-by-35007 vector

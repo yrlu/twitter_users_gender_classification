@@ -159,3 +159,53 @@ Xtrain_pca = YPC(1:size(train_grey,3),:);
 Xtest_pca = YPC(size(train_grey,3)+1:end,:);
 [testLabels,~] = svm_predict(Xtrain_pca, trainLabels, Xtest_pca, ones(size(words_test,1),1));
 
+%%%%%%%%%%
+%% Adaboost %%
+%%%%%%%%%%
+This is one of the enssembling methods implemented for reducing model bias and variance (to regularize models/features/data). 
+
+All relevant files are in ./Boosting folder
+A Naive Bayes classifer has been implemented for Adaboost to use
+To train:
+	[a, models]=boosting(@boost_nb_train,@boost_nb_predict,Xtrain, Y, M,opt);
+-Xtrain: Training data
+-Y: Traing labels
+-M: number of models
+-opt: opt specified for classifiers, [] by default
+
+-a: weights of models
+-models: models trained by Adaboost
+
+To test:
+    Yhats=zeros( size(Xtest,1),M);
+    for i=1:M
+        Yhats(:,i) = boost_nb_predict(models.mdl{i}, Xtest) ; % now it's 1 or -1
+    end
+    Yhat=sign(Yhats*a);  
+	
+% In our leaderboard submission, we used Logitboost+stump trees instead.
+
+%%%%%%%%%%
+%% Bagging %%
+%%%%%%%%%%
+This is another enssembling method implemented for reducing models variance.
+
+All relevant files can be found in ./Bagging folder. We provide three types models: Stump trees, Naive Bayes and Linear models (any linear models provided by Liblinear)
+
+To train:
+% n_ig: number of top IG used for feature selection
+% n_bns: number of top bns used
+% scale_bns--scale X by bns score or not
+% s: Linear methods option, see blow--can be a group of values
+% c: cost parameter
+% F: fraction of subset data for training each model
+% M: total number of models	
+% cols_sel: idx of important features
+% models: models trained by bagging
+    [models_linear,cols_sel]=train_bag_linear(Xtrain,Y,n_ig,n_bns,scale_bns,s,c,F,M);
+
+To test:
+    Xtest_cur=Xtest(:,cols_sel );
+    Yhat=predict_bagged_linear(models_linear,Xtest_cur,M);
+	
+A good example is the bagging of linear models, which is provided in the demo and increases the accuracy by about 1.5 percent.

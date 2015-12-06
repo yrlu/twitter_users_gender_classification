@@ -1,4 +1,4 @@
-function [Yhat, Yprob] = svm_predict( train_x, train_y, test_x, test_y )
+function [Yhat, Yprob,model] = svm_predict( train_x, train_y, test_x, test_y )
 %  sprintf('-t 2 -c %g',)
 disp('training svm...')
 addpath('./libsvm')
