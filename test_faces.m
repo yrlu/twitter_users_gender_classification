@@ -68,14 +68,38 @@ toc
 
 %% 
 load('train/genders_train.mat', 'genders_train');
-[hog_feat, certain, pca_hog] = gen_data_hog();
+load certain_HOG.mat eyes_hog face_hog nose_hog certain
+% [hog_feat, certain, pca_hog] = gen_data_hog();
 train_y = [genders_train; genders_train(1); genders_train(2)];
-hog_train = pca_hog(1:5000,:);
+% hog_train = pca_hog(1:5000,:);
 y_certain = train_y(logical(certain(1:5000,:)),:);
-hog_certain_train = hog_train(logical(certain(1:5000)),:);
-[accuracy, Ypredicted, Ytest] = cross_validation(hog_certain_train, y_certain, 5, @svm_predict_test);
+% hog_certain_train = hog_train(logical(certain(1:5000)),:);
+hog = [face_hog eyes_hog nose_hog];
+% hog=face_hog;
+hog_train = hog(1:5000,:);
+hog_train_certain = hog_train(logical(certain(1:5000)),:);
 
 
+
+
+
+% s=0;
+% c=0.15;
+% F=0.6;% fraction of data for training each model----my rule of thumb: (1-f)^m ~=0.001, too small will overfit
+% M_HOG=8; % number of linear models
+% [models_linear_HOG,cols_sel]=train_bag_linear(hog_train_certain,y_certain,1500,0,0,s,c,F,M_HOG);
+
+% 
+% B=calc_information_gain(y_certain,hog_train_certain,[1:size(hog_train_certain,2)],0);
+% [top_igs, index]=sort(B,'descend');
+% Nfeatures = 3000;
+% cols_sel=index(1:Nfeatures);
+
+
+
+[accuracy, Ypredicted, Ytest] = cross_validation(hog_train_certain(:,cols_sel), y_certain, 5, @bagging_linear);
+accuracy
+mean(accuracy)
 
 
 %% 
@@ -181,6 +205,7 @@ Y = train_y(logical(certain(1:5000)));
 %%
 lbp_train = lbp_feat(1:5000, :);
 lbp_train_certain = lbp_train(logical(certain(1:5000)),:);
+
 [accuracy, Ypredicted, Ytest] = cross_validation(lbp_feat_fs_certain, Y, 5, @logistic);
 accuracy
 mean(accuracy)

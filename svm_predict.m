@@ -5,9 +5,9 @@ addpath('./libsvm')
 model = svmtrain(train_y, train_x, '-t 2 -c 10');
 % save('./models/svm_hog.mat','model');
 [Yhat acc Yprob] = svmpredict(test_y, test_x, model);
-if Yhat(1) == 1 && Yprob(1)<0
-    Yprob = -Yprob;
-elseif Yhat(1) ==0 && Yprob(1)>0
-    Yprob = -Yprob;
-end
+% if Yhat(1) == 1 && Yprob(1)<0
+%     Yprob = -Yprob;
+% elseif Yhat(1) ==0 && Yprob(1)>0
+%     Yprob = -Yprob;
+% end
 end

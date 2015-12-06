@@ -3,6 +3,7 @@
 % Date: Dec 5
 
 tic
+clear;
 disp('Loading data..');
 load('train/genders_train.mat', 'genders_train');
 addpath('./liblinear');
@@ -35,11 +36,6 @@ img_train_x_certain = img_train(logical(certain_train), :);
 img_train_x = img_train;
 img_test_x = pca_hog(5001:end,:);
 
-[~, pca_lbp] = gen_data_lbp();
-img_lbp_train = pca_lbp(1:5000,:);
-img_lbp_train_x_certain = img_lbp_train(logical(certain_train), :);
-img_lbp_train_x = img_lbp_train;
-img_lbp_test_x = pca_lbp(5001:end,:);
 
 % % Features selection 
 [train_fs, test_fs] = gen_data_words_imgfeat_fs(1000);
@@ -63,9 +59,6 @@ proportion = 0.8;
 [~,certain_train_test] = gen_data_separate(certain_train_x, proportion);
 [img_train_y_train,~] = gen_data_separate(img_train_y_certain, proportion);
 
-[img_lbp_train_x_train,~] = gen_data_separate(img_lbp_train_x_certain, proportion);
-[~,img_lbp_train_x_test] = gen_data_separate(img_lbp_train_x, proportion);
-
 
 toc
 
@@ -82,12 +75,10 @@ disp('Building ensemble..');
 [~, yhat_kernel_n] = acc_kernel_n(train_x_fs_train, train_y_train, train_x_fs_test, train_y_test);
 [~, yhat_kernel] = acc_kernel(train_x_fs_train, train_y_train, train_x_fs_test, train_y_test);
 [~, yhat_hog] =svm_predict(img_train_x_certain_train,img_train_y_train, img_train_x_test, train_y_test);
-% [~, yhat_lbp] =svm_predict(img_lbp_train_x_train,img_train_y_train, img_lbp_train_x_test, train_y_test);
 
 yhat_hog(logical(~certain_train_test),:) = 0;
-% yhat_lbp(logical(~certain_train_test),:) = 0;
 ypred = [yhat_log yhat_fs yhat_nn yhat_hog];
-% ypred = [yhat_hog];
+% ypred = [yhat_log yhat_fs yhat_hog];
 ypred = sigmf(ypred, [2 0]);
 yhat_kernel_n_1 = sigmf(yhat_kernel_n, [2 0]);
 yhat_kernel_1 = sigmf(yhat_kernel, [2 0]);
@@ -113,12 +104,19 @@ disp('Generating real model and predicting Yhat..');
 [~, yhat_fs, logboost_model] = acc_ensemble_trees(train_x_fs, train_y_fs, test_x_fs, test_y);
 [~, yhat_kernel_n, svm_kernel_n_model] = acc_kernel_n(train_x_fs, train_y_fs, test_x_fs, test_y);
 [~, yhat_kernel, svm_kernel_model] = acc_kernel(train_x_fs, train_y_fs, test_x_fs, test_y);
-[yhog, yhat_hog, svm_hog_model] = svm_predict(img_train_x_certain,img_train_y_certain, img_test_x, test_y);
+% [yhog, yhat_hog, svm_hog_model] = svm_predict(img_train_x_certain,img_train_y_certain, img_test_x, test_y);
+
+disp('training svm...')
+addpath('./libsvm')
+svm_hog_model = svmtrain(img_train_y_certain, img_train_x_certain, '-t 2 -c 10');
+% save('./models/svm_hog.mat','model');
+[yhog,~,yhat_hog] = svmpredict(test_y, img_test_x, svm_hog_model);
+
+
 % [ylbp, yhat_lbp, svm_lbp_model] = svm_predict(img_lbp_train_x_certain,img_train_y_certain, img_lbp_test_x, test_y);
 yhat_hog(logical(~certain_test),:) = 0;
-% yhat_lbp(logical(~certain_test),:) = 0;
 
-% save models:
+% % save models:
 save('models/submission/log_model.mat', 'log_model');
 save('models/submission/logboost_model.mat','logboost_model');
 save('models/submission/svm_kernel_n_model.mat', 'svm_kernel_n_model');
@@ -126,9 +124,11 @@ save('models/submission/svm_kernel_model.mat', 'svm_kernel_model');
 save('models/submission/svm_hog_model.mat', 'svm_hog_model');
 save('models/submission/nn.mat', 'nn');
 
+
+
 % generated from classifiers.
 ypred2 = [yhat_log yhat_fs yhat_nn yhat_hog];
-% ypred2 = [yhat_hog];
+% ypred2 = [yhat_log yhat_fs yhat_hog];
 ypred2 = sigmf(ypred2, [2 0]);
 yhat_kernel_n_1 = sigmf(yhat_kernel_n, [1.5 0]);
 yhat_kernel_1 = sigmf(yhat_kernel, [1.5 0]);
