@@ -18,15 +18,16 @@ load('test/words_test.mat', 'words_test');
 % Logistic + Raw HOG => 81-82%
 % SVM + Raw HOG => 83+% (c = 100)
 
-
+% 
 load('train/genders_train.mat', 'genders_train');
-load('train_hog_pry.mat', 'train_hog');
-load('train_nose_hog.mat', 'train_nose_hog');
-load('train_eyes_hog.mat', 'train_eyes_hog');
-load('face_certain.mat', 'certain');
-
+% load('train_hog_pry.mat', 'train_hog');
+% load('train_nose_hog.mat', 'train_nose_hog');
+% load('train_eyes_hog.mat', 'train_eyes_hog');
+% load('face_certain.mat', 'certain');
+load('certain_HOG.mat', 'eyes_hog', 'face_hog','nose_hog', 'certain');
 tic
-train_x = [train_hog train_nose_hog train_eyes_hog];
+train_x = [face_hog eyes_hog nose_hog];
+train_x = train_x(1:5000,:);
 train_y = [genders_train; genders_train(1); genders_train(2)];
 certain_train = certain(1:5000);
 X = double(train_x(logical(certain_train),:));
@@ -42,13 +43,14 @@ toc
 % PCA1500 + SVM c = 100 => 81+%
 
 tic
-load('train_hog_pry.mat', 'train_hog');
-load('train_nose_hog.mat', 'train_nose_hog');
-load('train_eyes_hog.mat', 'train_eyes_hog');
-load('face_certain.mat', 'certain');
-load('img_pca_basis.mat', 'U', 'mu', 'vars');
+% load('train_hog_pry.mat', 'train_hog');
+% load('train_nose_hog.mat', 'train_nose_hog');
+% load('train_eyes_hog.mat', 'train_eyes_hog');
+% load('face_certain.mat', 'certain');
+% load('img_pca_basis.mat', 'U', 'mu', 'vars');
+load('certain_HOG.mat', 'eyes_hog', 'face_hog','nose_hog', 'certain');
 certain_train = certain(1:5000);
-X =  [train_hog train_nose_hog train_eyes_hog];
+X =  [face_hog eyes_hog nose_hog];
 X_certain = X(logical(certain_train),:);
 Y = train_y(logical(certain_train),:);
 
@@ -58,10 +60,20 @@ Y = train_y(logical(certain_train),:);
 [YPC,Xhat,avsq] = pcaApply(X_certain', U, mu, 1500);
 YPC = double(YPC');
 
-[accuracy, Ypredicted, Ytest] = cross_validation(YPC, Y, 5, @svm_predict_test);
+[accuracy, Ypredicted, Ytest] = cross_validation(YPC, Y, 5, @logistic);
 accuracy
 mean(accuracy)
 toc
+
+
+%% 
+load('train/genders_train.mat', 'genders_train');
+[hog_feat, certain, pca_hog] = gen_data_hog();
+train_y = [genders_train; genders_train(1); genders_train(2)];
+hog_train = pca_hog(1:5000,:);
+y_certain = train_y(logical(certain(1:5000,:)),:);
+hog_certain_train = hog_train(logical(certain(1:5000)),:);
+[accuracy, Ypredicted, Ytest] = cross_validation(hog_certain_train, y_certain, 5, @svm_predict_test);
 
 
 
