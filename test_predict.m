@@ -76,13 +76,13 @@ disp('Making predictions..');
 [~, yhat_nn] = a_nn_predict(mdl.nn,words_test_x);
 [~, yhat_fs] = a_ensemble_trees_predict(mdl.logboost_model, test_x_fs);
 toc
-[~, yhat_kernel_n] = a_predict_kernelsvm(mdl.svm_kernel_n_model, train_x_fs, test_x_fs);
+[~, yhat_kernel_n] = a_predict_kernelsvm_n(mdl.svm_kernel_n_model, train_x_fs, test_x_fs);
 [~, yhat_kernel] = a_predict_kernelsvm(mdl.svm_kernel_model, train_x_fs, test_x_fs);
 toc
 [yhog, yhat_hog] = a_svm_hog_predict(mdl.svm_hog_model, img_test_x);
 % [ylbp, yhat_lbp, svm_lbp_model] = svm_predict(img_lbp_train_x_certain,img_train_y_certain, img_lbp_test_x, test_y);
 yhat_hog(logical(~certain_test),:) = 0;
-yhat_lbp(logical(~certain_test),:) = 0;
+% yhat_lbp(logical(~certain_test),:) = 0;
 
 
 
