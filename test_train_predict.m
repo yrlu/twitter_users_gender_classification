@@ -85,12 +85,13 @@ disp('Building ensemble..');
 % [~, yhat_lbp] =svm_predict(img_lbp_train_x_train,img_train_y_train, img_lbp_train_x_test, train_y_test);
 
 yhat_hog(logical(~certain_train_test),:) = 0;
-yhat_lbp(logical(~certain_train_test),:) = 0;
+% yhat_lbp(logical(~certain_train_test),:) = 0;
 ypred = [yhat_log yhat_fs yhat_nn yhat_hog];
+% ypred = [yhat_hog];
 ypred = sigmf(ypred, [2 0]);
-yhat_kernel_n = sigmf(yhat_kernel_n, [2 0]);
-yhat_kernel = sigmf(yhat_kernel, [2 0]);
-ypred = [ypred yhat_kernel_n yhat_kernel];
+yhat_kernel_n_1 = sigmf(yhat_kernel_n, [2 0]);
+yhat_kernel_1 = sigmf(yhat_kernel, [2 0]);
+ypred = [ypred yhat_kernel_n_1 yhat_kernel_1];
 
 % Train a log_reg ensembler.
 LogRens = train(train_y_test, sparse(ypred), ['-s 0', 'col']);
@@ -115,7 +116,7 @@ disp('Generating real model and predicting Yhat..');
 [yhog, yhat_hog, svm_hog_model] = svm_predict(img_train_x_certain,img_train_y_certain, img_test_x, test_y);
 % [ylbp, yhat_lbp, svm_lbp_model] = svm_predict(img_lbp_train_x_certain,img_train_y_certain, img_lbp_test_x, test_y);
 yhat_hog(logical(~certain_test),:) = 0;
-yhat_lbp(logical(~certain_test),:) = 0;
+% yhat_lbp(logical(~certain_test),:) = 0;
 
 % save models:
 save('models/submission/log_model.mat', 'log_model');
@@ -124,14 +125,14 @@ save('models/submission/svm_kernel_n_model.mat', 'svm_kernel_n_model');
 save('models/submission/svm_kernel_model.mat', 'svm_kernel_model');
 save('models/submission/svm_hog_model.mat', 'svm_hog_model');
 save('models/submission/nn.mat', 'nn');
-% save('models/submission/svm_lbp_model.mat', 'svm_lbp_model');
 
 % generated from classifiers.
 ypred2 = [yhat_log yhat_fs yhat_nn yhat_hog];
+% ypred2 = [yhat_hog];
 ypred2 = sigmf(ypred2, [2 0]);
-yhat_kernel_n = sigmf(yhat_kernel_n, [1.5 0]);
-yhat_kernel = sigmf(yhat_kernel, [1.5 0]);
-ypred2 = [ypred2 yhat_kernel_n yhat_kernel];
+yhat_kernel_n_1 = sigmf(yhat_kernel_n, [1.5 0]);
+yhat_kernel_1 = sigmf(yhat_kernel, [1.5 0]);
+ypred2 = [ypred2 yhat_kernel_n_1 yhat_kernel_1];
 
 
 Yhat_log = logRensemble(ypred2);
