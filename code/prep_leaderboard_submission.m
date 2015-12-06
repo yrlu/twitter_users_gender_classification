@@ -1,3 +1,4 @@
+clear all;
 % Load data
 img_test = importdata('../test/images_test.txt');
 img_feat_test = importdata('../test/image_features_test.txt');

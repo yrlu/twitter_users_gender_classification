@@ -14,6 +14,7 @@ function predictions = make_final_prediction(mdl,X_test, X_train)
 % Xtest= X_test(:,model.cols_sel);
 % predictions = predict(model.tree_ensem,Xtest);
 
+
 tic
 disp('Add paths ...');
 addpath('./liblinear');
@@ -21,20 +22,38 @@ addpath('./DL_toolbox/util','./DL_toolbox/NN','./DL_toolbox/DBN');
 addpath('./libsvm');
 toc
 
-
 disp('Preparing image features ...');
 
 images_test = X_test(:, 5008:end);
+% load('test/images_test.mat', 'images_test');
+% load('test/images_test.mat', 'images_test');
+% Set variables: train_grey and test_grey are the gray-scale images 
+% we use to detect faces on and to do feature extractions. 
+% Note: we used the first 2 observations twice to make partition of 
+% cross-validation easier. This seems to have little impact on the
+% classifier. 
+% train_x = [images_train; images_train(1,:); images_train(2,:)];
+% test_x =  images_test;
 
+% [train_r, train_g, train_b, train_grey] = convert_to_img(train_x);
 [test_r, test_g, test_b, test_grey] = convert_to_img(images_test);
+% grey_imgs = cat(3, train_grey, test_grey);
+% red_imgs = cat(3, train_r, test_r);
+% green_imgs = cat(3, train_g, test_r);
+% blue_imgs = cat(3, train_b, test_b);
 
 grey_imgs = test_grey;
 red_imgs = test_r;
 green_imgs = test_g;
 blue_imgs = test_b;
 
+% n_train_grey = size(train_grey,3);
 n_test_grey = size(test_grey,3);
+%  n_total = n_train_grey + n_test_grey;
  n_total = n_test_grey;
+% Detect and crop faces, eyes, noses from images, 
+% then extract HOG features on them. 
+% Preallocate arrays to store extracted HOG features
 face_hog = zeros(n_total, 5400);
 nose_hog = zeros(n_total, 900);
 eyes_hog = zeros(n_total, 792);
@@ -97,25 +116,14 @@ for i  = 1:n_total
     end
 end
 toc
-% load('models/submission/test_hot.mat', 'face_hog', 'nose_hog', 'eyes_hog', 'certain');
-
-load('models/submission/U_mu_vars.mat', 'U', 'mu');
-% load('certain_HOG.mat', 'U', 'mu');
 
 
+disp('Preparing data ...');
 certain_test = certain;
 hog_feat = [face_hog nose_hog eyes_hog];
-[pca_hog,Xhat,avsq] = pcaApply(hog_feat', U, mu, 1500);
-pca_hog = double(pca_hog');
-img_test_x = pca_hog;
+img_test_x = hog_feat;
 
-% save('U_mu_vars.mat', 'U', 'mu','vars');
-
-
-tic
-
-load('../train/genders_train.mat', 'genders_train');
-% Separate the data into training set and testing set.
+genders_train = X_train(:,end);
 Y = [genders_train; genders_train(1); genders_train(2,:)];
 train_y = Y;
 
@@ -128,6 +136,7 @@ words_test_X = X_test(:,1:5000);
 image_features_train = X_train(:,5001:5007);
 image_features_train = [image_features_train; image_features_train(1,:); image_features_train(2,:)];
 image_features_test = X_test(:,5001:5007);
+
 
 % words_train_x = words_train_X;
 words_test_x = words_test_X;
@@ -142,7 +151,6 @@ train_x_fs = words_train_s(:, cols_sel);
 test_x_fs = words_test_s(:, cols_sel);
 
 
-
 toc
 % make prediction:
 disp('Making predictions..');
@@ -153,13 +161,13 @@ toc
 [~, yhat_kernel_n] = a_predict_kernelsvm_n(mdl.svm_kernel_n_model, train_x_fs, test_x_fs);
 [~, yhat_kernel] = a_predict_kernelsvm(mdl.svm_kernel_model, train_x_fs, test_x_fs);
 toc
-[yhog, yhat_hog] = a_svm_hog_predict(mdl.svm_hog_model, img_test_x);
+
+addpath bagging
+M_HOG=8;
+[yhog,~,yhat_hog,~]=predict_bagged_linear(mdl.svm_hog_model,img_test_x,M_HOG);
+
 
 yhat_hog(logical(~certain_test),:) = 0;
-
-
-
-
 
 ypred2 = [yhat_log yhat_fs yhat_nn yhat_hog];
 % ypred2 = [yhat_log yhat_fs yhat_hog];
@@ -172,5 +180,4 @@ ypred2 = [ypred2 yhat_kernel_n yhat_kernel];
 predictions = predict(test_y, sparse(ypred2), mdl.LogRens, ['-q', 'col']);
 disp('Done!');
 toc
-
 

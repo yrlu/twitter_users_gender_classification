@@ -40,3 +40,8 @@ mdl.svm_kernel_n_model = svm_kernel_n_model;
 mdl.svm_kernel_model = svm_kernel_model;
 mdl.svm_hog_model = svm_hog_model;
 mdl.nn =nn;
+
+
+
+
+

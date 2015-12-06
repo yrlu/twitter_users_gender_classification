@@ -130,7 +130,7 @@ toc
 disp('Preparing image features ...');
 
 load('test/images_test.mat', 'images_test');
-
+% load('test/images_test.mat', 'images_test');
 % Set variables: train_grey and test_grey are the gray-scale images 
 % we use to detect faces on and to do feature extractions. 
 % Note: we used the first 2 observations twice to make partition of 
@@ -138,99 +138,109 @@ load('test/images_test.mat', 'images_test');
 % classifier. 
 % train_x = [images_train; images_train(1,:); images_train(2,:)];
 % test_x =  images_test;
-% 
-% % [train_r, train_g, train_b, train_grey] = convert_to_img(train_x);
-% [test_r, test_g, test_b, test_grey] = convert_to_img(test_x);
-% % grey_imgs = cat(3, train_grey, test_grey);
-% % red_imgs = cat(3, train_r, test_r);
-% % green_imgs = cat(3, train_g, test_r);
-% % blue_imgs = cat(3, train_b, test_b);
-% 
-% grey_imgs = test_grey;
-% red_imgs = test_r;
-% green_imgs = test_g;
-% blue_imgs = test_b;
-% 
-% % n_train_grey = size(train_grey,3);
-% n_test_grey = size(test_grey,3);
-% %  n_total = n_train_grey + n_test_grey;
-%  n_total = n_test_grey;
-% % Detect and crop faces, eyes, noses from images, 
-% % then extract HOG features on them. 
-% % Preallocate arrays to store extracted HOG features
-% face_hog = zeros(n_total, 5400);
-% nose_hog = zeros(n_total, 900);
-% eyes_hog = zeros(n_total, 792);
-% % Create cascade detector objects for face, nose and eyes.
-% faceDetector = vision.CascadeObjectDetector();
-% NoseDetect = vision.CascadeObjectDetector('Nose');
-% EyeDetect = vision.CascadeObjectDetector('EyePairSmall');
-% % Create a binary vector to index the face-detected images 
-% certain = ones(n_total,1);
-% % Loop through all gray images
-% for i  = 1:n_total
-%     i
-%     profile = grey_imgs(:,:,i);
-%     bbox  = step(faceDetector, profile);
-%     if ~isempty(bbox) % if any faces detected, get the first one
-%         profile = imcrop(profile,bbox(1,:));
-%         profile=imresize(profile,[100 100]);
-%         grey_imgs(:,:,i) = profile;
-%     else 
-%         bbox_r  = step(faceDetector, red_imgs(:,:, i));
-%         bbox_g  = step(faceDetector, green_imgs(:,:, i));
-%         bbox_b = step(faceDetector, blue_imgs(:,:, i));
-%         if ~isempty(bbox_r)
-%             profile = imcrop(profile,bbox_r(1,:));
-%             profile=imresize(profile,[100 100]);
-%             grey_imgs(:,:, i) = profile;
-%         elseif ~isempty(bbox_g)
-%             profile = imcrop(profile,bbox_g(1,:));
-%             profile=imresize(profile,[100 100]);
-%             grey_imgs(:,:, i) = profile;
-%         elseif ~isempty(bbox_b)
-%             profile = imcrop(profile,bbox_b(1,:));
-%             profile=imresize(profile,[100 100]);
-%             grey_imgs(:,:, i) = profile;        
-%         else 
-%         certain(i) = 0;
-%        end
-%     end
-%     img = grey_imgs(:,:, i); % extract HOGs multiple times
-%     [featureVector, ~] = extractHOGFeatures(img);
-%     img = imgaussfilt(img);
-%     img = imresize(img, [50 50]);
-%     [featureVector2, ~] = extractHOGFeatures(img);
-%     img = imgaussfilt(img);
-%     img = imresize(img, [25 25]);
-%     [featureVector3, ~] = extractHOGFeatures(img);
-%     face_hog(i,:) = [featureVector featureVector2 featureVector3];
-%     profile = grey_imgs(:,:, i);
-%     bbox_nose = step(NoseDetect, profile);
-%     if ~isempty(bbox_nose) % if any nose detected, get the first one
-%         nose = imcrop(profile,bbox_nose(1,:));
-%         nose = imresize(nose,[50 50]);
-%         [nose_hog(i,:),~] = extractHOGFeatures(nose);
-%     end
-%     bbox_eye = step(EyeDetect, profile);
-%     if ~isempty(bbox_eye) % if any pair of eyes detected, get the first one
-%         eyes = imcrop(profile,bbox_eye(1,:));
-%         eyes=imresize(eyes,[25 100]);
-%         [eyes_hog(i,:), ~] = extractHOGFeatures(eyes);
-%     end
-% end
-% toc
 
-load('models/submission/test_hot.mat', 'face_hog', 'nose_hog', 'eyes_hog', 'certain');
-load('models/submission/U_mu_vars.mat', 'U', 'mu');
-% load('certain_HOG.mat', 'U', 'mu');
+% [train_r, train_g, train_b, train_grey] = convert_to_img(train_x);
+[test_r, test_g, test_b, test_grey] = convert_to_img(images_test);
+% grey_imgs = cat(3, train_grey, test_grey);
+% red_imgs = cat(3, train_r, test_r);
+% green_imgs = cat(3, train_g, test_r);
+% blue_imgs = cat(3, train_b, test_b);
+
+grey_imgs = test_grey;
+red_imgs = test_r;
+green_imgs = test_g;
+blue_imgs = test_b;
+
+% n_train_grey = size(train_grey,3);
+n_test_grey = size(test_grey,3);
+%  n_total = n_train_grey + n_test_grey;
+ n_total = n_test_grey;
+% Detect and crop faces, eyes, noses from images, 
+% then extract HOG features on them. 
+% Preallocate arrays to store extracted HOG features
+face_hog = zeros(n_total, 5400);
+nose_hog = zeros(n_total, 900);
+eyes_hog = zeros(n_total, 792);
+% Create cascade detector objects for face, nose and eyes.
+faceDetector = vision.CascadeObjectDetector();
+NoseDetect = vision.CascadeObjectDetector('Nose');
+EyeDetect = vision.CascadeObjectDetector('EyePairSmall');
+% Create a binary vector to index the face-detected images 
+certain = ones(n_total,1);
+% Loop through all gray images
+for i  = 1:n_total
+    i
+    profile = grey_imgs(:,:,i);
+    bbox  = step(faceDetector, profile);
+    if ~isempty(bbox) % if any faces detected, get the first one
+        profile = imcrop(profile,bbox(1,:));
+        profile=imresize(profile,[100 100]);
+        grey_imgs(:,:,i) = profile;
+    else 
+        bbox_r  = step(faceDetector, red_imgs(:,:, i));
+        bbox_g  = step(faceDetector, green_imgs(:,:, i));
+        bbox_b = step(faceDetector, blue_imgs(:,:, i));
+        if ~isempty(bbox_r)
+            profile = imcrop(profile,bbox_r(1,:));
+            profile=imresize(profile,[100 100]);
+            grey_imgs(:,:, i) = profile;
+        elseif ~isempty(bbox_g)
+            profile = imcrop(profile,bbox_g(1,:));
+            profile=imresize(profile,[100 100]);
+            grey_imgs(:,:, i) = profile;
+        elseif ~isempty(bbox_b)
+            profile = imcrop(profile,bbox_b(1,:));
+            profile=imresize(profile,[100 100]);
+            grey_imgs(:,:, i) = profile;        
+        else 
+        certain(i) = 0;
+       end
+    end
+    img = grey_imgs(:,:, i); % extract HOGs multiple times
+    [featureVector, ~] = extractHOGFeatures(img);
+    img = imgaussfilt(img);
+    img = imresize(img, [50 50]);
+    [featureVector2, ~] = extractHOGFeatures(img);
+    img = imgaussfilt(img);
+    img = imresize(img, [25 25]);
+    [featureVector3, ~] = extractHOGFeatures(img);
+    face_hog(i,:) = [featureVector featureVector2 featureVector3];
+    profile = grey_imgs(:,:, i);
+    bbox_nose = step(NoseDetect, profile);
+    if ~isempty(bbox_nose) % if any nose detected, get the first one
+        nose = imcrop(profile,bbox_nose(1,:));
+        nose = imresize(nose,[50 50]);
+        [nose_hog(i,:),~] = extractHOGFeatures(nose);
+    end
+    bbox_eye = step(EyeDetect, profile);
+    if ~isempty(bbox_eye) % if any pair of eyes detected, get the first one
+        eyes = imcrop(profile,bbox_eye(1,:));
+        eyes=imresize(eyes,[25 100]);
+        [eyes_hog(i,:), ~] = extractHOGFeatures(eyes);
+    end
+end
+toc
+
+% load('models/submission/test_hot.mat', 'face_hog', 'nose_hog', 'eyes_hog', 'certain');
+
+% load('models/submission/U_mu_vars.mat', 'U', 'mu');
+% load('certain_HOG.mat', 'face_hog', 'nose_hog', 'eyes_hog', 'certain');
+
+
+% certain_test = certain(5001:end);
+% hog_feat = [face_hog(5001:end,:) nose_hog(5001:end,:) eyes_hog(5001:end,:)];
+% [pca_hog,Xhat,avsq] = pcaApply(hog_feat', U, mu, 1500);
+% pca_hog = double(pca_hog');
+% img_test_x = hog_feat;
+
 
 
 certain_test = certain;
 hog_feat = [face_hog nose_hog eyes_hog];
-[pca_hog,Xhat,avsq] = pcaApply(hog_feat', U, mu, 1500);
-pca_hog = double(pca_hog');
-img_test_x = pca_hog;
+% [pca_hog,Xhat,avsq] = pcaApply(hog_feat', U, mu, 1500);
+% pca_hog = double(pca_hog');
+img_test_x = hog_feat;
+
 
 % save('U_mu_vars.mat', 'U', 'mu','vars');
 

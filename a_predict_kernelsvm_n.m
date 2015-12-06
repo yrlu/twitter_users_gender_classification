@@ -20,4 +20,7 @@ Xtest = FeatTest;
 
 Ktest = kernel(FeatTrain, Xtest);
 [Yhat, ~ ,Yscore] = svmpredict(ones(size(Ktest,1),1), [(1:size(Ktest,1))' Ktest], model);
+if sum(bsxfun(@times, Yhat, Yscore)) < 0
+    Yscore = -Yscore;
+end
 end

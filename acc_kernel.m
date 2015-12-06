@@ -23,4 +23,7 @@ model = svmtrain(Y, [(1:size(K,1))' K], '-t 4 -c 0.01');
 %     model=SVMK_infoC.model;
 %     Yhat=SVMK_infoC.yhat;
 %     YProb=SVMK_infoC.vals;%
+if sum(bsxfun(@times, Yhat, YProb)) < 0
+    YProb = -YProb;
+end
 end

@@ -25,7 +25,11 @@ test_y = ones(size(words_test_x,1),1);
 % test_y = Y(idx);
 
 
-[hog_feat, certain] = gen_data_hog_raw();
+
+load('certain_HOG2.mat', 'eyes_hog', 'face_hog','nose_hog', 'certain');
+hog_feat = [face_hog eyes_hog nose_hog];
+
+% [hog_feat, certain] = gen_data_hog_raw();
 certain_train = certain(1:5000,:);
 certain_test = certain(5001:end,:);
 certain_train_x = certain_train;
@@ -76,7 +80,8 @@ disp('Building ensemble..');
 [~, yhat_kernel_n] = acc_kernel_n(train_x_fs_train, train_y_train, train_x_fs_test, train_y_test);
 [~, yhat_kernel] = acc_kernel(train_x_fs_train, train_y_train, train_x_fs_test, train_y_test);
 % [~, yhat_hog] =svm_predict(img_train_x_certain_train,img_train_y_train, img_train_x_test, train_y_test);
-[~, yhat_hog] =bagging_linear(img_train_x_certain_train,img_train_y_train, img_train_x_test, train_y_test);
+
+[yhat_bagging, yhat_hog] =bagging_linear(img_train_x_certain_train,img_train_y_train, img_train_x_test, train_y_test);
 
 yhat_hog(logical(~certain_train_test),:) = 0;
 ypred = [yhat_log yhat_fs yhat_nn yhat_hog];
@@ -114,9 +119,8 @@ disp('Generating real model and predicting Yhat..');
 % svm_hog_model = svmtrain(img_train_y_certain, img_train_x_certain, '-t 2 -c 10');
 % % save('./models/svm_hog.mat','model');
 % [yhog,~,yhat_hog] = svmpredict(test_y, img_test_x, svm_hog_model);
-
-
 % [ylbp, yhat_lbp, svm_lbp_model] = svm_predict(img_lbp_train_x_certain,img_train_y_certain, img_lbp_test_x, test_y);
+
 yhat_hog(logical(~certain_test),:) = 0;
 
 % % save models:
