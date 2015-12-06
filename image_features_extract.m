@@ -21,9 +21,9 @@ test_x =  images_test;
 [train_r, train_g, train_b, train_grey] = convert_to_img(train_x);
 [test_r, test_g, test_b, test_grey] = convert_to_img(test_x);
 grey_imgs = cat(3, train_grey, test_grey);
-red_imgs = cat(3, train_r, test_r);
-green_imgs = cat(3, train_g, test_r);
-blue_imgs = cat(3, train_b, test_b);
+% red_imgs = cat(3, train_r, test_r);
+% green_imgs = cat(3, train_g, test_r);
+% blue_imgs = cat(3, train_b, test_b);
 
 n_train_grey = size(train_grey,3);
 n_test_grey = size(test_grey,3);
@@ -49,27 +49,8 @@ for i  = 1:n_total
         profile = imcrop(profile,bbox(1,:));
         profile=imresize(profile,[100 100]);
         grey_imgs(:,:,i) = profile;
-    else 
-        bbox_r  = step(faceDetector, red_imgs(:,:, i));
-        bbox_g  = step(faceDetector, green_imgs(:,:, i));
-        bbox_b = step(faceDetector, blue_imgs(:,:, i));
-        if ~isempty(bbox_r)
-            profile = imcrop(profile,bbox_r(1,:));
-            profile=imresize(profile,[100 100]);
-            grey_imgs(:,:, i) = profile;
-        elseif ~isempty(bbox_g)
-            profile = imcrop(profile,bbox_g(1,:));
-            profile=imresize(profile,[100 100]);
-            grey_imgs(:,:, i) = profile;
-        elseif ~isempty(bbox_b)
-            profile = imcrop(profile,bbox_b(1,:));
-            profile=imresize(profile,[100 100]);
-            grey_imgs(:,:, i) = profile;        
-        else 
-        certain(i) = 0;
-       end
-    end
-    img = grey_imgs(:,:, i); % extract HOGs multiple times
+%    else 
+        img = grey_imgs(:,:, i); % extract HOGs multiple times
     [featureVector, ~] = extractHOGFeatures(img);
     img = imgaussfilt(img);
     img = imresize(img, [50 50]);
@@ -79,6 +60,26 @@ for i  = 1:n_total
     [featureVector3, ~] = extractHOGFeatures(img);
     face_hog(i,:) = [featureVector featureVector2 featureVector3];
     profile = grey_imgs(:,:, i);
+%         bbox_r  = step(faceDetector, red_imgs(:,:, i));
+%         bbox_g  = step(faceDetector, green_imgs(:,:, i));
+%         bbox_b = step(faceDetector, blue_imgs(:,:, i));
+%         if ~isempty(bbox_r)
+%             profile = imcrop(profile,bbox_r(1,:));
+%             profile=imresize(profile,[100 100]);
+%             grey_imgs(:,:, i) = profile;
+%         elseif ~isempty(bbox_g)
+%             profile = imcrop(profile,bbox_g(1,:));
+%             profile=imresize(profile,[100 100]);
+%             grey_imgs(:,:, i) = profile;
+%         elseif ~isempty(bbox_b)
+%             profile = imcrop(profile,bbox_b(1,:));
+%             profile=imresize(profile,[100 100]);
+%             grey_imgs(:,:, i) = profile;        
+        else 
+        certain(i) = 0;
+      end
+    % end
+    
     bbox_nose = step(NoseDetect, profile);
     if ~isempty(bbox_nose) % if any nose detected, get the first one
         nose = imcrop(profile,bbox_nose(1,:));
@@ -96,23 +97,23 @@ toc
 %%
 % save certain_HOG.mat eyes_hog face_hog nose_hog certain
 %% Only get the features on face-detected images
-% certain_train = certain(1:n_train_grey);
-% train_y_certain = train_y(logical(certain_train),:);
-% 
-%% train + test PCA
-% Hog_total =  [face_hog nose_hog eyes_hog];
-% Hog_total_certain = Hog_total(logical(certain),:);
-% %
-% [U, mu, vars] = pca_toolbox(Hog_total_certain');
-% [YPC, ~, ~] = pcaApply(Hog_total_certain', U, mu, 1500);
-% YPC = double(YPC');
-% 
-% % Cross Validation 
-% PC_train = YPC(1:sum(certain(1:5000,:)),:);
+ certain_train = certain(1:n_train_grey);
+ train_y_certain = train_y(logical(certain_train),:);
+
+% train + test PCA
+ Hog_total =  [face_hog nose_hog eyes_hog];
+ Hog_total_certain = Hog_total(logical(certain),:);
+%
+[U, mu, vars] = pca_1(Hog_total_certain');
+[YPC, ~, ~] = pcaApply(Hog_total_certain', U, mu, 1500);
+YPC = double(YPC');
+
+% Cross Validation 
+PC_train = YPC(1:sum(certain(1:5000,:)),:);
 %%
 % save PCA_u_mu_var.mat U mu vars
 % save certain_HOG.mat face_hog nose_hog eyes_hog certain U mu 
-% d[accuracy, Ypredicted, Ytest] = cross_validation(PC_train, train_y_certain, 5, @logistic);
+[accuracy, Ypredicted, Ytest] = cross_validation(PC_train, train_y_certain, 5, @logistic);
 
 
 

@@ -12,7 +12,7 @@ words_train_s = [words_train_X, image_features_train];
 words_test_s = [words_test_X, image_features_test];
 IG=calc_information_gain(Y,words_train_s,1:size(words_train_s,2),10);
 [top_igs, index]=sort(IG,'descend');
-
+save top_data_index.mat index
 cols_sel=index(1:Nfeatures);
 train_x_fs = words_train_s(:, cols_sel);
 test_x_fs = words_test_s(:, cols_sel);
