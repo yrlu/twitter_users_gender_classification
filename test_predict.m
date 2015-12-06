@@ -1,33 +1,6 @@
 % Author: Max Lu
 % Date: Dec 5
 
-tic
-%% load models:
-
-
-
-
-
-
-% save models:
-load('./models/submission/log_ensemble.mat','LogRens');
-load('models/submission/log_model.mat', 'log_model');
-load('models/submission/logboost_model.mat','logboost_model');
-load('models/submission/svm_kernel_n_model.mat', 'svm_kernel_n_model');
-load('models/submission/svm_kernel_model.mat', 'svm_kernel_model');
-load('models/submission/svm_hog_model.mat', 'svm_hog_model');
-
-mdl.LogRens= LogRens;
-mdl.log_model = log_model;
-mdl.logboost_model = logboost_model;
-mdl.svm_kernel_n_model = svm_kernel_n_model;
-mdl.svm_kernel_model = svm_kernel_model;
-mdl.svm_hog_model = svm_hog_model;
-
-
-
-
-
 % prepare data:
 
 
@@ -78,11 +51,49 @@ train_y_fs = Y;
 
 toc
 
+disp('Loading models..');
+% load models:
+load('./models/submission/log_ensemble.mat','LogRens');
+load('models/submission/log_model.mat', 'log_model');
+load('models/submission/logboost_model.mat','logboost_model');
+load('models/submission/svm_kernel_n_model.mat', 'svm_kernel_n_model');
+load('models/submission/svm_kernel_model.mat', 'svm_kernel_model');
+load('models/submission/svm_hog_model.mat', 'svm_hog_model');
+load('models/submission/nn.mat', 'nn');
+
+mdl.LogRens= LogRens;
+mdl.log_model = log_model;
+mdl.logboost_model = logboost_model;
+mdl.svm_kernel_n_model = svm_kernel_n_model;
+mdl.svm_kernel_model = svm_kernel_model;
+mdl.svm_hog_model = svm_hog_model;
+mdl.nn =nn;
+
+toc
 % make prediction:
+disp('Making predictions..');
+[~, yhat_log] = a_logistic_predict(mdl.log_model,words_test_x);
+[~, yhat_nn] = a_nn_predict(mdl.nn,words_test_x);
+[~, yhat_fs] = a_ensemble_trees_predict(mdl.logboost_model, test_x_fs);
+toc
+[~, yhat_kernel_n] = a_predict_kernelsvm(mdl.svm_kernel_n_model, train_x_fs, test_x_fs);
+[~, yhat_kernel] = a_predict_kernelsvm(mdl.svm_kernel_model, train_x_fs, test_x_fs);
+toc
+[yhog, yhat_hog] = a_svm_hog_predict(mdl.svm_hog_model, img_test_x);
+% [ylbp, yhat_lbp, svm_lbp_model] = svm_predict(img_lbp_train_x_certain,img_train_y_certain, img_lbp_test_x, test_y);
+yhat_hog(logical(~certain_test),:) = 0;
+yhat_lbp(logical(~certain_test),:) = 0;
 
 
 
 
+ypred2 = [yhat_log yhat_fs yhat_nn yhat_hog];
+ypred2 = sigmf(ypred2, [2 0]);
+yhat_kernel_n = sigmf(yhat_kernel_n, [1.5 0]);
+yhat_kernel = sigmf(yhat_kernel, [1.5 0]);
+ypred2 = [ypred2 yhat_kernel_n yhat_kernel];
 
 
+Yhat = predict(test_y, sparse(ypred2), mdl.LogRens, ['-q', 'col']);
+disp('Done!');
 toc

@@ -108,7 +108,7 @@ toc
 % first as above accordingly.
 disp('Generating real model and predicting Yhat..');
 [~, yhat_log, log_model] = acc_logistic_regression(words_train_x, train_y, words_test_x, test_y);
-[~, yhat_nn] = acc_neural_net(words_train_x,train_y,words_test_x,test_y);
+[~, yhat_nn, nn] = acc_neural_net(words_train_x,train_y,words_test_x,test_y);
 [~, yhat_fs, logboost_model] = acc_ensemble_trees(train_x_fs, train_y_fs, test_x_fs, test_y);
 [~, yhat_kernel_n, svm_kernel_n_model] = acc_kernel_n(train_x_fs, train_y_fs, test_x_fs, test_y);
 [~, yhat_kernel, svm_kernel_model] = acc_kernel(train_x_fs, train_y_fs, test_x_fs, test_y);
@@ -123,6 +123,7 @@ save('models/submission/logboost_model.mat','logboost_model');
 save('models/submission/svm_kernel_n_model.mat', 'svm_kernel_n_model');
 save('models/submission/svm_kernel_model.mat', 'svm_kernel_model');
 save('models/submission/svm_hog_model.mat', 'svm_hog_model');
+save('models/submission/nn.mat', 'nn');
 % save('models/submission/svm_lbp_model.mat', 'svm_lbp_model');
 
 % generated from classifiers.

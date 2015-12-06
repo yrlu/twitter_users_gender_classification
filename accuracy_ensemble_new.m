@@ -82,7 +82,7 @@ disp('Building ensemble..');
 [~, yhat_kernel_n] = acc_kernel_n(train_x_fs_train, train_y_train, train_x_fs_test, train_y_test);
 [~, yhat_kernel] = acc_kernel(train_x_fs_train, train_y_train, train_x_fs_test, train_y_test);
 [~, yhat_hog] =svm_predict(img_train_x_certain_train,img_train_y_train, img_train_x_test, train_y_test);
-[~, yhat_lbp] =svm_predict(img_lbp_train_x_train,img_train_y_train, img_lbp_train_x_test, train_y_test);
+% [~, yhat_lbp] =svm_predict(img_lbp_train_x_train,img_train_y_train, img_lbp_train_x_test, train_y_test);
 
 yhat_hog(logical(~certain_train_test),:) = 0;
 yhat_lbp(logical(~certain_train_test),:) = 0;
@@ -114,7 +114,7 @@ disp('Generating real model and predicting Yhat..');
 [~, yhat_kernel_n, svm_kernel_n_model] = acc_kernel_n(train_x_fs, train_y_fs, test_x_fs, test_y);
 [~, yhat_kernel, svm_kernel_model] = acc_kernel(train_x_fs, train_y_fs, test_x_fs, test_y);
 [yhog, yhat_hog, svm_hog_model] = svm_predict(img_train_x_certain,img_train_y_certain, img_test_x, test_y);
-[ylbp, yhat_lbp, svm_lbp_model] = svm_predict(img_lbp_train_x_certain,img_train_y_certain, img_lbp_test_x, test_y);
+% [ylbp, yhat_lbp, svm_lbp_model] = svm_predict(img_lbp_train_x_certain,img_train_y_certain, img_lbp_test_x, test_y);
 yhat_hog(logical(~certain_test),:) = 0;
 yhat_lbp(logical(~certain_test),:) = 0;
 

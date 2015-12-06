@@ -1,5 +1,5 @@
 
-function [Yhat, YProb, model] = acc_kernel_n(train_x, train_y, test_x, test_y)
+function [Yhat, YProb, model] = acc_kernel(train_x, train_y, test_x, test_y)
 
 train_x_fs_train = train_x;
 train_y_fs_train = train_y;
