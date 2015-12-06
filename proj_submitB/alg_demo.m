@@ -20,15 +20,15 @@ addpath('./Feature');
 run prepare_data.m
 %% Load data
 % run prepare_data.m for data process (.txt to .mat)
-load('train/genders_train.mat', 'genders_train');
-load('train/images_train.mat', 'images_train');
-load('train/image_features_train.mat', 'image_features_train');
-load('train/words_train.mat', 'words_train');
-load('train/words_train_n.mat', 'words_train_n');
-load('test/images_test.mat', 'images_test');
-load('test/image_features_test.mat', 'image_features_test');
-load('test/words_test.mat', 'words_test');
-load('test/words_test_n.mat', 'words_test_n');
+load('../train/genders_train.mat', 'genders_train');
+load('../train/images_train.mat', 'images_train');
+load('../train/image_features_train.mat', 'image_features_train');
+load('../train/words_train.mat', 'words_train');
+load('../train/words_train_n.mat', 'words_train_n');
+load('../test/images_test.mat', 'images_test');
+load('../test/image_features_test.mat', 'image_features_test');
+load('../test/words_test.mat', 'words_test');
+load('../test/words_test_n.mat', 'words_test_n');
 %% Variables
 Xtrain = words_train;
 Ytrain = genders_train;
