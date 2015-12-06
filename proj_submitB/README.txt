@@ -159,9 +159,9 @@ Xtrain_pca = YPC(1:size(train_grey,3),:);
 Xtest_pca = YPC(size(train_grey,3)+1:end,:);
 [testLabels,~] = svm_predict(Xtrain_pca, trainLabels, Xtest_pca, ones(size(words_test,1),1));
 
-%%%%%%%%%%
+%%%%%%%%%%%%%%
 %% Adaboost %%
-%%%%%%%%%%
+%%%%%%%%%%%%%%
 This is one of the enssembling methods implemented for reducing model bias and variance (to regularize models/features/data). 
 
 All relevant files are in ./Boosting folder
@@ -185,9 +185,9 @@ To test:
 	
 % In our leaderboard submission, we used Logitboost+stump trees instead.
 
-%%%%%%%%%%
+%%%%%%%%%%%%%
 %% Bagging %%
-%%%%%%%%%%
+%%%%%%%%%%%%%
 This is another enssembling method implemented for reducing models variance.
 
 All relevant files can be found in ./Bagging folder. We provide three types models: Stump trees, Naive Bayes and Linear models (any linear models provided by Liblinear)
