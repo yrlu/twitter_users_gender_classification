@@ -1,7 +1,8 @@
 %% Add path
 addpath('./DL_toolbox/util','./DL_toolbox/NN','./DL_toolbox/DBN','./DL_toolbox/CNN','./DL_toolbox/SAE');
 %%
-%% Please run the image_features_extract.m to crop the faces from 
+%% NOTE: run image_features_extract.m first. 
+% Please run the image_features_extract.m to crop the faces from 
 % gray-scale images and get the index of face-detected images. 
 % Our 5 fold-cross-validation accuracy is 75.17% 
 %% 
@@ -10,7 +11,8 @@ X = grey_imgs(:,:,logical(certain));
 [h w n] = size(X)
 X  = reshape(X,[h*w n]);
 Xtrain = X(:,1:sum(certain(1:5000)))';
-Xtest = X(:,1:sum(certain(1:5000)))';
+Xtest = X(:,sum(certain(1:5000))+1:end)'; 
+
 
 Ytrain = [genders_train; genders_train(1); genders_train(2)]; % we cropped the saved the first two images twice.
 Ytrain = Ytrain(logical(certain(1:5000)));
@@ -42,6 +44,9 @@ new_feat_test = old_feat_test * sae.ae{1}.W{1}';
 % visualize(sae.ae{1}.W{1}(:,2:end)')
 Ytest = ones(size(new_feat_test,1),1);
 Yhat = logistic( new_feat, Ytrain, new_feat_test, Ytest );
-%%
-
+%% 
+% To make comparison with real TestLabels Y. 
+% Please first make Y = Y(:,sum(certain(1:5000))+1:end)!
+% Because we are only train and test on face-detected images. 
+%
 

@@ -64,6 +64,8 @@ Xtest_selected = Xtest(:,word_sel);
 
 Yhat = knn_test(16, Xtrain_selected, Ytrain, Xtest_selected);
 
+%% Please go to autoencoder.m to test the performance of autoencoder. 
+
 %% PCA  (This one is not what we used in our classifier. Please refer to README.txt,
 % image_features_extract.m and next section for better test results).
 [~, ~, ~, train_grey] = convert_to_img(images_train);
@@ -94,6 +96,7 @@ Ytest = ones(size(PC_test,1),1);
 [Yhat,~] = svm_predict(PC_train, train_y_certain, PC_test, Ytest);
 
 %% Ensemble methods: Adaboost(our own implementation)
+% please get into the mex folder and run make_mex.m 
 acc_ens=zeros(1,9);
 Xfull=[words_train_n ,image_features_train];
 Yfull=genders_train;
