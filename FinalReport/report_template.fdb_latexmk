@@ -1,5 +1,5 @@
 # Fdb version 3
-["pdflatex"] 1449711783 "report_template.tex" "report_template.pdf" "report_template" 1449711784
+["pdflatex"] 1449713219 "report_template.tex" "report_template.pdf" "report_template" 1449713220
   "/usr/local/texlive/2015/texmf-dist/fonts/map/fontname/texfonts.map" 1272929888 3287 e6b82fe08f5336d4d5ebc73fb1152e87 ""
   "/usr/local/texlive/2015/texmf-dist/fonts/tfm/public/cm/cmbx12.tfm" 1136768653 1324 c910af8c371558dc20f2d7822f66fe64 ""
   "/usr/local/texlive/2015/texmf-dist/fonts/tfm/public/cm/cmmi12.tfm" 1136768653 1524 4414a8315f39513458b80dfc63bff03a ""
@@ -31,10 +31,10 @@
   "/usr/local/texlive/2015/texmf-var/fonts/map/pdftex/updmap/pdftex.map" 1432479641 1764542 91654ba72bdb667e84ea24f076ae16d8 ""
   "/usr/local/texlive/2015/texmf-var/web2c/pdftex/pdflatex.fmt" 1432479681 3849859 39a7d258195bde2394e244961601fbc5 ""
   "/usr/local/texlive/2015/texmf.cnf" 1432479636 577 0d611272082f3cdb8e80e09a3c69cf07 ""
-  "report_template.aux" 1449711784 1134 c7abd31570b6497e107bd1e2d832be44 ""
-  "report_template.tex" 1449711648 2454 a849ff5d8b7957f64c9823cdb62d320d ""
-  "subsections/experiment_analysis.tex" 1449688560 279 853c9aa0ace3344ee902ef414af0121c ""
-  "subsections/methods_results.tex" 1449711783 3130 2248008c771e2b61dae614a9cedc3bf7 ""
+  "report_template.aux" 1449713220 1123 2c043405497d99839345292aa2f2dc8b ""
+  "report_template.tex" 1449712991 2454 a849ff5d8b7957f64c9823cdb62d320d ""
+  "subsections/experiment_analysis.tex" 1449713219 3021 d5fa83adbf9c22b24cbe611128d74b89 ""
+  "subsections/methods_results.tex" 1449713219 428 d03a1531ab98781048345770b0451f3b ""
   "subsections/visualization.tex" 1449336646 173 3a586794bf4843766d3961dd003278da ""
   (generated)
   "report_template.log"
