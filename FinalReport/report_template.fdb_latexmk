@@ -1,7 +1,10 @@
 # Fdb version 3
-["pdflatex"] 1449762051 "report_template.tex" "report_template.pdf" "report_template" 1449762051
+["pdflatex"] 1449769863 "report_template.tex" "report_template.pdf" "report_template" 1449769864
   "./imgs/logitboost.jpg" 1449735261 93754 8bb3d8b80c9075599b60a81af141bd4b ""
   "./imgs/pca_faces.jpg" 1449728908 101478 e560ee66f0cc5e5bafba933a77f75fcb ""
+  "./imgs/topwords.jpg" 1449769740 89523 27dc5e559b97f80d8405601fe039f501 ""
+  "./imgs/topwordsB.jpg" 1449769743 42877 65656cb3577d3a30aa4171625c518c3d ""
+  "./imgs/topwordsC.jpg" 1449769745 23997 9da13fb42995885b4eb3275bb533cb7c ""
   "/usr/local/texlive/2015/texmf-dist/fonts/map/fontname/texfonts.map" 1272929888 3287 e6b82fe08f5336d4d5ebc73fb1152e87 ""
   "/usr/local/texlive/2015/texmf-dist/fonts/tfm/public/cm/cmbx10.tfm" 1136768653 1328 c834bbb027764024c09d3d2bf908b5f0 ""
   "/usr/local/texlive/2015/texmf-dist/fonts/tfm/public/cm/cmbx12.tfm" 1136768653 1324 c910af8c371558dc20f2d7822f66fe64 ""
@@ -161,12 +164,15 @@
   "/usr/local/texlive/2015/texmf.cnf" 1432479636 577 0d611272082f3cdb8e80e09a3c69cf07 ""
   "imgs/logitboost.jpg" 1449735261 93754 8bb3d8b80c9075599b60a81af141bd4b ""
   "imgs/pca_faces.jpg" 1449728908 101478 e560ee66f0cc5e5bafba933a77f75fcb ""
-  "report_template.aux" 1449762051 3176 2cd0eec80551e97a8e65a4e4fb8bd337 ""
-  "report_template.tex" 1449762050 3500 681fff295e6c51c21a21a94303c70c7d ""
+  "imgs/topwords.jpg" 1449769740 89523 27dc5e559b97f80d8405601fe039f501 ""
+  "imgs/topwordsB.jpg" 1449769743 42877 65656cb3577d3a30aa4171625c518c3d ""
+  "imgs/topwordsC.jpg" 1449769745 23997 9da13fb42995885b4eb3275bb533cb7c ""
+  "report_template.aux" 1449769864 3177 8a75a6018a7f0db091805980f403ffd7 ""
+  "report_template.tex" 1449769798 3500 681fff295e6c51c21a21a94303c70c7d ""
   "subsections/discussion.tex" 1449761904 1781 a61500c90ba2bbc19e3873e83e591cba ""
   "subsections/experiment_analysis.tex" 1449761835 4930 418a542a9e73377514ae457cc4a2172a ""
-  "subsections/methods_results.tex" 1449737237 7953 d518c3fcf2393edf6454c0f687418c63 ""
+  "subsections/methods_results.tex" 1449769713 8823 a487773b95a6e229001598da645c800e ""
   (generated)
-  "report_template.aux"
   "report_template.pdf"
   "report_template.log"
+  "report_template.aux"

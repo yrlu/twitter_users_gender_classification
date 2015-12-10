@@ -7,8 +7,21 @@ Conclusion: Did not work!
 
 \subsection{Feature Selection/Dimension Reduction}
 To extract features from the raw word and image features, we experimented with multiple feature selection methods, including Information Gain, BNS
-\subsubsection{Information Gain Over Words Features}
-words visualization
+\subsubsection{Feature selection Over Words Features}
+We ranked words features by based on their Information Gain (IG) and Bi-normal Separation (BNS), below is the comparison of the top 30 words selected by IG and BNS.   
+\begin{center}
+\includegraphics[scale=0.275]{topwords.jpg}
+\end{center}
+Next we examine the frequency of the top 1000 words selected by IG and BNS.
+\begin{center}
+\includegraphics[scale=0.6]{topwordsB.jpg}
+\end{center}
+When the average words counts is less than 2.5, BNS selects the words that are more frequently used by either male and female.\\
+\begin{center}
+\includegraphics[scale=0.6]{topwordsC.jpg}
+\end{center}
+Also BNS tend to select more words that are more frequently used by female.\\
+Next, we examine the effectiveness of the two feature selection methods by examining the improvement on cross validation accruacy over the following models: Logitboost with stump trees, logistic regression and naive bayes.\
 \subsubsection{PCA}
 We used PCA on both words and images feature. In this project, we found that PCA works relatively well on image features but not as good on words features. The details will be discussed with the following methods.
 \subsection{Classification on Words Features and Extracted Image Features}

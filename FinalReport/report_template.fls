@@ -223,6 +223,15 @@ INPUT /usr/local/texlive/2015/texmf-dist/fonts/tfm/public/cm/cmbx12.tfm
 INPUT /usr/local/texlive/2015/texmf-dist/fonts/tfm/public/cm/cmbx10.tfm
 OUTPUT report_template.pdf
 INPUT /usr/local/texlive/2015/texmf-var/fonts/map/pdftex/updmap/pdftex.map
+INPUT imgs/topwords.jpg
+INPUT ./imgs/topwords.jpg
+INPUT ./imgs/topwords.jpg
+INPUT imgs/topwordsB.jpg
+INPUT ./imgs/topwordsB.jpg
+INPUT ./imgs/topwordsB.jpg
+INPUT imgs/topwordsC.jpg
+INPUT ./imgs/topwordsC.jpg
+INPUT ./imgs/topwordsC.jpg
 INPUT imgs/logitboost.jpg
 INPUT ./imgs/logitboost.jpg
 INPUT ./imgs/logitboost.jpg
