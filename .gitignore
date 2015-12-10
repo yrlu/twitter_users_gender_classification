@@ -6,3 +6,4 @@ train/*
 *.aux
 *.synctex.gz
 *.log
+*.pdf
