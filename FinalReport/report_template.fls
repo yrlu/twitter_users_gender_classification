@@ -215,14 +215,14 @@ INPUT /usr/local/texlive/2015/texmf-dist/fonts/tfm/public/cm/cmmi6.tfm
 INPUT /usr/local/texlive/2015/texmf-dist/fonts/tfm/public/cm/cmsy10.tfm
 INPUT /usr/local/texlive/2015/texmf-dist/fonts/tfm/public/cm/cmsy8.tfm
 INPUT /usr/local/texlive/2015/texmf-dist/fonts/tfm/public/cm/cmsy6.tfm
-INPUT subsections/methods_results.tex
-INPUT subsections/methods_results.tex
 INPUT /usr/local/texlive/2015/texmf-dist/fonts/tfm/public/cm/cmr12.tfm
 INPUT /usr/local/texlive/2015/texmf-dist/fonts/tfm/public/cm/cmbx12.tfm
-OUTPUT report_template.pdf
-INPUT /usr/local/texlive/2015/texmf-var/fonts/map/pdftex/updmap/pdftex.map
+INPUT subsections/methods_results.tex
+INPUT subsections/methods_results.tex
 INPUT /usr/local/texlive/2015/texmf-dist/fonts/tfm/public/cm/cmbx12.tfm
 INPUT /usr/local/texlive/2015/texmf-dist/fonts/tfm/public/cm/cmbx10.tfm
+OUTPUT report_template.pdf
+INPUT /usr/local/texlive/2015/texmf-var/fonts/map/pdftex/updmap/pdftex.map
 INPUT imgs/logitboost.jpg
 INPUT ./imgs/logitboost.jpg
 INPUT ./imgs/logitboost.jpg
@@ -231,8 +231,6 @@ INPUT ./imgs/pca_faces.jpg
 INPUT ./imgs/pca_faces.jpg
 INPUT subsections/experiment_analysis.tex
 INPUT subsections/experiment_analysis.tex
-INPUT subsections/visualization.tex
-INPUT subsections/visualization.tex
 INPUT subsections/discussion.tex
 INPUT subsections/discussion.tex
 INPUT /usr/local/texlive/2015/texmf-dist/tex/latex/base/omscmr.fd
