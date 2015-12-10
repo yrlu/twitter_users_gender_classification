@@ -229,12 +229,12 @@ INPUT ./imgs/logitboost.jpg
 INPUT imgs/pca_faces.jpg
 INPUT ./imgs/pca_faces.jpg
 INPUT ./imgs/pca_faces.jpg
-INPUT subsections/experiment_analysis.tex
-INPUT subsections/experiment_analysis.tex
 INPUT subsections/discussion.tex
 INPUT subsections/discussion.tex
 INPUT /usr/local/texlive/2015/texmf-dist/tex/latex/base/omscmr.fd
 INPUT /usr/local/texlive/2015/texmf-dist/tex/latex/base/omscmr.fd
+INPUT subsections/experiment_analysis.tex
+INPUT subsections/experiment_analysis.tex
 INPUT report_template.aux
 INPUT /usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb
 INPUT /usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb

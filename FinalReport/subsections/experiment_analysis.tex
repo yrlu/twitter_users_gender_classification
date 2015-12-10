@@ -1,12 +1,6 @@
-\section{Experiment Analysis}
-In this section, we analyze the results of our experiments of multiple methods for feature extraction, dimension reduction, and classification. 
-\subsection{Feature Selection/Extraction}
+\section{Appendix}
 
-\subsection{Dimension Reduction}
-\subsection{Classification}
-
-
-The table of approaches and their associated 5-fold cross-validation classification accuracies are shown in the Table \ref{Table 1}
+The table of single classifiers and their associated 5-fold cross-validation classification accuracies are shown in the Table \ref{Table 1}. The approaches and 5-fold cross-validation classification accuracies of the ensemble method are shown in the Table \ref{Table 2}.
 
 \begin{table}[h!]
 \centering
@@ -46,8 +40,7 @@ Row HOG features (Face/eyes & & &\\
 + Gaussian Pyramid & None &  SVM (RBF kernel) & $\approx 83\%$  \\ \hline
 HOG features (Face/eyes & & &\\
 /nose-detected Image RGB) & & & \\ 
-+ Gaussian Pyramid & & &\\
-PCA(1500) & None &  SVM (RBF kernel) & $\approx 84\%$  \\ \hline
++ Gaussian Pyramid & PCA(1500) & SVM (RBF kernel) & $\approx 84\%$  \\ \hline
 Dense LBP  & & & \\
 (Face-detected Image RGB) & None & SVM (RBF kernel) & $\approx 85\%$  \\ 
 \hline
@@ -100,7 +93,7 @@ IG(1000) on words & Logistic (W) + Neural Network (W) & \\
 and image features; & + Ensemble trees (W+I) & \\
 HOG features (Face/eyes & Logistic (HOG) + stacking (SVM) &\\
 /nose-detected Image RGB) & &  \\ 
-Gaussian Pyramid & PCA(1500) & \\
+Gaussian Pyramid + PCA(1500) & & \\
 + Dense LBP + Normalization & & $92.42\%$  \\ \hline
 \multicolumn{3}{l}{*For the classifiers: W: words; I: Image features} \\
 \multicolumn{3}{l}{*For the stacking method, we use logistic regression when not otherwise specified} \\
