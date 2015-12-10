@@ -3,3 +3,6 @@ train/*
 .DS_Store
 *.mat
 *.m~
+*.aux
+*.synctex.gz
+*.log
