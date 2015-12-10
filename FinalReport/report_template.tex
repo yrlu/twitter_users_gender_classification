@@ -4,6 +4,7 @@
 %% http://en.wikibooks.org/wiki/LaTeX/Packages
 \usepackage[latin9]{inputenc}
 \usepackage[letterpaper]{geometry}
+\usepackage{pgfplots}
 \geometry{verbose,tmargin=1in,bmargin=1in,lmargin=1in,rmargin=1in}
 
 \title{CIS 520 Project Final Report}
@@ -14,11 +15,12 @@
 \maketitle
 For the final project, we developed a system for gender prediction (male/female) from the language of their tweets and the image they post with their twitter profile. We were given a training set of 4998 labeled training samples and a testing set of 4997 testing samples. Each sample has 5000 words features, 7 pre-extracted image features and 30000 raw RGB image pixel features.\par
 In our system, we used seven classifiers on different feature sets and combined them using the stacking method.
-The six classifier are: a logistic regression model on words features, an ensemble model consists of 300 decision stump trees using LogitBoost on selected words and image features, a SVM model with intersection kernel on selected words and image features, a SVM model with intersection kernel on selected and normalized words and image features, an ANN model with 2 hidden layer each with 100 and 50 nodes, a SVM model with RBF kernel on PCA-ed HOG features on face-detected images, and a SVM model with RBF kernel on PCA-ed LBP features on face-detected images. For the stacking method, we took the raw outputs (probabilities) of the six basic models mentioned above trained with 80\% of training samples and trained a logistic regression model using the other 20\% of training sample. Our final full model achieved an overall accuracy of 92.42\%. In order to meet the time and space constraint for the competition, we dropped the SVM model on PCA-ed LBP features and replaced the SVM model on PCA-ed HOG features with one bagging of logistic regression classifiers on raw HOG features. The submitted model for final competition achieved an accuracy of 91.04\%. \par
+The seven classifier are: a logistic regression model on words features, an ensemble model consists of 300 decision stump trees using LogitBoost on selected words and image features, a SVM model with intersection kernel on selected words and image features, a SVM model with intersection kernel on selected and normalized words and image features, an ANN model with 2 hidden layers each with 100 and 50 nodes, a SVM model with RBF kernel on PCA-ed HOG features on face-detected images, and a SVM model with RBF kernel on PCA-ed LBP features on face-detected images. For the stacking method, we took the raw outputs (probabilities) from the seven basic models mentioned above trained with 80\% of training samples and trained a logistic regression model using the other 20\% of training sample. Our final full model achieved an overall accuracy of 92.42\%. In order to meet the time and space constraint for the competition, we dropped the SVM model on PCA-ed LBP features and replaced the SVM model on PCA-ed HOG features with one bagging of logistic regression classifiers on raw HOG features. The submitted model for final competition achieved an accuracy of 91.04\%. \par
 In the following sections, we present the cross-validation accuracies of each methods we tried and discuss the rationale of our final model. We also provide some interesting visualization such as the most predictive words and the visualization of auto-encoder.  
 
 
 \input{subsections/methods_results.tex}
 \input{subsections/experiment_analysis.tex}
 \input{subsections/visualization.tex}
+\input{subsections/discussion.tex}
 \end{document}

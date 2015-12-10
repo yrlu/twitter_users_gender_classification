@@ -12,8 +12,8 @@ The table of approaches and their associated 5-fold cross-validation classificat
 \centering
 \begin{tabular*}{\textwidth}{c @{\extracolsep{\fill}}ccc}
 \hline
-\multicolumn{3}{c}{Approach} \\
-\cline{1-3}
+& \multicolumn{2}{c}{Approach}\\
+\cline{2-3}
 Feature & Dimension Reduction & Classifier & Accuracy (\%) \\
 \hline
 \hline 
@@ -33,18 +33,23 @@ Words & IG(95) & Random Forest & $83.32\%$ \\ \hline
 Words & None & K-means & $ \approx 60\%$\\ \hline
 Words & IG(1000) & Decision stumps + LogitBoost& $89.11\%$\\ \hline
 Face-detected Image RGB & PCA(100) & Random Forest & $\approx 69\%$ \\ \hline
-Raw HOG features over & None & Logistic Regression &  $\approx 80\%$ \\
-Face-detected Image RGB &  &  &  \\  \hline
-Raw HOG features (Face/eyes/ & Logistic Regression & None & $\approx 81\%$ \\ 
-nose-detected Image RGB) &  &  &  \\ \hline
-Raw HOG features (Face/eyes & None & Logistic Regression & $\approx 82\%$ \\ 
-/nose-detected Image RGB) &  &  &  \\ 
-+ Gaussian Pyramid &  &  &  \\ \hline
-Raw HOG features (Face/eyes & None &  SVM (RBF kernel) & $\approx 84\%$ \\
+Face-detected Image RGB & Auto-encoder(100) & Logistic Regression & $75.17\%$ \\ \hline
+Raw HOG features over &  &  &\\
+Face-detected Image RGB & None & Logistic Regression &  $\approx 80\%$  \\  \hline
+Raw HOG features (Face/eyes/ & & & \\ 
+nose-detected Image RGB) & None & Logistic Regression & $\approx 81\%$ \\ \hline
+Raw HOG features (Face/eyes & & & \\ 
+/nose-detected Image RGB) & & &\\ 
++ Gaussian Pyramid & None & Logistic Regression & $\approx 82\%$  \\ \hline
+Row HOG features (Face/eyes & & &\\
 /nose-detected Image RGB) & & & \\ 
-+ Gaussian Pyramid &  &  &  \\ \hline
-Dense LBP  & None & SVM (RBF kernel) & $\approx 85\%$ \\
-(Face-detected Image RGB) & & & \\
++ Gaussian Pyramid & None &  SVM (RBF kernel) & $\approx 83\%$  \\ \hline
+HOG features (Face/eyes & & &\\
+/nose-detected Image RGB) & & & \\ 
++ Gaussian Pyramid & & &\\
+PCA(1500) & None &  SVM (RBF kernel) & $\approx 84\%$  \\ \hline
+Dense LBP  & & & \\
+(Face-detected Image RGB) & None & SVM (RBF kernel) & $\approx 85\%$  \\ 
 \hline
 \multicolumn{4}{l}{*IG represents Information Gain} \\
 \hline
@@ -55,17 +60,51 @@ Dense LBP  & None & SVM (RBF kernel) & $\approx 85\%$ \\
 
 \begin{table}[h!]
 \centering
-\begin{tabular}{ c c c c}
+\begin{tabular}{ c c c}
 \hline
 \multicolumn{3}{c}{Approach} \\
-\cline{1-3}
-Feature & Preprocessing & Classifier & Cross-Validation Accuracy (\%) \\
+\cline{1-2}
+Preprocessing & Classifier & Accuracy (\%) \\
 \hline
-Words + Image features & IG(1000) for trees & Logistic + Neural Network + Ensemble trees + stacking & $91.11\%$. \\
-Words + Image features & IG(1000) for trees & Logistic + Neural Network + Ensemble trees + cascading & $89.04\%$. \\
-Words + Image features + Image RGB & IG(1000); Face detection + PCA(100) & Logistic + Neural Network + Ensemble trees + Logistic over PCA-ed RGB + stacking & $\approx 90.37\%$ \\
-Words + Image features + Image RGB & IG(1000); face-HOG & Logistic + Neural Network + Ensemble trees + Logistic over HOG + stacking & $\approx 91.55\%$ \\
-Words + Image features + Image RGB & IG(1000); face/eyes/nose-HOG & Logistic + Neural Network + Ensemble trees + Logistic over HOG + stacking & $\approx 91.74\%$. 
+\hline
+\multicolumn{3}{l}{\textbf{Features: Words + Image features}} \\
+IG(1000) on words & Logistic (W) + Neural Network (W) & \\
+and image features  & + Ensemble trees (W+I) + stacking & $91.11\%$ \\ \hline
+IG(1000) on words & Logistic (W) + Neural Network (W) &  \\
+and image features  & + Ensemble trees (W+I) + cascading & $89.04\%$ \\ \hline
+\multicolumn{3}{l}{\textbf{Features: Words + Image features + Image RGB}} \\
+\hline
+IG(1000) on words & Logistic (W) + Neural Network (W) & \\ 
+and image features; & + Ensemble trees (W+I) + Logistic (PCA-ed RGB) & \\
+Face-detected image RGB PCA(100) & + stacking & $ 90.37\%$ \\ \hline 
+IG(1000) on words & Logistic (W) + Neural Network (W) & \\ 
+and image features; & + Ensemble trees (W+I) & \\
+Face-detected image HOG features & Logistic (HOG) + stacking & $ 91.55\%$ \\ \hline
+IG(1000) on words & Logistic (W) + Neural Network (W) & \\ 
+and image features; & + Ensemble trees (W+I)+ Logistic (HOG) & \\
+Face/eyes/nose-detected & + stacking & \\
+image HOG features & & $ 91.74\%$ \\
+\hline
+IG(1000) on words & Logistic (W) + Neural Network (W) & \\ 
+and image features; & + Ensemble trees (W+I) & \\
+HOG features (Face/eyes & Logistic (HOG) + stacking &\\
+/nose-detected Image RGB) & &  \\ 
+Gaussian Pyramid & & $91.9\%$  \\ \hline
+IG(1000) on words & Logistic (W) + Neural Network (W) & \\ 
+and image features; & + Ensemble trees (W+I) & \\
+HOG features (Face/eyes & Logistic (HOG) + stacking (SVM) &\\
+/nose-detected Image RGB) & &  \\ 
+Gaussian Pyramid + PCA(1500) & & \\
+Normalization & & $92.3\%$  \\ \hline
+IG(1000) on words & Logistic (W) + Neural Network (W) & \\ 
+and image features; & + Ensemble trees (W+I) & \\
+HOG features (Face/eyes & Logistic (HOG) + stacking (SVM) &\\
+/nose-detected Image RGB) & &  \\ 
+Gaussian Pyramid + PCA(1500) & & \\
++ Dense LBP + Normalization & & $92.42\%$  \\ \hline
+\multicolumn{3}{l}{*For the classifiers: W: words; I: Image features} \\
+\multicolumn{3}{l}{*For the stacking method, we use logistic regression if not specified} \\
+\hline
 \end{tabular}
 \caption{Experimental results of ensemble classifiers}
 \label{Table 2}

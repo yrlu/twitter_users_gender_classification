@@ -1,2 +1,29 @@
 \section{Visualization}
+\newpage
 In this section, we include some interesting visualization obtained during the process of analyzing data, training, tuning, and testing our models. 
+
+
+\begin{tikzpicture}
+  \begin{axis}[
+  		width=0.8\textwidth,
+      	height=0.6\textwidth,
+		xlabel={Days},
+		ylabel= Accuracy(\%),
+      	xmin= 0,
+      	xmax= 18,
+      	ymin=81,
+      	ymax=93],
+	\addplot[color=blue,mark=*] coordinates {
+		(1,79)
+		(2,85)
+		(3,86.57)
+		(4,86.57)
+		(5,89.11)
+		(6,90.11)
+		(11,91.74)
+		(12,91.9)		
+		(15,92.3)
+		(17,92.42)
+	};
+	\end{axis}
+\end{tikzpicture}
