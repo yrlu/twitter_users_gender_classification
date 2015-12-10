@@ -1,5 +1,6 @@
 # Fdb version 3
-["pdflatex"] 1449734855 "report_template.tex" "report_template.pdf" "report_template" 1449734856
+["pdflatex"] 1449735372 "report_template.tex" "report_template.pdf" "report_template" 1449735373
+  "./imgs/logitboost.jpg" 1449735261 93754 8bb3d8b80c9075599b60a81af141bd4b ""
   "./imgs/pca_faces.jpg" 1449728908 101478 e560ee66f0cc5e5bafba933a77f75fcb ""
   "/usr/local/texlive/2015/texmf-dist/fonts/map/fontname/texfonts.map" 1272929888 3287 e6b82fe08f5336d4d5ebc73fb1152e87 ""
   "/usr/local/texlive/2015/texmf-dist/fonts/tfm/public/cm/cmbx10.tfm" 1136768653 1328 c834bbb027764024c09d3d2bf908b5f0 ""
@@ -158,14 +159,15 @@
   "/usr/local/texlive/2015/texmf-var/fonts/map/pdftex/updmap/pdftex.map" 1432479641 1764542 91654ba72bdb667e84ea24f076ae16d8 ""
   "/usr/local/texlive/2015/texmf-var/web2c/pdftex/pdflatex.fmt" 1432479681 3849859 39a7d258195bde2394e244961601fbc5 ""
   "/usr/local/texlive/2015/texmf.cnf" 1432479636 577 0d611272082f3cdb8e80e09a3c69cf07 ""
+  "imgs/logitboost.jpg" 1449735261 93754 8bb3d8b80c9075599b60a81af141bd4b ""
   "imgs/pca_faces.jpg" 1449728908 101478 e560ee66f0cc5e5bafba933a77f75fcb ""
-  "report_template.aux" 1449734856 3446 8bdfcea92f4d494df31df7bcc3a9ca8c ""
+  "report_template.aux" 1449735372 3491 c632942490f4c0e88f90c161b33921f0 ""
   "report_template.tex" 1449734855 3392 bd6a273c2b21d53ebb7ea6f78df41737 ""
   "subsections/discussion.tex" 1449726940 511 cddf6ced7cf7994f4e65bcb1ef17e2cc ""
   "subsections/experiment_analysis.tex" 1449726963 5054 79d355c939f4b1420b20efdfbeb9e577 ""
-  "subsections/methods_results.tex" 1449728908 5759 29a1fcc7003a0b6d90fe0bad9c3542e9 ""
+  "subsections/methods_results.tex" 1449735370 7248 723482f3d885411cf77b1498beb2b2ee ""
   "subsections/visualization.tex" 1449729964 183 5653dd2dc5d2de9fbae3d526e558c895 ""
   (generated)
-  "report_template.log"
   "report_template.pdf"
   "report_template.aux"
+  "report_template.log"

@@ -18,7 +18,17 @@ words visualization
 \subsubsection{Logistic Regression on Raw Features}
 \subsubsection{Naive Bayes}
 \subsubsection{Neural Network}
-\subsubsection{LogitBoost}
+\subsubsection{LogitBoost and Feature Selection Using Information Gain}
+ We want to use both words features and image features in order to enhance our accuracy, but we don't know which feature is most informative; therefore, we ranks all words and image features together using information gain and select the top features (In fact, by computing the information gain of image features, we found image feature 1 2 5 6 and 7 have roughly 0 information gain, but of course this does not mean all image features are useless).\\
+On the other hand, Logitboost can be seen as a convex optimization which combines Adaboost with the cost function of logistic regression. We experiments with Logitboost based on the following considerations.\\
+1. Words and the seven image features have different scales, we need a model that is scale invariant; boosting with decision stump trees in this case is a great choice.\\
+2. The cost function using logistic regression is suitable for binary classification, it is a convex problem and minimizes the binomial deviance and gives less weights to misclassified observations.\\
+By selecting the top 1000 features ranked by information gain and using 330 decision stump trees, we achieved an accuracy of 89.11 percent on the testing set.\\
+In our final submission, this model also serves as a major classifier that contributes to our ensemble method.\\
+Below is the cross validation accuracy plots (over 8 folds):\\
+\begin{center}
+\includegraphics[scale=0.25]{logitboost.jpg}
+\end{center}
 \subsubsection{Kernel SVM}
 \subsection{Classification on Image Features}
 \subsubsection{Grey-scale Images}
