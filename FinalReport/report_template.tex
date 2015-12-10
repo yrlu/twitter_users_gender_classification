@@ -9,16 +9,48 @@
 \graphicspath{ {imgs/} }
 \geometry{verbose,tmargin=1in,bmargin=1in,lmargin=1in,rmargin=1in}
 
-\title{CIS 520 Project Final Report}
+\title{CIS 520 Project Final Report: Twitter Gender Classification}
 \author{Woodpecker (Xiang Deng, Yiren Lu, Dongni Wang)}
 \date{Fall 2015}
 
 \begin{document}
 \maketitle
-For the final project, we developed a system for gender prediction (male/female) from the language of their tweets and the image they post with their twitter profile. We were given a training set of 4998 labeled training samples and a testing set of 4997 testing samples. Each sample has 5000 words features, 7 pre-extracted image features and 30000 raw RGB image pixel features.\par
+For the final project, we developed a system for gender prediction (male/female) from the language of their tweets and their profile images. We were given a training set of 4998 labeled training samples and a testing set of 4997 testing samples. Each sample has 5000 words features, 7 pre-extracted image features and 30000 raw RGB image pixel features. The time constraint for initializing the model(s) is 3 minutes, for final prediction is 10 minutes for 5,000 test samples and the submission size is limited to 50 Mb in the final checkpoint competition. Our submitted model for the final competition achieved an accuracy of 91.04\% on the validation set, ranked $6^th$ in a total of 50 2-3 people teams. \par
 In our system, we used seven classifiers on different feature sets and combined them using the stacking method.
-The seven classifier are: a logistic regression model on words features, an ensemble model consists of 300 decision stump trees using LogitBoost on selected words and image features, a SVM model with intersection kernel on selected words and image features, a SVM model with intersection kernel on selected and normalized words and image features, an ANN model with 2 hidden layers each with 100 and 50 nodes, a SVM model with RBF kernel on PCA-ed HOG features on face-detected images, and a SVM model with RBF kernel on PCA-ed LBP features on face-detected images. For the stacking method, we took the raw outputs (probabilities) from the seven basic models mentioned above trained with 80\% of training samples and trained a logistic regression model using the other 20\% of training sample. Our final full model achieved an overall accuracy of 92.42\%. In order to meet the time and space constraint for the competition, we dropped the SVM model on PCA-ed LBP features and replaced the SVM model on PCA-ed HOG features with one bagging of logistic regression classifiers on raw HOG features. The submitted model for final competition achieved an accuracy of 91.04\%. \par
+The seven classifier are: a logistic regression model on words features, an ensemble model consists of 300 decision stump trees using LogitBoost on selected words and image features, a SVM model with intersection kernel on selected words and image features, a SVM model with intersection kernel on selected and normalized words and image features, an ANN model with 2 hidden layers each with 100 and 50 nodes, a SVM model with RBF kernel on PCA-ed HOG features on face-detected images, and a SVM model with RBF kernel on PCA-ed LBP features on face-detected images. For the stacking method, we took the raw outputs (probabilities) from the seven basic models mentioned above trained with 80\% of training samples and trained a logistic regression model using the other 20\% of training sample. Our final full model achieved an overall accuracy of 92.42\% on testing set. \par
+ In order to meet the time and space constraint for the competition, we dropped the SVM model on PCA-ed LBP features and replaced the SVM model on PCA-ed HOG features with one bagging of logistic regression classifiers on raw HOG features. \par
 In the following sections, we present the cross-validation accuracies of each methods we tried and discuss the rationale of our final model. We also provide some interesting visualization such as the most predictive words and the visualization of auto-encoder.  
+
+\begin{center}
+\begin{tikzpicture}
+  \begin{axis}[
+  		width=0.68\textwidth,
+      	height=0.5\textwidth,
+		xlabel={Days},
+		ylabel= Accuracy(\%),
+      	xmin= 0,
+      	xmax= 18,
+      	ymin=81,
+      	ymax=93],
+	\addplot[color=red,mark=*] coordinates {
+		(1,79)
+		(2,85)
+		(3,86.57)
+		(4,86.57)
+		(5,89.11)
+		(6,90.11)
+		(11,91.74)
+		(12,91.9)		
+		(15,92.3)
+		(17,92.42)
+	};
+	\addplot[color=blue,mark=x]{86};
+	\addplot[mark=x]{88};
+
+\legend{Woodpecker,Baseline 1, Baseline 2}
+	\end{axis}
+\end{tikzpicture}
+\end{center}
 
 
 \input{subsections/methods_results.tex}

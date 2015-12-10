@@ -1,5 +1,5 @@
 # Fdb version 3
-["pdflatex"] 1449729195 "report_template.tex" "report_template.pdf" "report_template" 1449729195
+["pdflatex"] 1449734855 "report_template.tex" "report_template.pdf" "report_template" 1449734856
   "./imgs/pca_faces.jpg" 1449728908 101478 e560ee66f0cc5e5bafba933a77f75fcb ""
   "/usr/local/texlive/2015/texmf-dist/fonts/map/fontname/texfonts.map" 1272929888 3287 e6b82fe08f5336d4d5ebc73fb1152e87 ""
   "/usr/local/texlive/2015/texmf-dist/fonts/tfm/public/cm/cmbx10.tfm" 1136768653 1328 c834bbb027764024c09d3d2bf908b5f0 ""
@@ -17,6 +17,7 @@
   "/usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb" 1248133631 34811 78b52f49e893bcba91bd7581cdc144c0 ""
   "/usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb" 1248133631 32080 340ef9bf63678554ee606688e7b5339d ""
   "/usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb" 1248133631 36299 5f9df58c2139e7edcf37c8fca4bd384d ""
+  "/usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb" 1248133631 36281 c355509802a035cadc5f15869451dcee ""
   "/usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb" 1248133631 35752 024fb6c41858982481f6968b5fc26508 ""
   "/usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb" 1248133631 32722 d7379af29a190c3f453aba36302ff5a9 ""
   "/usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb" 1248133631 32362 179c33bbf43f19adbb3825bb4e36e57a ""
@@ -158,13 +159,13 @@
   "/usr/local/texlive/2015/texmf-var/web2c/pdftex/pdflatex.fmt" 1432479681 3849859 39a7d258195bde2394e244961601fbc5 ""
   "/usr/local/texlive/2015/texmf.cnf" 1432479636 577 0d611272082f3cdb8e80e09a3c69cf07 ""
   "imgs/pca_faces.jpg" 1449728908 101478 e560ee66f0cc5e5bafba933a77f75fcb ""
-  "report_template.aux" 1449729183 3446 b5a15da648d1ec169ca8fb4f20ae494c ""
-  "report_template.tex" 1449728908 2635 f8fe2d307f54aab34b22d4cf69047260 ""
+  "report_template.aux" 1449734856 3446 8bdfcea92f4d494df31df7bcc3a9ca8c ""
+  "report_template.tex" 1449734855 3392 bd6a273c2b21d53ebb7ea6f78df41737 ""
   "subsections/discussion.tex" 1449726940 511 cddf6ced7cf7994f4e65bcb1ef17e2cc ""
   "subsections/experiment_analysis.tex" 1449726963 5054 79d355c939f4b1420b20efdfbeb9e577 ""
   "subsections/methods_results.tex" 1449728908 5759 29a1fcc7003a0b6d90fe0bad9c3542e9 ""
-  "subsections/visualization.tex" 1449729182 574 37b7ced98e8d1c1c98673de435a7e3e3 ""
+  "subsections/visualization.tex" 1449729964 183 5653dd2dc5d2de9fbae3d526e558c895 ""
   (generated)
+  "report_template.log"
   "report_template.pdf"
   "report_template.aux"
-  "report_template.log"
