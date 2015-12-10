@@ -14,7 +14,7 @@ function prepare_data()
 
 if(exist('train/genders_train.mat','file') ~= 2) %check one instance (batch)
 % Training data
-genders_train= dlmread('train/genders_train.txt');
+genders_train= 77('train/genders_train.txt');
 images_train = dlmread('train/images_train.txt');
 image_features_train = dlmread('train/image_features_train.txt');
 words_train = dlmread('train/words_train.txt');
