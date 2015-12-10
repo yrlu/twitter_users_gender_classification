@@ -1,23 +1,22 @@
 \section{Methods}
-In this section, we report the results of multiple methods we tried for feature extraction, dimension reduction, and classification. 
+In this section, we briefly describe the selected methods of feature extraction, dimension reduction, and classification on both words features and images that we have experimented and present the results. 
 
 \subsection{Data Preprocessing}
 \subsubsection{Stemming and Stop Words}
 Conclusion: Did not work!
 
-\subsection{Feature Selection}
+\subsection{Feature Selection/Dimension Reduction}
 To extract features from the raw word and image features, we experimented with multiple feature selection methods, including Information Gain, BNS
 \subsubsection{Information Gain Over Words Features}
 words visualization
-\subsection{Dimension Reduction}
 \subsubsection{PCA}
-
+We used PCA on both words and images feature. In this project, we found that PCA works relatively well on image features but not as good on words features. The details will be discussed with the following methods.
 \subsection{Classification on Words Features and Extracted Image Features}
-\subsubsection{Linear Regression (L2 Regularization) + Sigmoid}
 \subsubsection{Logistic Regression + PCA}
 \subsubsection{Logistic Regression on Raw Features}
 \subsubsection{Naive Bayes}
 \subsubsection{Neural Network}
+We used 4 layers neural network (5000-100-50-2). We trained neural network 200 epochs with decreasing learning rate. For every 50 epochs, we decrease the learning rate to one-tenth of the last. The neural network produced around 86\% accuracy on words features. Training neural network written in matlab was really time consuming. Although deep learning prevails these days, it is not suitable for this competition with restricted time and space using matlab provided relatively small dataset. 
 \subsubsection{LogitBoost and Feature Selection Using Information Gain}
  We want to use both words features and image features in order to enhance our accuracy, but we don't know which feature is most informative; therefore, we ranks all words and image features together using information gain and select the top features (In fact, by computing the information gain of image features, we found image feature 1 2 5 6 and 7 have roughly 0 information gain, but of course this does not mean all image features are useless).\\
 On the other hand, Logitboost can be seen as a convex optimization which combines Adaboost with the cost function of logistic regression. We experiments with Logitboost based on the following considerations.\\
@@ -47,7 +46,7 @@ We then replaced the logistic regression classifier with a more powerful RBF ker
 \subsubsection{SVM on PCA-ed Dense LBP Features}
 LBP works complementary with HOG features, we extracted spatial pyramid LBP features (15871 features) on detected faces. And trained a SVM classifier over 2000 principal components of the LBP features. This model achieved 85\% accuracy on detected faces. We integrated this model to the ensemble yielded our highest accuracy on the leaderboard of 92.42\% on test set.
 \subsubsection{Bagging Logistic Regression on Raw HOG Features}
-To meet the time and space constraints of the competition, we dropped LBP model and and replaced the SVM model with bagging logistic regression. Because the basis of PCs took 130m, which was too large for 50m space constraint, we didn't do PCA in the final submission either. Instead we used a bagging logistic regression with 6 logistic regression  models. The final model produced 91.04\% accuracy on validation set.
+To meet the time and space constraints of the competition, we dropped LBP model and and replaced the SVM model with bagging logistic regression. Because the basis of PCs took 130Mb, which was too large for 50m space constraint, we didn't do PCA in the final submission either. Instead we used a bagging logistic regression with 6 logistic regression  models. The final model produced 91.04\% accuracy on validation set.
 \subsubsection{Auto-encoder}
 \subsection{Ensemble Methods}
 \subsubsection{Stacking}
