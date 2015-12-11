@@ -40,7 +40,8 @@ Row HOG features (Face/eyes & & &\\
 + Gaussian Pyramid & None &  SVM (RBF kernel) & $\approx 83\%$  \\ \hline
 HOG features (Face/eyes & & &\\
 /nose-detected Image RGB) & & & \\ 
-+ Gaussian Pyramid & PCA(1500) & SVM (RBF kernel) & $\approx 84\%$  \\ \hline
++ Gaussian Pyramid & & &\\
+PCA(1500) & None &  SVM (RBF kernel) & $\approx 84\%$  \\ \hline
 Dense LBP  & & & \\
 (Face-detected Image RGB) & None & SVM (RBF kernel) & $\approx 85\%$  \\ 
 \hline
@@ -96,7 +97,7 @@ HOG features (Face/eyes & Logistic (HOG) + stacking (SVM) &\\
 Gaussian Pyramid + PCA(1500) & & \\
 + Dense LBP + Normalization & & $92.42\%$  \\ \hline
 \multicolumn{3}{l}{*For the classifiers: W: words; I: Image features} \\
-\multicolumn{3}{l}{*For the stacking method, we use logistic regression when not otherwise specified} \\
+\multicolumn{3}{l}{*For the stacking method, we use logistic regression if not specified} \\
 \hline
 \end{tabular}
 \caption{Experimental results of ensemble classifiers}
@@ -104,3 +105,28 @@ Gaussian Pyramid + PCA(1500) & & \\
 \end{table}
 
 
+
+\begin{thebibliography}{9}
+
+\bibitem{liblinear}
+  Rong-En Fan and Kai-Wei Chang and Cho-Jui Hsieh and Xiang-Rui Wang and Chih-Jen Lin,
+  \emph{{LIBLINEAR}: A Library for Large Linear Classification},
+  Journal of Machine Learning Research 9 (2008), 1871--1874.
+\bibitem{libsvm}
+    Chang, Chih-Chung and Lin, Chih-Jen, 
+    \emph{{LIBSVM}: A library for support vector machines},
+    ACM Transactions on Intelligent Systems and Technology, 2:27:1--27:27, 2011.
+\bibitem{dltoolbox}
+    R. B. Palm,
+    \emph{Prediction as a candidate for learning deep hierarchical models of data},
+    2012.
+\bibitem{boosting}
+    Elkan, Charles,
+    \emph{Boosting and naive Bayesian learning},
+    {Technical Report CS97-557, University of California, San Diego}, 1997.
+\bibitem{bagging}
+    Oza, Nikunj C,
+    \emph{Online bagging and boosting},
+    Systems, man and cybernetics, 2005 IEEE international conference, 3:2340 -- 3:2345, IEEE, 2005.
+
+\end{thebibliography}

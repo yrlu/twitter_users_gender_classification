@@ -4,23 +4,22 @@
 %% http://en.wikibooks.org/wiki/LaTeX/Packages
 \usepackage[latin9]{inputenc}
 \usepackage[letterpaper]{geometry}
-\usepackage{pgfplots}
 \usepackage{graphicx}
+\usepackage{pgfplots}
+\usepackage{multicol}
 \graphicspath{ {imgs/} }
 \geometry{verbose,tmargin=1in,bmargin=1in,lmargin=1in,rmargin=1in}
 
-\title{CIS 520 Project Final Report: Twitter Gender Classification}
+\title{CIS 520 Project Final Report}
 \author{Woodpecker (Xiang Deng, Yiren Lu, Dongni Wang)}
 \date{Fall 2015}
 
 \begin{document}
 \maketitle
 \section{Project Overview}
-\indent \indent For the final project, we developed a system for twitter users\'s gender prediction (male/female) from the language of their tweets and their profile images. We were given a training set of 4998 labeled training samples, each has 5000 word features, 7 pre-extracted image features and 30000 raw RGB image pixel features.The time constraint for the final model(s) initialization and prediction is 3 minutes and 10 minutes, respectively, for the 5,000 test samples. Also, The submission size is limited to 50 Mb in the final checkpoint/ competition. Our submitted model for the final competition achieved an accuracy of 91.04\% on the validation set, ranked $6^{th}$ in a total of 50 2-3 people teams. \par
-In our full system, we used seven classifiers on different feature sets and combined them using the stacking method.
-The seven classifier are: a logistic regression model on words features, an ensemble model consists of 300 decision stump trees using LogitBoost on selected words and image features, a SVM model with intersection kernel on selected words and image features, a SVM model with intersection kernel on selected and normalized words and image features, an ANN model with 2 hidden layers each with 100 and 50 nodes on words features, a SVM model with RBF kernel on PCA-ed HOG features on face-detected images, and a SVM model with RBF kernel on PCA-ed LBP features on face-detected images. For the stacking method, we took the raw outputs (probabilities) from the seven basic models mentioned above trained with 80\% of training samples and trained a logistic regression model using the other 20\% of training sample. Our final full model achieved an overall accuracy of 92.42\% on testing set. \par
-In order to meet the time and space constraint for the competition, we dropped the SVM model on PCA-ed LBP features and replaced the SVM model on PCA-ed HOG features with one bagging of logistic regression classifiers on raw HOG features. \par
-In the following sections, we present the cross-validation accuracies of each method we tried and discuss the rationale of our final model. We also provide some interesting visualization such as the most predictive words and eigenfaces. 
+\indent \indent In CIS 520 machine learing course final project, we developed a system for twitter users'  gender prediction (male/female) based on their tweets and profile images. We were provided with a training set of 4998 labeled training samples, each has 5000 word features, 7 pre-extracted image features and 30000 raw RGB image pixel features. The time constraint for the final model(s) initialization and prediction is 3 minutes and 10 minutes, respectively, for 5,000 test samples. Also, The submission size is limited to 50 Mb in the final checkpoint. Our full system, including 7 models on different feature sets achieved 92.42\% on test set. Our submitted model for the final competition, including 5 models, achieved an accuracy of  91.04\% on the validation set, ranked $6^{th}$ in a total of 60 teams. \par
+\par
+In the following sections, we present the cross-validation accuracies of each method we tried and discuss the rationale of our models. We also provide some interesting visualization such as the most predictive words and eigenfaces. 
 
 
 \begin{figure}[h!]
@@ -53,7 +52,7 @@ In the following sections, we present the cross-validation accuracies of each me
 \legend{Woodpecker,Baseline 1, Baseline 2}
 \end{axis}
 \end{tikzpicture}
-\caption{The progress plot for Woodpecker}
+\caption{A plotting for Woodpecker's progress}
 \label{ProcessPlot}
 \end{center}
 \end{figure}
