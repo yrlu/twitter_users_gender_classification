@@ -20,7 +20,7 @@
 \contentsline {subsubsection}{\numberline {1.4.2}Normalization}{6}
 \contentsline {subsection}{\numberline {1.5}Final Submission}{6}
 \contentsline {subsubsection}{\numberline {1.5.1}LogitBoost and Feature Selection Using Information Gain}{6}
-\contentsline {subsubsection}{\numberline {1.5.2}Kernel SVM for Ensemble}{7}
-\contentsline {subsubsection}{\numberline {1.5.3}Bagging Logistic Regression on Raw HOG Features}{8}
-\contentsline {section}{\numberline {2}Discussion}{9}
-\contentsline {section}{\numberline {3}Appendix}{9}
+\contentsline {subsubsection}{\numberline {1.5.2}Kernel SVM for Ensemble}{6}
+\contentsline {subsubsection}{\numberline {1.5.3}Bagging Logistic Regression on Raw HOG Features}{7}
+\contentsline {section}{\numberline {2}Discussion}{8}
+\contentsline {section}{\numberline {3}Appendix}{8}
