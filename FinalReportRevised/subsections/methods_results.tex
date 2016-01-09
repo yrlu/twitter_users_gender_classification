@@ -89,7 +89,7 @@ In our final submission, we selected the top 1000 features ranked by information
 The major motivation for introducing the Kernel SVM on words is to enhance our final ensemble accuracy. In order to do that, first we need to understand the contribution of each individual classifier to the ensemble. Below is the bar chart demonstration: (note when the ensembler only receives a single input, the outputs from Log-reg on words, our ensembler simply gives the predictions from the Log-reg classifier)\\
 \begin{figure}
 \includegraphics[scale=0.40]{ens_add_accB.jpg}
-\caption{Cross-validation accuracy of the log ensembler after adding 1. Logistic Regression + LogitBoost 2.Neural Network 3.SVM+PCA-HOG 4.Kernel SVM 5.Kernel SVM-normalized}
+\caption{Cross-validation accuracy of the log ensembler after adding 1.Logistic Regression + LogitBoost 2.Neural Network 3.SVM+PCA-HOG 4.Kernel SVM 5.Kernel SVM-normalized}
 \label{finalmodels}
 \end{figure}
 \noindent For our kernel SVM on words and image features, the Intersection Kernel is used for investigating the interactions between features (which we haven't done in the former models), and feature intersection might be a good way to obtain information about feature interactions.\\
