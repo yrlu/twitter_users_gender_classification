@@ -1,0 +1,26 @@
+\contentsline {section}{\numberline {1}Methods}{3}
+\contentsline {subsection}{\numberline {1.1}Dimensionality Reduction}{3}
+\contentsline {subsubsection}{\numberline {1.1.1}Feature Selection Using Information Gain and Bi-normal Separation}{3}
+\contentsline {subsubsection}{\numberline {1.1.2}PCA}{4}
+\contentsline {subsection}{\numberline {1.2}Classification on Tweets}{4}
+\contentsline {subsubsection}{\numberline {1.2.1}Logistic Regression on Raw Words and Extracted Image Features}{4}
+\contentsline {subsubsection}{\numberline {1.2.2}Neural Network}{4}
+\contentsline {subsubsection}{\numberline {1.2.3}Logitboost with Stump Trees}{4}
+\contentsline {subsubsection}{\numberline {1.2.4}SVM with Intersection Kernel}{4}
+\contentsline {subsection}{\numberline {1.3}Images Features Extraction and Classification}{4}
+\contentsline {subsubsection}{\numberline {1.3.1}Grey-scale Images}{4}
+\contentsline {subsubsection}{\numberline {1.3.2}Face Detection with Viola-Jones Algorithm}{4}
+\contentsline {subsubsection}{\numberline {1.3.3}Logistic Regression with Eigen Faces}{5}
+\contentsline {subsubsection}{\numberline {1.3.4}HOG Features, Gaussian Pyramid, Eyes and Nose}{5}
+\contentsline {subsubsection}{\numberline {1.3.5}SVM on PCA-ed HOG Features}{5}
+\contentsline {subsubsection}{\numberline {1.3.6}SVM on PCA-ed Dense LBP Features}{5}
+\contentsline {subsubsection}{\numberline {1.3.7}Auto-encoder}{5}
+\contentsline {subsection}{\numberline {1.4}Ensemble Methods}{6}
+\contentsline {subsubsection}{\numberline {1.4.1}Stacking}{6}
+\contentsline {subsubsection}{\numberline {1.4.2}Normalization}{6}
+\contentsline {subsection}{\numberline {1.5}Final Submission}{6}
+\contentsline {subsubsection}{\numberline {1.5.1}LogitBoost and Feature Selection Using Information Gain}{6}
+\contentsline {subsubsection}{\numberline {1.5.2}Kernel SVM for Ensemble}{7}
+\contentsline {subsubsection}{\numberline {1.5.3}Bagging Logistic Regression on Raw HOG Features}{8}
+\contentsline {section}{\numberline {2}Discussion}{9}
+\contentsline {section}{\numberline {3}Appendix}{9}
