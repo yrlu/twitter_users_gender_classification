@@ -1,7 +1,8 @@
-# TwitterGenderClassification
-92% prediction accuracy.
+# Twitter Users Gender Classification
 
-Please check [FinalReportRevised/report](FinalReportRevised/report.pdf)
+University of Pennsylvania fall 2015 CIS 520 Machine Learning course project. Achieved 92% gender prediction accuracy on twitter users' tweets and profile pictures.
+
+Detailed report: [FinalReportRevised/report](FinalReportRevised/report.pdf)
 
 Our team "Woodpecker" ranked 6th on [leaderboard](http://www.seas.upenn.edu/~cis520/fall15/leaderboard.html)
 
