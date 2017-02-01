@@ -2,9 +2,18 @@
 
 University of Pennsylvania fall 2015 CIS 520 Machine Learning course project. Achieved 92% gender prediction accuracy on twitter users' tweets and profile pictures.
 
-Detailed report: [FinalReportRevised/report](FinalReportRevised/report.pdf)
+- Detailed report can be found at: [FinalReportRevised/report.pdf](FinalReportRevised/report.pdf)
+- Project submission readme page: [proj_submitB/README.txt](proj_submitB/README.txt)
+- Our team "Woodpecker" ranked 6th on [leaderboard](http://www.seas.upenn.edu/~cis520/fall15/leaderboard.html)
 
-Our team "Woodpecker" ranked 6th on [leaderboard](http://www.seas.upenn.edu/~cis520/fall15/leaderboard.html)
+
+Feb 01 2017 update:
+
+- Repo cleaned up. Codes moved to `code/`.
+
+
+
+
 
 ## Visualizations:
 
