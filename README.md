@@ -34,4 +34,4 @@ Our team "Woodpecker" ranked 6th on [leaderboard](http://www.seas.upenn.edu/~cis
 
 - Cross-validation accuracies:
 
-<img style="float: left;" src="FinalReportRevised/imgs/ens_add_accB.jpg">
+<img style="float: left;" src="FinalReportRevised/imgs/ens_add_acc.jpg">
